@@ -563,6 +563,13 @@ class Game():
 
         pygame.display.update()
 
+    def resign(self):
+        self.gameover = True
+        if self.white_turn:
+            self.black_won = True
+        else:
+            self.white_won = True
+
     def is_checkmate(self):
         # If w/b turn and w/b king is in check and number of legal moves is 0 return true 
         if self.white_turn and len(self.current_legal_moves)==0 and self.board.white_king_is_in_check():
@@ -995,7 +1002,7 @@ class Game():
     def handle_new_successfully_made_move(self, move):
     # If a new move has been made update current_legal_moves and check for gameover etc...
         self.selected_square = None     # Unselect square
-        self.white_turn = not new_game.white_turn   # Flip turn
+        self.white_turn = not self.white_turn   # Flip turn
         self.previous_move = move  # Update previous move
         board_string = self.board.board_to_string()  # Add to board states for 3fold repetition rule
         self.move_number += 1       # Update move number
@@ -1211,7 +1218,7 @@ class Game():
                 # Now it is Blacks turn... make all legal black moves
                 min_score = 100000  # Make the best black move (min score move)
                 for move2 in copy_game.current_legal_moves: 
-                    print('move2:', move2)
+                    #print('move2:', move2)
                     copy_copy_game = copy.deepcopy(copy_game)    # on copycopy board
                     copy_copy_game.board.make_move(move2[0],move2[1],move2[2],move2[3])  # Make move on copycopy board
                     copy_copy_game.handle_new_successfully_made_move(move2)   # Update castlability etc
@@ -1241,7 +1248,7 @@ class Game():
                 # Now it is White's turn... make all legal black moves
                 max_score = -100000  # Make the best white move (max score move)
                 for move2 in copy_game.current_legal_moves: 
-                    print('move2:', move2)
+                    #print('move2:', move2)
                     copy_copy_game = copy.deepcopy(copy_game)    # on copycopy board
                     copy_copy_game.board.make_move(move2[0],move2[1],move2[2],move2[3])  # Make move on copycopy board
                     copy_copy_game.handle_new_successfully_made_move(move2)   # Update castlability etc
@@ -1273,14 +1280,18 @@ class Game():
                     copy_game = copy.deepcopy(self)     # on copy board
                     copy_game.board.make_move(move[0],move[1],move[2],move[3])  # Make move on copy board
                     copy_game.handle_new_successfully_made_move(move)   # Update castlability etc
-                    best_move = copy_game.engine_move_decision(depth-1)
-                    copy_game.board.make_move(best_move[0],best_move[1],best_move[2],best_move[3])    # Make best move
-                    copy_game.handle_new_successfully_made_move(best_move)   # Update castlability etc
+                    try:    # Try to make the best move depth-1 
+                        best_move = copy_game.engine_move_decision(depth-1)
+                        copy_game.board.make_move(best_move[0],best_move[1],best_move[2],best_move[3])    # Make best move
+                        copy_game.handle_new_successfully_made_move(best_move)   # Update castlability etc
+                    except: # Fails if game ends and there's no move depth-1
+                        pass
                     score = copy_game.evaluate_position_score()
                     if score> max_score:
                         max_score = copy.copy(score)
                         move_decision = copy.deepcopy(move)
-
+                    print(move)
+                    print(score)
                 return move_decision
 
             else:         # Black turn
@@ -1289,10 +1300,15 @@ class Game():
                     copy_game = copy.deepcopy(self)     # on copy board
                     copy_game.board.make_move(move[0],move[1],move[2],move[3])  # Make move on copy board
                     copy_game.handle_new_successfully_made_move(move)   # Update castlability etc
-                    best_move = copy_game.engine_move_decision(depth-1)
-                    copy_game.board.make_move(best_move[0],best_move[1],best_move[2],best_move[3])    # Make best move
-                    copy_game.handle_new_successfully_made_move(best_move)   # Update castlability etc
+                    try:    # Try to make the best move depth-1 
+                        best_move = copy_game.engine_move_decision(depth-1)
+                        copy_game.board.make_move(best_move[0],best_move[1],best_move[2],best_move[3])    # Make best move
+                        copy_game.handle_new_successfully_made_move(best_move)   # Update castlability etc
+                    except: # Fails if game ends and there's no move depth-1
+                        pass
                     score = copy_game.evaluate_position_score()
+                    print(move)
+                    print(score)
                     if score< min_score:
                         max_score = copy.copy(score)
                         move_decision = copy.deepcopy(move)
@@ -1339,13 +1355,16 @@ while new_game.gameover == False:
 
     # Engine move
     if not new_game.white_turn:
-        engine_move = new_game.engine_move_decision(depth=1)
-        new_game.board.make_move(engine_move[0],engine_move[1],engine_move[2],engine_move[3])   # Make move
-        new_game.handle_new_successfully_made_move(engine_move)
-        print(str(new_game.move_number)+" " +str(new_game.previous_move))
-
-
-
+        try:
+            engine_move = new_game.engine_move_decision(depth=1)
+            new_game.board.make_move(engine_move[0],engine_move[1],engine_move[2],engine_move[3])   # Make move
+            new_game.handle_new_successfully_made_move(engine_move)
+            print(str(new_game.move_number)+" " +str(new_game.previous_move))
+        except:
+            print('Engine resigns')
+            new_game.resign()
+            
+        
 
 
 
@@ -1415,15 +1434,12 @@ while new_game.gameover == False:
 
     # Engine move
     if new_game.white_turn:
-        engine_move = new_game.engine_move_decision(depth=1)
+        engine_move = new_game.engine_move_decision(depth=2)
         new_game.board.make_move(engine_move[0],engine_move[1],engine_move[2],engine_move[3])   # Make move
         new_game.handle_new_successfully_made_move(engine_move)
         print(str(new_game.move_number)+" " +str(new_game.previous_move))
 
     
-
-
-
 
 
 
@@ -1461,12 +1477,3 @@ while True:
         del new_game
         new_game = Game()
         print('GAMEOVER')
-
-
-
-
-
-# Ideas
-# Deep copy of game should drop some things like board states to save space and time
-# Cost of this is computer may accidentally repeat positions and get draw in winning position 
-# I evaluate this cost to be minimal
