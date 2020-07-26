@@ -5,9 +5,9 @@ import random
 # Initialise Pygame
 pygame.init()
 
-width, height = 800, 800
+width, height = 400, 400
 rows, columns = 8, 8
-square = 80
+square = 50
 screen = pygame.display.set_mode((width, height), pygame.RESIZABLE)
 pygame.display.set_icon(pygame.image.load('blackpawn.png')) # Icon
 pygame.display.set_caption("Python Chess")  # Set Caption
@@ -25,7 +25,6 @@ class Piece():
         cp.white = self.white
         cp.symbol = self.symbol
         return copy.copy(cp)
-
 
 class Black_Pawn(Piece):
     def __init__(self):
@@ -519,6 +518,21 @@ class Board():
                 else:
                     board_string += self.pieces[i][j].symbol
         return board_string
+
+
+class Book():
+    # Maps list of moves played to a move (book move)
+    def __init__(self):
+        book_moves = {}
+        # [1,4,3,4] maps to [6,4,4,4]
+        # Sicilian Defense
+        {[1,3,3,3]:[6,3,4,3]}
+        # French defense
+        #e4 e6
+        # Ruy Lopez
+        # e4 e5 nf3 nc6 bb5
+        
+        
 
 class Game():
     def __init__(self):
@@ -1322,6 +1336,9 @@ class Game():
 
 # Game loop
 new_game = Game()
+
+
+
 
 
 # Engine is black, player is white
