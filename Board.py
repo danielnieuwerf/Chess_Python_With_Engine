@@ -1,5 +1,5 @@
 from Pieces import *
-
+from Scores import *
 # Board class initialised to game start
 class Board():
     def __init__(self):
@@ -12,6 +12,9 @@ class Board():
                        [Black_Pawn(), Black_Pawn(), Black_Pawn(), Black_Pawn(), Black_Pawn(), Black_Pawn(), Black_Pawn(), Black_Pawn()],
                        [Black_Rook(), Black_Knight(), Black_Bishop(), Black_King(), Black_Queen(), Black_Bishop(), Black_Knight(), Black_Rook()]
                       ]
+        self.scores = Scores()
+        self.white_king_position = [0,3]
+        self.black_king_position = [7,3]
 
     def get_diagonals(self, r, c):
         # Returns [diag1,diag2] that go through r,c
@@ -54,7 +57,7 @@ class Board():
 
         return file
 
-    def get_file_without_empty_SQUAREs(self,c):
+    def get_file_without_empty_squares(self,c):
         file = ""
         for i in range(8):
             if self.pieces[i][c]!=None:
@@ -72,7 +75,7 @@ class Board():
 
         return rank
 
-    def get_rank_without_empty_SQUAREs(self,r):
+    def get_rank_without_empty_squares(self,r):
         rank = ''
         for i in range(8):
             if self.pieces[r][i]!=None:
@@ -126,32 +129,79 @@ class Board():
             return False    # If not in check path is not blocked
 
     def make_move(self,i,j,x,y):
-        # If try to move an empty SQUARE return
+        # Try to make a move from board[i][j] to board[x][y]
+        # Update scores when appropriate within this function
+        # Update king positions where appropriate
         try:
-            sym = self.pieces[i][j].symbol
+            sym = self.pieces[i][j].symbol  # If try to move an empty SQUARE return
         except:
             return
+        try:
+            captured_symbol = self.pieces[x][y].symbol
+        except:
+            captured_symbol = None
+
+        # Update king positions
+        if sym == 'k':
+            self.black_king_position = [x,y]
+        elif sym == 'K':
+            self.white_king_position = [x,y]
+
+        # Update bad knights score
+        if sym == 'n':   
+            if j in [0,7]: # If black knight is moved from file 0 or 7
+                self.scores.bad_knights -= 0.1
+            elif y in [0,7]: # Else if black knight is moved onto file 0 or 7
+                self.scores.bad_knights += 0.1
+        elif sym == 'N':
+            if j in [0,7]: # If white knight is moved from file 0 or 7
+                self.scores.bad_knights += 0.1
+            elif y in [0,7]: # Else if white knight is moved onto file 0 or 7
+                self.scores.bad_knights -= 0.1
+        if y in [0,7]:
+            if captured_symbol == 'N':  # If bad white knight captured
+                self.scores.bad_knights += 0.1
+            elif captured_symbol == 'n':  # If bad black knight captured
+                self.scores.bad_knights -= 0.1
+
 
         # Check if enpassant move was made
         if abs(i-x)==1 and abs(j-y)==1: #Diagonal move by 1
             if self.pieces[x][y]==None and self.pieces[i][j].symbol in ['p','P']:   # If this we have en passant
+                self.scores.material += self.pieces[i][j].value     # Add 1 or -1 to material score
                 self.pieces[i][y] = None    # Delete captured pawn by enpassant and move the capturing pawn later in the function
         
         # Check if castling move was made
-        if self.pieces[i][j].symbol in ['k', 'K'] and self.pieces[x][y] == None and abs(j-y)==2 and i==x:  # Castling condition
-            if y==1:
-                if x==0:
-                    self.pieces[x][2]= White_Rook()
-                else:
-                    self.pieces[x][2]= Black_Rook()
-                self.pieces[x][0]= None # Moves Rook (King is moved later on in this function)
-            elif y==5:
-                if x==0:
-                    self.pieces[x][4]= White_Rook()
-                else:
-                    self.pieces[x][4] = Black_Rook()
-                self.pieces[x][7]= None
+        if sym in ['k', 'K'] and self.pieces[x][y] == None and abs(j-y)==2 and i==x:  # Sufficient castling condition
+            # Handle the rook move here and updating king safety value (we move the king later on)
+            if sym == 'k':  # Black king castling
+                if y==1:    # King side castling
+                    self.pieces[7][0]= None # Move rook
+                    self.pieces[7][2]= Black_Rook()
+                    self.scores.king_safety -= 0.14 # Update king safety score  
+                elif y==5:  # Queen side castling
+                    self.pieces[7][7]= None # Move rook
+                    self.pieces[7][4]= Black_Rook()
+                    self.scores.king_safety -= 0.13 # Update king safety score  
+                
+            elif sym == 'K': # White king castling
+                if y==1:    # King side castling
+                    self.pieces[0][0]= None # Move rook
+                    self.pieces[0][2]= White_Rook()
+                    self.scores.king_safety -= 0.13 # Update king safety score             
+                elif y==5:  # Queen side castling
+                    self.pieces[0][7]= None # Move rook
+                    self.pieces[0][4]= White_Rook()
+                    self.scores.king_safety -= 0.13 # Update king safety score  
 
+
+        # If move is capturing move update material score
+        try:
+            capturing = self.pieces[i][j].value * self.pieces[x][y].value
+            if capturing < 0:   # If capturing move
+                self.scores.material -=self.pieces[x][y].value
+        except:
+            pass
 
         # move piece at i,j to x,y
         temp = self.pieces[i][j]
@@ -159,39 +209,20 @@ class Board():
         self.pieces[x][y] = temp
 
         # Check for pawn promotion
-        self.pawn_promotion()
+        if j==y and abs(i-x)==1:    # If move one up or down a file check for pawn promotion
+            self.pawn_promotion()
 
     def pawn_promotion(self):
         for i in range(8):
             if self.pieces[0][i]!= None and self.pieces[0][i].symbol=='p':
                 self.pieces[0][i]= Black_Queen()
+                self.scores.material -=8
             if self.pieces[7][i]!= None and self.pieces[7][i].symbol=='P':
                 self.pieces[7][i]= White_Queen()
-
-    def white_king_position(self):
-        i, j = 0, 0 # Indexes
-        for row in self.pieces:
-            j = 0
-            for piece in row:
-                if piece!=None and piece.symbol == 'K':
-                    return [i,j]
-                j+=1
-            i+=1
-        return [-1,-1]
-
-    def black_king_position(self):
-        i, j = 0, 0 # Indexes
-        for row in self.pieces:
-            j = 0
-            for piece in row:
-                if piece!=None and piece.symbol == 'k':
-                    return [i,j]
-                j+=1
-            i+=1
-        return [-1,-1]
+                self.scores.material +=8
 
     def white_king_is_in_check(self):
-        white_king_pos = self.white_king_position()
+        white_king_pos = self.white_king_position
         row, col = white_king_pos[0], white_king_pos[1] # row and column of white king
         # Check by black pawn
         if row < 7 and col>0 and self.pieces[row+1][col-1]!=None and self.pieces[row+1][col-1].symbol=='p':
@@ -218,7 +249,7 @@ class Board():
             return True
 
         # Check by black king (effectively)
-        black_king_pos =self.black_king_position()
+        black_king_pos =self.black_king_position
         if abs(row - black_king_pos[0]) <2 and abs(col - black_king_pos[1]) <2:
             return True
 
@@ -227,7 +258,7 @@ class Board():
         diag1 = diagonals[0]
         diag2 = diagonals[1]
 
-        # Remove empty SQUAREs in these strings then look for checks
+        # Remove empty squares in these strings then look for checks
         cleaned_diag1 =""
         cleaned_diag2 = ""
         for x in diag1:
@@ -283,7 +314,7 @@ class Board():
         return False
 
     def black_king_is_in_check(self):
-        black_king_pos = self.black_king_position()
+        black_king_pos = self.black_king_position
         row, col = black_king_pos[0], black_king_pos[1] # row and column of black king
         # Check by white pawn
         if row > 0 and col>0 and self.pieces[row-1][col-1]!=None and self.pieces[row-1][col-1].symbol=='P':
@@ -310,7 +341,7 @@ class Board():
             return True
 
         # Check by white king (effectively)
-        white_king_pos =self.white_king_position()
+        white_king_pos =self.white_king_position
         if abs(row - white_king_pos[0]) <2 and abs(col - white_king_pos[1]) <2:
             return True
 
@@ -319,7 +350,7 @@ class Board():
         diag1 = diagonals[0]
         diag2 = diagonals[1]
 
-        # Remove empty SQUAREs in these strings then look for checks
+        # Remove empty squares in these strings then look for checks
         cleaned_diag1 =""
         cleaned_diag2 = ""
         for x in diag1:

@@ -23,9 +23,9 @@ class Game():
         for i in range(0,8):
             for j in range(0,8):
                 if (i+j) % 2 ==1:
-                    pygame.draw.rect(surface, DARK, ((i*SQUARE, j*SQUARE), (SQUARE,SQUARE))) # dark SQUAREs
+                    pygame.draw.rect(surface, DARK, ((i*SQUARE, j*SQUARE), (SQUARE,SQUARE))) # dark squares
                 else:
-                    pygame.draw.rect(surface, WHITE, ((i*SQUARE, j*SQUARE), (SQUARE,SQUARE))) # light SQUAREs
+                    pygame.draw.rect(surface, WHITE, ((i*SQUARE, j*SQUARE), (SQUARE,SQUARE))) # light squares
         
         # Highlight selected SQUARE
         if self.selected_SQUARE!= None:
@@ -85,7 +85,7 @@ class Game():
                             if i<7 and self.board.pieces[i+1][j]==None:
                                 moves.append([i,j,i+1,j])   # Move one SQUARE forward
                             if i == 1 and self.board.pieces[2][j]==None and self.board.pieces[3][j]==None:
-                                moves.append([i,j,i+2,j])   # Move two SQUAREs forward on
+                                moves.append([i,j,i+2,j])   # Move two squares forward on
                             if i<7 and j<7 and (self.board.pieces[i+1][j+1]!= None and not self.board.pieces[i+1][j+1].white):
                                 moves.append([i,j,i+1,j+1]) # Capture piece
                             if i<7 and j>0 and (self.board.pieces[i+1][j-1]!= None and not self.board.pieces[i+1][j-1].white):
@@ -133,7 +133,7 @@ class Game():
 
                         # Vertical and horizontal moves by rooks and queens
                         elif self.board.pieces[i][j].symbol in ['R','Q']:
-                            up, down, right, left = 0,0,0,0 # Indicates how many SQUAREs the piece can move in each direction
+                            up, down, right, left = 0,0,0,0 # Indicates how many squares the piece can move in each direction
                             file_string = self.board.get_file(j)    
                             rank_string = self.board.get_rank(i)
 
@@ -196,7 +196,7 @@ class Game():
                         if self.board.pieces[i][j].symbol in ['B','Q']:
                             diagonals = self.board.get_diagonals(i,j)
                             diag1, diag2 = diagonals[0], diagonals[1] # These are strings of length 8 like 'q.r..B..'
-                            up_right, up_left , down_right, down_left = 0,0,0,0 # Indicates how many SQUAREs the piece can move in each direction
+                            up_right, up_left , down_right, down_left = 0,0,0,0 # Indicates how many squares the piece can move in each direction
 
                             # South east diagonal (diag1)
                             if not (i==7 or j==7):  # Down + right
@@ -261,7 +261,7 @@ class Game():
                             if i>0 and self.board.pieces[i-1][j]==None:
                                 moves.append([i,j,i-1,j])   # Move one SQUARE forward
                             if i == 6 and self.board.pieces[5][j]==None and self.board.pieces[4][j]==None:
-                                moves.append([i,j,4,j])   # Move two SQUAREs forward on
+                                moves.append([i,j,4,j])   # Move two squares forward on
                             if i>0 and j<7 and (self.board.pieces[i-1][j+1]!= None and self.board.pieces[i-1][j+1].white):
                                 moves.append([i,j,i-1,j+1]) # Capture piece
                             if i>0 and j>0 and (self.board.pieces[i-1][j-1]!= None and self.board.pieces[i-1][j-1].white):
@@ -309,7 +309,7 @@ class Game():
 
                         # Vertical and horizontal moves by rooks and queens
                         elif self.board.pieces[i][j].symbol in ['r','q']:
-                            up, down, right, left = 0,0,0,0 # Indicates how many SQUAREs the piece can move in each direction
+                            up, down, right, left = 0,0,0,0 # Indicates how many squares the piece can move in each direction
                             file_string = self.board.get_file(j)    
                             rank_string = self.board.get_rank(i)
 
@@ -372,7 +372,7 @@ class Game():
                         if self.board.pieces[i][j].symbol in ['b','q']:
                             diagonals = self.board.get_diagonals(i,j)
                             diag1, diag2 = diagonals[0], diagonals[1] # These are strings of length 8 like 'q.r..B..'
-                            up_right, up_left , down_right, down_left = 0,0,0,0 # Indicates how many SQUAREs the piece can move in each direction
+                            up_right, up_left , down_right, down_left = 0,0,0,0 # Indicates how many squares the piece can move in each direction
 
                             # South east diagonal (diag1)
                             if not (i==7 or j==7):  # Down + right
@@ -488,13 +488,12 @@ class Game():
         self.previous_move = move  # Update previous move
         board_string = self.board.board_to_string()  # Add to board states for 3fold repetition rule
         self.move_number += 1       # Update move number
-        if board_string in self.board_states.keys():
+        if board_string in self.board_states.keys():    # Add new board to board states
             self.board_states[board_string] +=1
         else:
             self.board_states[board_string] = 1
 
         self.current_legal_moves = self.legal_moves()   # Calculate new legal moves
-
 
         # If a king move was made change castability to false
         self.update_castlability()
@@ -541,32 +540,25 @@ class Game():
     
     def evaluate_position_score(self):
         # Returns score to evaluate current position
-        score = 0.0   # Initialise score to 0
 
         # If checkmate return +- infinity only check for this if it is check
         if self.black_won:
             return -1000000
         if self.white_won:
             return 10000000
-
-        # If draw return 0
-        if self.gameIsDraw:
+        if self.gameIsDraw:     # If draw return 0
             return 0
 
-        # Count all the pieces on the board
-        for i in range(8):
-            for j in range(8):
-                try:
-                    score += self.board.pieces[i][j].value
-                except:
-                    pass
+        score = self.board.scores.get_total() # Initialise score to stored board scores total
 
 
         # Bonus for check
+        
         if self.board.white_king_is_in_check():
             score -=0.03
         elif self.board.black_king_is_in_check():
             score += 0.03
+        
 
         # Bonus for manuveurability
 
@@ -581,8 +573,8 @@ class Game():
             try:
                 if self.board.pieces[move[2]][move[3]].white != self.white_turn:    # Find capturing moves
                     capture_value = abs(self.board.pieces[move[2]][move[3]].value)-abs(self.board.pieces[move[0]][move[1]].value)
-                if capture_value>max_capture:
-                    max_capture = copy.copy(capture_value)
+                    if capture_value>max_capture:
+                        max_capture = copy.copy(capture_value)
             except:
                 pass
         if self.white_turn:
@@ -590,31 +582,22 @@ class Game():
         else:
             score -= max_capture*0.7
 
-        # Penalty for knights on edge of board
-        for i in [0,7]:
-            file = self.board.get_file_without_empty_SQUAREs(i)
-            for x in file:
-                if x=='n':
-                    score+= 0.1
-                elif x=='N':
-                    score-=0.1
-
         # Number of developed pieces bonus
-        rank_white = self.board.get_rank_without_empty_SQUAREs(0)
-        rank_black = self.board.get_rank_without_empty_SQUAREs(7)
-        white_count, black_count = 0,0  #number of undeveloped pieces
+        rank_white = self.board.get_rank_without_empty_squares(0)
+        rank_black = self.board.get_rank_without_empty_squares(7)
+        white_undeveloped_count, black_undeveloped_count = 0,0  #number of undeveloped pieces
         for x in rank_black:
             if x in ['b','r','n','q']:
-                black_count +=1
+                black_undeveloped_count +=1
         for x in rank_white:
             if x in ['B','R','N','Q']:
-                white_count +=1
+                white_undeveloped_count +=1
         
-        score += 0.02*black_count   # Apply bonus
-        score -= 0.02*white_count
+        score += 0.02*black_undeveloped_count   # Apply bonuses
+        score -= 0.02*white_undeveloped_count
 
         # Bonus points for kicking an opponents piece with a pawn
-        for i in range(8):
+        for i in range(1,7):  # Ranks 1 to 6
             for j in range(8):
                 if self.board.pieces[i][j]!=None and self.board.pieces[i][j].symbol=='P':
                     if j>0 and self.board.pieces[i+1][j-1]!=None and self.board.pieces[i+1][j-1].symbol in ['k', 'n', 'b', 'r','q']:
@@ -656,21 +639,11 @@ class Game():
                 score += (1.08+black_pawns-3)
         
         # Safe king
-        # castling
-        if self.move_number < 15:
-            if self.board.pieces[0][1]!= None and self.board.pieces[0][1].symbol == 'K':
-                score+=0.25
-            if self.board.pieces[7][1]!= None and self.board.pieces[7][1].symbol =='k':
-                score -= 0.25
-            if self.board.pieces[0][5]!= None and self.board.pieces[0][5].symbol == 'K':
-                score += 0.23
-            if self.board.pieces[7][5]!= None and self.board.pieces[7][5].symbol == 'k':
-                score -= 0.23
 
         # Connected rooks bonus
         for i in range(8):
-            file = self.board.get_file_without_empty_SQUAREs(i)
-            rank = self.board.get_rank_without_empty_SQUAREs(i)
+            file = self.board.get_file_without_empty_squares(i)
+            rank = self.board.get_rank_without_empty_squares(i)
             if file.find('rr')!=-1:
                 score-=0.16
             elif file.find('RR')!=-1:

@@ -21,8 +21,14 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Book.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="ChessPython.py" />
     <Compile Include="Board.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Scores.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="New_Game.py">

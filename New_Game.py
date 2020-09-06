@@ -49,6 +49,7 @@ class New_Game():
                         self.game.board.make_move(engine_move[0],engine_move[1],engine_move[2],engine_move[3])   # Make move
                         self.game.handle_new_successfully_made_move(engine_move)
                         print(str(self.game.move_number)+" " +str(self.game.previous_move))
+                        print("Bad knights: " +str(self.game.board.scores.bad_knights))
                     except:
                         print('Engine resigns')
                         self.game.resign()
