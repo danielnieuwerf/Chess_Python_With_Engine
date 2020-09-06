@@ -551,17 +551,13 @@ class Game():
 
         score = self.board.scores.get_total() # Initialise score to stored board scores total
 
-
         # Bonus for check
-        
         if self.board.white_king_is_in_check():
-            score -=0.03
+            score -=0.08
         elif self.board.black_king_is_in_check():
-            score += 0.03
-        
+            score += 0.08
 
         # Bonus for manuveurability
-
         if self.white_turn:
             score += len(self.current_legal_moves)*0.003
         else:
@@ -571,7 +567,7 @@ class Game():
         max_capture = 0
         for move in self.current_legal_moves:
             try:
-                if self.board.pieces[move[2]][move[3]].white != self.white_turn:    # Find capturing moves
+                if abs(self.board.pieces[move[2]][move[3]].value)>1:    # Find capturing moves on pieces (not pawns)
                     capture_value = abs(self.board.pieces[move[2]][move[3]].value)-abs(self.board.pieces[move[0]][move[1]].value)
                     if capture_value>max_capture:
                         max_capture = copy.copy(capture_value)
@@ -596,50 +592,11 @@ class Game():
         score += 0.02*black_undeveloped_count   # Apply bonuses
         score -= 0.02*white_undeveloped_count
 
-        # Bonus points for kicking an opponents piece with a pawn
-        for i in range(1,7):  # Ranks 1 to 6
-            for j in range(8):
-                if self.board.pieces[i][j]!=None and self.board.pieces[i][j].symbol=='P':
-                    if j>0 and self.board.pieces[i+1][j-1]!=None and self.board.pieces[i+1][j-1].symbol in ['k', 'n', 'b', 'r','q']:
-                        score+= 0.04
-                    if j<7 and self.board.pieces[i+1][j+1]!=None and self.board.pieces[i+1][j+1].symbol in ['k', 'n', 'b', 'r','q']:
-                        score+= 0.04
-                if self.board.pieces[i][j]!=None and self.board.pieces[i][j].symbol=='p':
-                    if j>0 and self.board.pieces[i-1][j-1]!=None and self.board.pieces[i-1][j-1].symbol in ['K', 'N', 'B', 'R','Q']:
-                        score-= 0.04
-                    if j<7 and self.board.pieces[i-1][j+1]!=None and self.board.pieces[i-1][j+1].symbol in ['K', 'N', 'B', 'R','Q']:
-                        score-= 0.04
-
         # Control of centre
-        # for each pawn in centre gain points only before move 18
-        if self.move_number <18:
-            for i in range(2,5):
-                for j in range(3,6):
-                    if self.board.pieces[i][j]!=None and self.board.pieces[i][j].symbol=='P':
-                        score += 0.1
 
-            for i in range(3,6):
-                for j in range(3,6):
-                    if self.board.pieces[i][j]!=None and self.board.pieces[i][j].symbol=='p':
-                        score-=0.1
-
-        # Double pawn penalty (triple pawn etc...)
-        for i in range(8):
-            file = self.board.get_file(i)
-            white_pawns, black_pawns = 0, 0 # Number of white and black pawns in the file
-            for x in file:
-                if x=='p':
-                    black_pawns+=1
-                elif x=='P':
-                    white_pawns+=1
-
-            if white_pawns>1:
-                score -= (1.08+white_pawns-3)
-            elif black_pawns>1:
-                score += (1.08+black_pawns-3)
         
         # Safe king
-
+        """
         # Connected rooks bonus
         for i in range(8):
             file = self.board.get_file_without_empty_squares(i)
@@ -652,7 +609,7 @@ class Game():
                 score-=0.07
             elif rank.find('RR')!=-1:
                 score+=0.07
-
+       """
         # End game
         if self.move_number > 30:
             # Ending with 3 pawns vs knight or bishop

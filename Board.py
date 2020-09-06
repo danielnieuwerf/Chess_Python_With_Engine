@@ -147,6 +147,106 @@ class Board():
         elif sym == 'K':
             self.white_king_position = [x,y]
 
+        # Update control of the centre
+        if (i in [2,3,4,5] and j in [2,3,4,5]) or (x in [2,3,4,5] and y in [2,3,4,5]):    # Move from outside centre to inside centre
+            if sym.islower():
+                self.scores.control_of_centre -= 0.1
+            else:
+                self.scores.control_of_centre += 0.1
+
+        # Update pawn counts
+        if captured_symbol == 'P':
+            self.scores.white_pawns_count[y]-=1
+        elif captured_symbol == 'p':
+            self.scores.black_pawns_count[y]-=1
+        if sym == 'p' and abs(j-y)==1:
+            self.scores.black_pawns_count[y]+=1
+            self.scores.black_pawns_count[j]-=1
+        elif sym == 'P' and abs(j-y)==1:
+            self.scores.white_pawns_count[y]+=1
+            self.scores.white_pawns_count[j]-=1
+
+
+        # Update threat by pawns score
+        # Capturing a threatening pawn
+        if captured_symbol== 'p':   # Capturing black pawn
+            if x!=0 and y!=0 and self.pieces[x-1][y-1]!=None and self.pieces[x-1][y-1].symbol in ['N','B','R','Q']:   # If black pawn was threatening
+                self.scores.threat_by_pawns += 0.05
+            if x!=0 and y!=7 and self.pieces[x-1][y+1]!=None and self.pieces[x-1][y+1].symbol in ['N','B','R','Q']:
+                self.scores.threat_by_pawns += 0.05
+        elif captured_symbol== 'P': # Capturing white pawn
+            if x!=7 and y!=0 and self.pieces[x+1][y-1]!=None and self.pieces[x+1][y-1].symbol in ['n','b','r','q']:   # If white pawn was threatening
+                self.scores.threat_by_pawns -= 0.05
+            if x!=7 and y!=7 and self.pieces[x+1][y+1]!=None and self.pieces[x+1][y+1].symbol in ['n','b','r','q']:
+                self.scores.threat_by_pawns -= 0.05
+        # Move a pawn
+        if sym == 'p':  # Move a black pawn
+            initial_threat = 0  # number of pieces the pawn threatens
+            if j!=0 and i!=0 and self.pieces[i-1][j-1]!=None and self.pieces[i-1][j-1].symbol in ['N','B','R','Q']:
+                initial_threat +=1
+            if i!=0 and j!=7 and self.pieces[i-1][j+1]!=None and self.pieces[i-1][j+1].symbol in ['N','B','R','Q']:
+                initial_threat +=1
+            final_threat = 0
+            if x!=0:    # If not pawn promotion
+                if j!=0 and self.pieces[x-1][j-1]!=None and self.pieces[x-1][j-1].symbol in ['N','B','R','Q']:
+                    final_threat +=1
+                if j!=7 and self.pieces[x-1][j+1]!=None and self.pieces[x-1][j+1].symbol in ['N','B','R','Q']:
+                    final_threat +=1
+            threat_change = (final_threat - initial_threat)
+            self.scores.threat_by_pawns -= (threat_change*0.05)  # Update threat by pawn
+        elif sym == 'P':    # Move a white pawn
+            initial_threat = 0
+            if i!=7 and j!=0 and self.pieces[i+1][j-1]!=None and self.pieces[i+1][j-1].symbol in ['n','b','r','q']:
+                initial_threat +=1
+            if i!=7 and j!=7 and self.pieces[i+1][j+1]!=None and self.pieces[i+1][j+1].symbol in ['n','b','r','q']:
+                initial_threat +=1
+            final_threat = 0
+            if x!=7:    # If not pawn promotion
+                if j!=0 and self.pieces[x+1][j-1]!=None and self.pieces[x+1][j-1].symbol in ['n','b','r','q']:
+                    final_threat +=1
+                if j!=7 and self.pieces[x+1][j+1]!=None and self.pieces[x+1][j+1].symbol in ['n','b','r','q']:
+                    final_threat +=1
+            threat_change = (final_threat - initial_threat)
+            self.scores.threat_by_pawns += (threat_change*0.05)  # Update threat by pawn
+        # Move a piece away from/ to threatening pawn
+        if sym in ['n','b','r','q']:    # Move black piece
+            initial_threat = 0  # Initial threat to moving black piece
+            if i>1 and j!=0 and self.pieces[i-1][j-1]!=None and self.pieces[i-1][j-1].symbol == 'P':
+                initial_threat +=1
+            if i>1 and j!=7 and self.pieces[i-1][j+1]!=None and self.pieces[i-1][j+1].symbol == 'P':
+                initial_threat +=1
+            final_threat = 0
+            if x>1 and y!=0 and self.pieces[x-1][y-1]!=None and self.pieces[x-1][y-1].symbol == 'P':
+                final_threat +=1
+            if x>1 and y!=7 and self.pieces[x-1][y+1]!=None and self.pieces[x-1][y+1].symbol == 'P':
+                final_threat +=1
+            threat_change = final_threat - initial_threat
+            self.scores.threat_by_pawns += (threat_change*0.05)
+        elif sym in ['N','B','R','Q']:  # Move white piece
+            initial_threat = 0  # Initial threat to moving white piece
+            if i<6 and j!=0 and self.pieces[i+1][j-1]!=None and self.pieces[i+1][j-1].symbol == 'p':
+                initial_threat +=1
+            if i<6 and j!=7 and self.pieces[i+1][j+1]!=None and self.pieces[i+1][j+1].symbol == 'p':
+                initial_threat +=1
+            final_threat = 0
+            if x<6 and y!=0 and self.pieces[x+1][y-1]!=None and self.pieces[x+1][y-1].symbol == 'p':
+                final_threat +=1
+            if x<6 and y!=7 and self.pieces[x+1][y+1]!=None and self.pieces[x+1][y+1].symbol == 'p':
+                final_threat +=1
+            threat_change = final_threat - initial_threat
+            self.scores.threat_by_pawns -= (threat_change*0.05)
+        # A piece threatened by a pawn was captured 
+        if captured_symbol in ['n','b','r','q']:    # Capture black piece
+            if x>0 and y>0 and self.pieces[x-1][y-1]!=None and self.pieces[x-1][y-1].symbol=='P':
+                self.scores.threat_by_pawns -=0.05
+            if x>0 and y<7 and self.pieces[x-1][y+1]!=None and self.pieces[x-1][y+1].symbol=='P':
+                self.scores.threat_by_pawns -=0.05
+        elif captured_symbol in ['N','B','R','Q']:  # Capture white piece
+            if x<7 and y>0 and self.pieces[x+1][y-1]!=None and self.pieces[x+1][y-1].symbol=='p':
+                self.scores.threat_by_pawns +=0.05
+            if x<7 and y<7 and self.pieces[x+1][y+1]!=None and self.pieces[x+1][y+1].symbol=='p':
+                self.scores.threat_by_pawns +=0.05
+
         # Update bad knights score
         if sym == 'n':   
             if j in [0,7]: # If black knight is moved from file 0 or 7
@@ -164,15 +264,29 @@ class Board():
             elif captured_symbol == 'n':  # If bad black knight captured
                 self.scores.bad_knights -= 0.1
 
-
         # Check if enpassant move was made
-        if abs(i-x)==1 and abs(j-y)==1: #Diagonal move by 1
-            if self.pieces[x][y]==None and self.pieces[i][j].symbol in ['p','P']:   # If this we have en passant
-                self.scores.material += self.pieces[i][j].value     # Add 1 or -1 to material score
-                self.pieces[i][y] = None    # Delete captured pawn by enpassant and move the capturing pawn later in the function
-        
+        if abs(i-x)==1 and abs(j-y)==1 and self.pieces[x][y]==None and sym in ['p','P']:   # If this we have en passant
+            self.pieces[i][y] = None    # Delete captured pawn by enpassant and move the capturing pawn later in the function
+            # Update threatened by pawns score contributed by the captured pawn
+            if x == 2: # Captured white pawn
+                self.scores.material -=1    # Pawn value 1 captured
+                if y!=0 and self.pieces[4][y-1]!= None and self.pieces[4][y-1].symbol in ['n','b','r','q']:
+                    self.scores.threat_by_pawns -=0.05
+                if y!=7 and self.pieces[4][y+1]!= None and self.pieces[4][y+1].symbol in ['n','b','r','q']:
+                    self.scores.threat_by_pawns -=0.05
+            elif x == 5:  # Captured black pawn by en passant
+                self.scores.material +=1    # Pawn value -1 captured
+                if y!=0 and self.pieces[3][y-1]!= None and self.pieces[3][y-1].symbol in ['N','B','R','Q']:
+                    self.scores.threat_by_pawns +=0.05
+                if y!=7 and self.pieces[3][y+1]!= None and self.pieces[3][y+1].symbol in ['N','B','R','Q']:
+                    self.scores.threat_by_pawns +=0.05
+            # Update pawn counts
+            if sym == 'p':
+                self.scores.white_pawns_count[y]-=1
+            elif sym == 'P':
+                self.scores.black_pawns_count[y]-=1
         # Check if castling move was made
-        if sym in ['k', 'K'] and self.pieces[x][y] == None and abs(j-y)==2 and i==x:  # Sufficient castling condition
+        if sym in ['k', 'K'] and abs(j-y)==2:  # Sufficient castling condition
             # Handle the rook move here and updating king safety value (we move the king later on)
             if sym == 'k':  # Black king castling
                 if y==1:    # King side castling
@@ -182,26 +296,21 @@ class Board():
                 elif y==5:  # Queen side castling
                     self.pieces[7][7]= None # Move rook
                     self.pieces[7][4]= Black_Rook()
-                    self.scores.king_safety -= 0.13 # Update king safety score  
-                
+                    self.scores.king_safety -= 0.13 # Update king safety score       
             elif sym == 'K': # White king castling
                 if y==1:    # King side castling
                     self.pieces[0][0]= None # Move rook
                     self.pieces[0][2]= White_Rook()
-                    self.scores.king_safety -= 0.13 # Update king safety score             
+                    self.scores.king_safety += 0.14 # Update king safety score             
                 elif y==5:  # Queen side castling
                     self.pieces[0][7]= None # Move rook
                     self.pieces[0][4]= White_Rook()
-                    self.scores.king_safety -= 0.13 # Update king safety score  
+                    self.scores.king_safety += 0.13 # Update king safety score  
 
 
         # If move is capturing move update material score
-        try:
-            capturing = self.pieces[i][j].value * self.pieces[x][y].value
-            if capturing < 0:   # If capturing move
-                self.scores.material -=self.pieces[x][y].value
-        except:
-            pass
+        if captured_symbol!=None:
+            self.scores.material -=self.pieces[x][y].value
 
         # move piece at i,j to x,y
         temp = self.pieces[i][j]
@@ -209,17 +318,24 @@ class Board():
         self.pieces[x][y] = temp
 
         # Check for pawn promotion
-        if j==y and abs(i-x)==1:    # If move one up or down a file check for pawn promotion
+        if sym in ['p','P'] and x in [0,7]:
             self.pawn_promotion()
+
+        # If pawn moved, captured or promoted .... update pawn counts
+        if sym in ['p','P'] or captured_symbol in ['p','P']:
+            self.scores.update_isolated_pawn_penalty()
+            self.scores.update_double_pawns_penalty()
 
     def pawn_promotion(self):
         for i in range(8):
             if self.pieces[0][i]!= None and self.pieces[0][i].symbol=='p':
                 self.pieces[0][i]= Black_Queen()
                 self.scores.material -=8
+                self.scores.black_pawns_count[i]-=1
             if self.pieces[7][i]!= None and self.pieces[7][i].symbol=='P':
                 self.pieces[7][i]= White_Queen()
                 self.scores.material +=8
+                self.scores.white_pawns_count[i]-=1
 
     def white_king_is_in_check(self):
         white_king_pos = self.white_king_position
