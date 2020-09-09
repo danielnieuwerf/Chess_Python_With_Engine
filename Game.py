@@ -429,27 +429,27 @@ class Game():
 
         # White captures with en passant
         prev_move = self.previous_move
-        black_pawn_moves = []
-        for i in range(8):
-            black_pawn_moves.append([6,i,4,i])     # All possible moves 2 forward by black pawn
-        if self.white_turn and prev_move in black_pawn_moves:
-            # Must have a white pawn at [4, i+-1] if prev move [6,i,4,i]
-            if prev_move[1]>0 and self.board.pieces[4][prev_move[1]-1]!=None and self.board.pieces[4][prev_move[1]-1].symbol=='P':
-                moves.append([4,prev_move[1]-1,5,prev_move[1]])
-            if prev_move[1]<7 and self.board.pieces[4][prev_move[1]+1]!=None and self.board.pieces[4][prev_move[1]+1].symbol=='P':
-                moves.append([4,prev_move[1]+1,5,prev_move[1]])
+        if prev_move!=None and abs(prev_move[3]-prev_move[1])==2 and abs(self.board.pieces[prev_move[2]][prev_move[3]].value)== 1: # If previous move was made by a pawn moving 2 squares forward
+            black_pawn_moves = []
+            for i in range(8):
+                black_pawn_moves.append([6,i,4,i])     # All possible moves 2 forward by black pawn
+            if self.white_turn and prev_move in black_pawn_moves:
+                # Must have a white pawn at [4, i+-1] if prev move [6,i,4,i]
+                if prev_move[1]>0 and self.board.pieces[4][prev_move[1]-1]!=None and self.board.pieces[4][prev_move[1]-1].symbol=='P':
+                    moves.append([4,prev_move[1]-1,5,prev_move[1]])
+                if prev_move[1]<7 and self.board.pieces[4][prev_move[1]+1]!=None and self.board.pieces[4][prev_move[1]+1].symbol=='P':
+                    moves.append([4,prev_move[1]+1,5,prev_move[1]])
 
-        # Black captures with en passant
-        prev_move = self.previous_move
-        white_pawn_moves = []
-        for i in range(8):
-            white_pawn_moves.append([1,i,3,i])     # All possible moves 2 forward by white pawn
-        if self.white_turn== False and prev_move in white_pawn_moves:
-            # Must have a black pawn at [3, i+-1] if prev move [1,i,3,i]
-            if prev_move[1]>0 and self.board.pieces[3][prev_move[1]-1]!=None and self.board.pieces[3][prev_move[1]-1].symbol=='p':
-                moves.append([3,prev_move[1]-1,2,prev_move[1]])
-            if prev_move[1]<7 and self.board.pieces[3][prev_move[1]+1]!=None and self.board.pieces[3][prev_move[1]+1].symbol=='p':
-                moves.append([3,prev_move[1]+1,2,prev_move[1]])
+            # Black captures with en passant
+            white_pawn_moves = []
+            for i in range(8):
+                white_pawn_moves.append([1,i,3,i])     # All possible moves 2 forward by white pawn
+            if self.white_turn== False and prev_move in white_pawn_moves:
+                # Must have a black pawn at [3, i+-1] if prev move [1,i,3,i]
+                if prev_move[1]>0 and self.board.pieces[3][prev_move[1]-1]!=None and self.board.pieces[3][prev_move[1]-1].symbol=='p':
+                    moves.append([3,prev_move[1]-1,2,prev_move[1]])
+                if prev_move[1]<7 and self.board.pieces[3][prev_move[1]+1]!=None and self.board.pieces[3][prev_move[1]+1].symbol=='p':
+                    moves.append([3,prev_move[1]+1,2,prev_move[1]])
             
         # Castling
         if self.white_turn and self.white_king_can_castle:
@@ -488,6 +488,9 @@ class Game():
         self.previous_move = move  # Update previous move
         board_string = self.board.board_to_string()  # Add to board states for 3fold repetition rule
         self.move_number += 1       # Update move number
+        if self.board.reset_board_strings:  # Reset board strings when old positions are no longer possible
+            self.board_states = {}
+            self.board.reset_board_strings = False
         if board_string in self.board_states.keys():    # Add new board to board states
             self.board_states[board_string] +=1
         else:
@@ -548,22 +551,36 @@ class Game():
             return 10000000
         if self.gameIsDraw:     # If draw return 0
             return 0
-
+        
+        # For every capturing move check if the capture is unprotected
+        unprotected_capturable_value = 0
+        capture_squares = []    # Squares on which captures (not necessarily unprotected captures) can occur
+        for move in self.current_legal_moves:
+            if self.board.pieces[move[2]][move[3]]!=None and [move[2],move[3]] not in capture_squares:    # if moves onto a piece (capturing move)
+                capture_squares.append([move[2],move[3]])
+                copy_game = copy.deepcopy(self)     # on copy board
+                copy_game.board.make_move(move[0],move[1],move[2],move[3])  # Make move on copy board
+                copy_game.handle_new_successfully_made_move(move)   # Update castlability etc ( unnecessary things done in this function)
+                recapturable = False
+                for copy_move in copy_game.current_legal_moves:
+                    if copy_move[2]== move[2] and copy_move[3]==move[3]:    # Recapturable
+                        recapturable = True
+                        break
+                        
+                if not recapturable:
+                    unprotected_capturable_value -= self.board.pieces[move[2]][move[3]].value
+        self.board.scores.capturable_unprotected = 0.8*unprotected_capturable_value # Update unprotected capturables value 
+        
         score = self.board.scores.get_total() # Initialise score to stored board scores total
 
-        # Bonus for check
-        if self.board.white_king_is_in_check():
-            score -=0.08
-        elif self.board.black_king_is_in_check():
-            score += 0.08
-
-        # Bonus for manuveurability
+        # Bonus for mobility
         if self.white_turn:
-            score += len(self.current_legal_moves)*0.003
+            self.board.scores.num_legal_white_moves = len(self.current_legal_moves)
         else:
-            score -= len(self.current_legal_moves)*0.003
+            self.board.scores.num_legal_black_moves = len(self.current_legal_moves)
+        self.board.scores.update_mobility()
 
-        # Add value for capturable pieces
+        # Add value for capturable piece where taker value less than taken value
         max_capture = 0
         for move in self.current_legal_moves:
             try:
@@ -594,22 +611,9 @@ class Game():
 
         # Control of centre
 
-        
-        # Safe king
-        """
-        # Connected rooks bonus
-        for i in range(8):
-            file = self.board.get_file_without_empty_squares(i)
-            rank = self.board.get_rank_without_empty_squares(i)
-            if file.find('rr')!=-1:
-                score-=0.16
-            elif file.find('RR')!=-1:
-                score+=0.16
-            if rank.find('rr')!=-1:
-                score-=0.07
-            elif rank.find('RR')!=-1:
-                score+=0.07
-       """
+
+
+
         # End game
         if self.move_number > 30:
             # Ending with 3 pawns vs knight or bishop
@@ -620,9 +624,9 @@ class Game():
 
     def maximise_move_score(self):
         # Returns best move (depth 1) for white and black
-        if self.white_turn:
-            best_move = []
-            best_score = -1000000
+        if self.white_turn: # If white calculate max min (USE ALPHA BETA PRUNING)
+            best_move = self.current_legal_moves[0] # Initialise best move to the first legal move
+            best_score = -1000000   # Compute best score of best move 
             for move in self.current_legal_moves:   # Try every legal white move
                 copy_game = copy.deepcopy(self)     # on copy board
                 copy_game.board.make_move(move[0],move[1],move[2],move[3])  # Make move on copy board
@@ -630,7 +634,6 @@ class Game():
                 # Now it is Blacks turn... make all legal black moves
                 min_score = 100000  # Make the best black move (min score move)
                 for move2 in copy_game.current_legal_moves: 
-                    #print('move2:', move2)
                     copy_copy_game = copy.deepcopy(copy_game)    # on copycopy board
                     copy_copy_game.board.make_move(move2[0],move2[1],move2[2],move2[3])  # Make move on copycopy board
                     copy_copy_game.handle_new_successfully_made_move(move2)   # Update castlability etc
@@ -638,7 +641,8 @@ class Game():
                     # We wish to minimise this score
                     if min_score > score:
                         min_score = copy.copy(score)
-                    
+                    if move!=best_move and score < best_score:  # ALPHA BETA PRUNING
+                        break
                 if min_score>best_score:    # maximise these min scores
                     best_score = copy.deepcopy(min_score)
                     best_move = copy.deepcopy(move)
@@ -647,11 +651,9 @@ class Game():
                     if x==3:    
                         best_score = copy.deepcopy(min_score)
                         best_move = copy.deepcopy(move)
-
             return best_move
-
-        else:       # Black's turn
-            best_move = []
+        else:       # Black's turn calculate min max
+            best_move = self.current_legal_moves[0] # Initialise best move to the first legal move
             best_score = 1000000        # minimise score for black
             for move in self.current_legal_moves:   # Try every legal black move
                 copy_game = copy.deepcopy(self)     # on copy board
@@ -660,7 +662,6 @@ class Game():
                 # Now it is White's turn... make all legal black moves
                 max_score = -100000  # Make the best white move (max score move)
                 for move2 in copy_game.current_legal_moves: 
-                    #print('move2:', move2)
                     copy_copy_game = copy.deepcopy(copy_game)    # on copycopy board
                     copy_copy_game.board.make_move(move2[0],move2[1],move2[2],move2[3])  # Make move on copycopy board
                     copy_copy_game.handle_new_successfully_made_move(move2)   # Update castlability etc
@@ -668,7 +669,8 @@ class Game():
                     # We wish to minimise this score
                     if max_score < score:
                         max_score = copy.copy(score)
-                    
+                    if move!=best_move and score > best_score:  # ALPHA BETA PRUNING
+                        break
                 
                 if max_score<best_score:    # minimise these max scores
                     best_score = copy.deepcopy(max_score)
@@ -728,4 +730,4 @@ class Game():
                 return move_decision
 
 
-        return
+        

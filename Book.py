@@ -1,5 +1,6 @@
 class Book():
     # Maps list of moves played to a move (book move)
+    # Store these in CSV file
     def __init__(self):
         self.book_moves = {}
         # [1,4,3,4] maps to [6,4,4,4]

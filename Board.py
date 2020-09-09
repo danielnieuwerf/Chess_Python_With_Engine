@@ -15,6 +15,7 @@ class Board():
         self.scores = Scores()
         self.white_king_position = [0,3]
         self.black_king_position = [7,3]
+        self.reset_board_strings = False
 
     def get_diagonals(self, r, c):
         # Returns [diag1,diag2] that go through r,c
@@ -133,7 +134,7 @@ class Board():
         # Update scores when appropriate within this function
         # Update king positions where appropriate
         try:
-            sym = self.pieces[i][j].symbol  # If try to move an empty SQUARE return
+            sym = self.pieces[i][j].symbol  # If try to move an empty square return
         except:
             return
         try:
@@ -148,11 +149,13 @@ class Board():
             self.white_king_position = [x,y]
 
         # Update control of the centre
+        """
         if (i in [2,3,4,5] and j in [2,3,4,5]) or (x in [2,3,4,5] and y in [2,3,4,5]):    # Move from outside centre to inside centre
             if sym.islower():
                 self.scores.control_of_centre -= 0.1
             else:
                 self.scores.control_of_centre += 0.1
+        """
 
         # Update pawn counts
         if captured_symbol == 'P':
@@ -165,7 +168,6 @@ class Board():
         elif sym == 'P' and abs(j-y)==1:
             self.scores.white_pawns_count[y]+=1
             self.scores.white_pawns_count[j]-=1
-
 
         # Update threat by pawns score
         # Capturing a threatening pawn
@@ -285,6 +287,7 @@ class Board():
                 self.scores.white_pawns_count[y]-=1
             elif sym == 'P':
                 self.scores.black_pawns_count[y]-=1
+
         # Check if castling move was made
         if sym in ['k', 'K'] and abs(j-y)==2:  # Sufficient castling condition
             # Handle the rook move here and updating king safety value (we move the king later on)
@@ -307,7 +310,6 @@ class Board():
                     self.pieces[0][4]= White_Rook()
                     self.scores.king_safety += 0.13 # Update king safety score  
 
-
         # If move is capturing move update material score
         if captured_symbol!=None:
             self.scores.material -=self.pieces[x][y].value
@@ -319,23 +321,23 @@ class Board():
 
         # Check for pawn promotion
         if sym in ['p','P'] and x in [0,7]:
-            self.pawn_promotion()
+            self.pawn_promotion(x,y)
 
-        # If pawn moved, captured or promoted .... update pawn counts
+        # If pawn moved, captured or promoted .... update pawn counts and reset board strings
         if sym in ['p','P'] or captured_symbol in ['p','P']:
             self.scores.update_isolated_pawn_penalty()
             self.scores.update_double_pawns_penalty()
+            self.reset_board_strings = True
 
-    def pawn_promotion(self):
-        for i in range(8):
-            if self.pieces[0][i]!= None and self.pieces[0][i].symbol=='p':
-                self.pieces[0][i]= Black_Queen()
-                self.scores.material -=8
-                self.scores.black_pawns_count[i]-=1
-            if self.pieces[7][i]!= None and self.pieces[7][i].symbol=='P':
-                self.pieces[7][i]= White_Queen()
-                self.scores.material +=8
-                self.scores.white_pawns_count[i]-=1
+    def pawn_promotion(self,x,y):
+        if x==0 and self.pieces[0][y]!= None and self.pieces[0][y].symbol=='p':
+            self.pieces[0][y]= Black_Queen()
+            self.scores.material -=8
+            self.scores.black_pawns_count[y]-=1
+        if x==7 and self.pieces[7][y]!= None and self.pieces[7][y].symbol=='P':
+            self.pieces[7][y]= White_Queen()
+            self.scores.material +=8
+            self.scores.white_pawns_count[y]-=1
 
     def white_king_is_in_check(self):
         white_king_pos = self.white_king_position
