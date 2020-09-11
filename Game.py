@@ -695,7 +695,7 @@ class Game():
         if self.is_draw_by_threefold_repetition():
             self.gameIsDraw = True
             self.gameover = True
-            print('draw by threefold repetition')
+            #print('draw by threefold repetition')
 
         # Check for checkmate
         if self.is_checkmate():
@@ -705,19 +705,19 @@ class Game():
                 self.black_won = True
             else:
                 self.white_won = True
-            print('checkmate')
+            #print('checkmate')
 
         # Draw by lack of material
         if self.board.is_draw_by_lack_of_material():
             self.gameIsDraw = True
             self.gameover = True
-            print('draw by lack of material')
+            #print('draw by lack of material')
 
         # Check for stalemate
         if self.is_stalemate():
             self.gameIsDraw = True
             self.gameover = True
-            print('draw by stalemate')
+            #print('draw by stalemate')
 
     def update_castlability(self):
         # If a king move was made change castlability to false
@@ -808,17 +808,57 @@ class Game():
         # Return score after adjustments
         return score
 
+    def maximise_move_score_depth_0(self):
+        # Returns best move depth 0 (looking 0 moves ahead)
+        if self.white_turn:
+            best_move = None
+            best_score = -10000
+            for move in self.current_legal_moves:
+                copy_game = copy.deepcopy(self)     # on copy board
+                copy_game.board.make_move(move[0],move[1],move[2],move[3])  # Make move on copy board
+                copy_game.handle_new_successfully_made_move(move)   # Update castlability etc
+                score = copy_game.evaluate_position_score()
+                if score > best_score:
+                    best_score = score
+                    best_move = move
+            return best_move
+        else:   # Blacks turn 
+            best_move = None
+            best_score = 10000
+            for move in self.current_legal_moves:
+                copy_game = copy.deepcopy(self)     # on copy board
+                copy_game.board.make_move(move[0],move[1],move[2],move[3])  # Make move on copy board
+                copy_game.handle_new_successfully_made_move(move)   # Update castlability etc
+                score = copy_game.evaluate_position_score()
+                if score < best_score:
+                    best_score = score
+                    best_move = move
+            return best_move
+
     def maximise_move_score(self):
         # Returns best move (depth 1) for white and black
         if self.white_turn: # If white calculate max min (USE ALPHA BETA PRUNING)
             best_move = self.current_legal_moves[0] # Initialise best move to the first legal move
+            likely_replies = [] # Candidate good moves for black
             best_score = -1000000   # Compute best score of best move 
+            # Find likely reply
+            mov = self.current_legal_moves[0]
+            copy_game = copy.deepcopy(self)     # on copy board
+            copy_game.board.make_move(mov[0],mov[1],mov[2],mov[3])  # Make move on copy board
+            copy_game.handle_new_successfully_made_move(mov)   # Update castlability etc
+            likely_replies.append(copy_game.maximise_move_score_depth_0())
+            # For all other white moves try likely reply first (as the reply from black)
             for move in self.current_legal_moves:   # Try every legal white move
                 copy_game = copy.deepcopy(self)     # on copy board
                 copy_game.board.make_move(move[0],move[1],move[2],move[3])  # Make move on copy board
                 copy_game.handle_new_successfully_made_move(move)   # Update castlability etc
                 # Now it is Blacks turn... make all legal black moves
                 min_score = 100000  # Make the best black move (min score move)
+                for likely_reply in likely_replies:
+                    if likely_reply in copy_game.current_legal_moves:  # Remove and insert likely_reply at front of list
+                        copy_game.current_legal_moves.remove(likely_reply)  
+                        copy_game.current_legal_moves.insert(0,likely_reply)
+                best_reply = None   # Used to add new good replies for black
                 for move2 in copy_game.current_legal_moves: 
                     copy_copy_game = copy.deepcopy(copy_game)    # on copycopy board
                     copy_copy_game.board.make_move(move2[0],move2[1],move2[2],move2[3])  # Make move on copycopy board
@@ -827,8 +867,11 @@ class Game():
                     # We wish to minimise this score
                     if min_score > score:
                         min_score = copy.copy(score)
+                        best_reply = move2  # Update best reply
                     if move!=best_move and score < best_score:  # ALPHA BETA PRUNING
                         break
+                if best_reply!=None and best_reply not in likely_replies:    # Add best reply to likely replies
+                    likely_replies.append(best_reply)
                 if min_score>best_score:    # maximise these min scores
                     best_score = copy.deepcopy(min_score)
                     best_move = copy.deepcopy(move)
@@ -840,11 +883,21 @@ class Game():
             return best_move
         else:       # Black's turn calculate min max
             best_move = self.current_legal_moves[0] # Initialise best move to the first legal move
+            likely_reply = [] # Candidate good moves for white
             best_score = 1000000        # minimise score for black
+            # Find likely reply
+            mov = self.current_legal_moves[0]
+            copy_game = copy.deepcopy(self)     # on copy board
+            copy_game.board.make_move(mov[0],mov[1],mov[2],mov[3])  # Make move on copy board
+            copy_game.handle_new_successfully_made_move(mov)   # Update castlability etc
+            likely_reply = copy_game.maximise_move_score_depth_0()
             for move in self.current_legal_moves:   # Try every legal black move
                 copy_game = copy.deepcopy(self)     # on copy board
                 copy_game.board.make_move(move[0],move[1],move[2],move[3])  # Make move on copy board
                 copy_game.handle_new_successfully_made_move(move)   # Update castlability etc
+                if likely_reply in copy_game.current_legal_moves:  # If likely reply is legal move Remove and insert likely_reply at front of list
+                    copy_game.current_legal_moves.remove(likely_reply)  
+                    copy_game.current_legal_moves.insert(0,likely_reply)
                 # Now it is White's turn... make all legal black moves
                 max_score = -100000  # Make the best white move (max score move)
                 for move2 in copy_game.current_legal_moves: 
@@ -879,6 +932,7 @@ class Game():
                 return self.move_string_to_move(move_string)
             else:
                 self.out_of_book = True
+                
 
         if depth == 1:
             return self.maximise_move_score()
@@ -935,6 +989,7 @@ class Game():
         return [i,j,x,y]
 
     def move_to_move_string(self, move):
+        # Given move [i,j,x,y] return string "(i,j,x,y)"
         i = str(move[0])
         j = str(move[1])
         k = str(move[2])
@@ -949,6 +1004,7 @@ class Game():
         return string
 
     def update_book(self, move):
+        # Given a move update the book 
         self.book.update_book(self.move_to_move_string(move),self.move_number)
         if len(self.book.book_moves) == 0:
             self.out_of_book = True
