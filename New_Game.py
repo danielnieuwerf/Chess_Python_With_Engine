@@ -41,6 +41,8 @@ class New_Game():
                                         print(str(self.game.move_number)+" " +str(self.game.previous_move))
                                         print("Score: "+ str(self.game.evaluate_position_score()))
                                         self.game.board.scores.print_totals()
+                                        print(self.game.current_legal_moves)
+                                        print("out of book?", self.game.out_of_book)
                                     # Move request unsuccessful
                                     else:
                                         self.game.selected_SQUARE = y//SQUARE, x//SQUARE     # Select new SQUARE
@@ -148,6 +150,8 @@ class New_Game():
                                     self.game.board.make_move(i,j,y//SQUARE,x//SQUARE)   # Make move
                                     self.game.handle_new_successfully_made_move([i,j,y//SQUARE,x//SQUARE])
                                     print(self.game.previous_move)
+                                    print("Legal moves: ", self.game.current_legal_moves)
+                                    print("Score: ", self.game.board.scores.get_total())
                                 # Move request unsuccessful
                                 else:
                                     self.game.selected_SQUARE = y//SQUARE, x//SQUARE     # Select new SQUARE

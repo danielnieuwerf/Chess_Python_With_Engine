@@ -47,6 +47,32 @@ class Board():
         # Return diags
         return [diag1, diag2]
 
+    def get_diagonals_without_empty_squares(self,r,c):
+        # Returns [diag1,diag2] that go through r,c excluding empty squares
+        diag1, diag2 = "", ""
+        # Get diag1 and diag2
+        old_r, old_c = r, c
+        min1 = min(r,c)
+        min2 = min(r, 7-c)
+        r = r - min1
+        c = c - min1
+        while r<8 and c<8:
+            if self.pieces[r][c]!= None:
+                diag1 += self.pieces[r][c].symbol
+            r+=1    # Move in direction 1,1
+            c+=1
+
+        r = old_r - min2
+        c = old_c + min2
+        while r<8 and c>-1:
+            if self.pieces[r][c]!= None:
+                diag2 += self.pieces[r][c].symbol
+            r+=1    # Move in direction 1, -1
+            c-=1
+
+        # Return diags
+        return [diag1, diag2]
+
     def get_file(self, c):
         # Returns string of symbols for file c
         file = ""
@@ -339,6 +365,16 @@ class Board():
             self.scores.material +=8
             self.scores.white_pawns_count[y]-=1
 
+    def board_to_string(self):
+        board_string = ''
+        for i in range(8):
+            for j in range(8):
+                if self.pieces[i][j]==None:
+                    board_string += '.'
+                else:
+                    board_string += self.pieces[i][j].symbol
+        return board_string
+
     def white_king_is_in_check(self):
         white_king_pos = self.white_king_position
         row, col = white_king_pos[0], white_king_pos[1] # row and column of white king
@@ -522,13 +558,3 @@ class Board():
 
         # If we reach here the black king is not in check so return false
         return False
-
-    def board_to_string(self):
-        board_string = ''
-        for i in range(8):
-            for j in range(8):
-                if self.pieces[i][j]==None:
-                    board_string += '.'
-                else:
-                    board_string += self.pieces[i][j].symbol
-        return board_string

@@ -1,5 +1,6 @@
 from Pieces import *
 from Board import *
+from Book import *
 import random
 
 class Game():
@@ -7,15 +8,19 @@ class Game():
         self.white_king_can_castle = True
         self.black_king_can_castle = True
         self.white_turn = True
+        self.white_is_in_check = False
+        self.black_is_in_check = False
+        self.move_number = 1
         self.gameover, self.checkmate, self.stalemate = False, False, False
         self.gameIsDraw, self.white_won, self.black_won = False, False, False
+        self.out_of_book = False
+        self.book = Book()
         self.board = Board()
         self.selected_SQUARE = None  # i,j or None
-        self.previous_move = None     # Used in en passant logic
+        self.previous_move = [7,0,7,0]     # Used in en passant logic
         self.current_legal_moves = self.legal_moves()    # A list of all legal moves
         self.board_states = {}     # A mapping from board strings to how many times such a string has occurred in the game
-        self.move_number = 0       
-
+               
     def draw_window(self, surface):
         # Draw empty board
         WHITE = (238,238,210)
@@ -54,14 +59,13 @@ class Game():
 
     def is_checkmate(self):
         # If w/b turn and w/b king is in check and number of legal moves is 0 return true 
-        if self.white_turn and len(self.current_legal_moves)==0 and self.board.white_king_is_in_check():
-            return True
-        if (not self.white_turn) and len(self.current_legal_moves)==0 and self.board.black_king_is_in_check():
+        if (self.white_is_in_check or self.black_is_in_check) and len(self.current_legal_moves)==0:
             return True
         return False    
 
     def is_stalemate(self):
-        if len(self.current_legal_moves)==0 and (not self.board.black_king_is_in_check()) and (not self.board.white_king_is_in_check()):
+        # No legal moves and not in check
+        if len(self.current_legal_moves)==0 and not (self.black_is_in_check or self.white_is_in_check):
             return True
         return False
 
@@ -70,6 +74,194 @@ class Game():
             if value == 3:
                 return True
         return False
+
+    def update_check_status(self):
+        # Updates check status
+        prev_move = self.previous_move  # Previous move played- check if this piece revealed check or is checking opponents king
+        prev_move_was_white = self.board.pieces[prev_move[2]][prev_move[3]].white   # True if previous move was white piece
+        prev_move_symbol = self.board.pieces[prev_move[2]][prev_move[3]].symbol     # Symbol of previous move piece e.g 'k' for black king
+        if prev_move_was_white: #Check if black king is now in check
+            self.white_is_in_check = False  # White not in check
+            # Revealed checks
+                #
+                #   MUST CONSIDER EN PASSANT DISCOVERED CHECK IN REVEALED SECTIONS
+                #    AND DISCOVERED CASTLING CHECKS and pawn promo?
+                #
+            row, column = prev_move[0], prev_move[1]    # Row and column of initial position of previous move
+            black_king_position = self.board.black_king_position
+            if black_king_position[0]==row:    # If prev move initially shared a rank with black king
+                rank = self.board.get_rank_without_empty_squares(row)
+                if rank.find('kQ')!=-1 or rank.find('Qk')!=-1:
+                    self.black_is_in_check = True
+                    return
+                if rank.find('Rk')!=-1 or rank.find('kR')!=-1:
+                    self.black_is_in_check = True
+                    return
+            if black_king_position[1]==column:  # If prev move initially shared a file with black king
+                file = self.board.get_file_without_empty_squares(column)
+                if file.find('kQ')!=-1 or file.find('Qk')!=-1:
+                    self.black_is_in_check = True
+                    return
+                if file.find('Rk')!=-1 or file.find('kR')!=-1:
+                    self.black_is_in_check = True
+                    return
+            if abs(black_king_position[0]-row)==abs(black_king_position[1]-column): # If prev move initially shared a diagonal with black king
+                diagonals = self.board.get_diagonals_without_empty_squares(black_king_position[0], black_king_position[1]) # Get strings of symbols in both diagonals 
+                diag1 = diagonals[0]
+                diag2 = diagonals[1]
+                if diag1.find('kQ')!=-1 or diag1.find('kB')!=-1:
+                    self.black_is_in_check = True
+                    return
+                if diag1.find('Qk')!=-1 or diag1.find('Bk')!=-1:
+                    self.black_is_in_check = True
+                    return
+                if diag2.find('kQ')!=-1 or diag2.find('kB')!=-1:
+                    self.black_is_in_check = True
+                    return
+                if diag2.find('Qk')!=-1 or diag2.find('Bk')!=-1:
+                    self.black_is_in_check = True
+                    return
+            # Direct checks
+            if prev_move_symbol == 'N':
+                # Knight check
+                if (abs(black_king_position[0]-prev_move[2])==2 and abs(black_king_position[1]-prev_move[3])==1) or (abs(black_king_position[0]-prev_move[2])==1 and abs(black_king_position[1]-prev_move[3])==2):
+                    self.black_is_in_check = True
+                    return
+                else:
+                    self.black_is_in_check = False
+                    return
+            if prev_move_symbol == 'P':   
+                if black_king_position[0]==(1+prev_move[2]) and abs(black_king_position[1]-prev_move[3])==1:    # Column difference of 1 and black king pos row 1 more than pawn row
+                    self.black_is_in_check = True
+                    return
+                else:
+                    self.black_is_in_check = False
+                    return
+            if prev_move_symbol in ['B', 'Q']:
+                diagonals = self.board.get_diagonals_without_empty_squares(black_king_position[0], black_king_position[1])  # Get both diagonals strings
+                diag1 = diagonals[0]
+                diag2 = diagonals[1]
+                if diag1.find('kQ')!=-1 or diag1.find('kB')!=-1:
+                    self.black_is_in_check = True
+                    return
+                if diag1.find('Qk')!=-1 or diag1.find('Bk')!=-1:
+                    self.black_is_in_check = True
+                    return
+                if diag2.find('kQ')!=-1 or diag2.find('kB')!=-1:
+                    self.black_is_in_check = True
+                    return
+                if diag2.find('Qk')!=-1 or diag2.find('Bk')!=-1:
+                    self.black_is_in_check = True
+                    return
+            if prev_move_symbol in ['R', 'Q']:
+                rank = self.board.get_rank_without_empty_squares(black_king_position[0])
+                if rank.find('kQ')!=-1 or rank.find('Qk')!=-1:
+                    self.black_is_in_check = True
+                    return
+                if rank.find('Rk')!=-1 or rank.find('kR')!=-1:
+                    self.black_is_in_check = True
+                    return
+                file = self.board.get_file_without_empty_squares(black_king_position[0])
+                if file.find('kQ')!=-1 or file.find('Qk')!=-1:
+                    self.black_is_in_check = True
+                    return
+                if file.find('Rk')!=-1 or file.find('kR')!=-1:
+                    self.black_is_in_check = True
+                    return
+            
+            self.black_is_in_check = False
+            return    # Black king not in check
+        else: #Check if white king is now in check
+            self.black_is_in_check = False  # Black not in check
+            # Revealed checks
+                #
+                #   MUST CONSIDER EN PASSANT DISCOVERED CHECK IN REVEALED SECTIONS
+                #    AND DISCOVERED CASTLING CHECKS and pawn promo?
+                #
+            row, column = prev_move[0], prev_move[1]    # Row and column of initial position of previous move
+            white_king_position = self.board.white_king_position
+            if white_king_position[0]==row:    # If prev move initially shared a rank with white king
+                rank = self.board.get_rank_without_empty_squares(row)
+                if rank.find('Kq')!=-1 or rank.find('qK')!=-1:
+                    self.white_is_in_check = True
+                    return
+                if rank.find('rK')!=-1 or rank.find('Kr')!=-1:
+                    self.white_is_in_check = True
+                    return
+            if white_king_position[1]==column:  # If prev move initially shared a file with white king
+                file = self.board.get_file_without_empty_squares(column)
+                if file.find('Kq')!=-1 or file.find('qK')!=-1:
+                    self.white_is_in_check = True
+                    return
+                if file.find('rK')!=-1 or file.find('Kr')!=-1:
+                    self.white_is_in_check = True
+                    return
+            if abs(white_king_position[0]-row)==abs(white_king_position[1]-column): # If prev move initially shared a diagonal with white king
+                diagonals = self.board.get_diagonals_without_empty_squares(white_king_position[0], white_king_position[1]) # Get strings of symbols in both diagonals 
+                diag1 = diagonals[0]
+                diag2 = diagonals[1]
+                if diag1.find('Kq')!=-1 or diag1.find('Kb')!=-1:
+                    self.white_is_in_check = True
+                    return
+                if diag1.find('qK')!=-1 or diag1.find('bK')!=-1:
+                    self.white_is_in_check = True
+                    return
+                if diag2.find('Kq')!=-1 or diag2.find('Kb')!=-1:
+                    self.white_is_in_check = True
+                    return
+                if diag2.find('qK')!=-1 or diag2.find('bK')!=-1:
+                    self.white_is_in_check = True
+                    return
+            # Prev move directly checks the white king
+            if prev_move_symbol == 'n':
+                # Knight check
+                if (abs(white_king_position[0]-prev_move[2])==2 and abs(white_king_position[1]-prev_move[3])==1) or (abs(white_king_position[0]-prev_move[2])==1 and abs(white_king_position[1]-prev_move[3])==2):
+                    self.white_is_in_check = True
+                    return
+                else:
+                    self.white_is_in_check = False
+                    return
+            if prev_move_symbol == 'p':   
+                if white_king_position[0]==(prev_move[2]-1) and abs(white_king_position[1]-prev_move[3])==1:    # Column difference of 1 and white king pos row 1 more than pawn row
+                    self.white_is_in_check = True
+                    return
+                else:
+                    self.white_is_in_check = False
+                    return
+            if prev_move_symbol in ['b', 'q']:
+                diagonals = self.board.get_diagonals_without_empty_squares(white_king_position[0], white_king_position[1])  # Get both diagonals strings
+                diag1 = diagonals[0]
+                diag2 = diagonals[1]
+                if diag1.find('Kq')!=-1 or diag1.find('Kb')!=-1:
+                    self.white_is_in_check = True
+                    return
+                if diag1.find('qK')!=-1 or diag1.find('bK')!=-1:
+                    self.white_is_in_check = True
+                    return
+                if diag2.find('Kq')!=-1 or diag2.find('Kb')!=-1:
+                    self.white_is_in_check = True
+                    return
+                if diag2.find('qK')!=-1 or diag2.find('bK')!=-1:
+                    self.white_is_in_check = True
+                    return
+            if prev_move_symbol in ['r', 'q']:
+                rank = self.board.get_rank_without_empty_squares(white_king_position[0])
+                if rank.find('Kq')!=-1 or rank.find('qK')!=-1:
+                    self.white_is_in_check = True
+                    return
+                if rank.find('rK')!=-1 or rank.find('Kr')!=-1:
+                    self.white_is_in_check = True
+                    return
+                file = self.board.get_file_without_empty_squares(white_king_position[0])
+                if file.find('Kq')!=-1 or file.find('qK')!=-1:
+                    self.white_is_in_check = True
+                    return
+                if file.find('rK')!=-1 or file.find('Kr')!=-1:
+                    self.white_is_in_check = True
+                    return
+            
+            self.white_is_in_check = False
+            return   # White king not in check
 
     def legal_moves(self):
         moves = []  # Store legal moves here
@@ -426,25 +618,17 @@ class Game():
                                 for x in range(1,down_left+1):
                                     moves.append([i,j,i+x,j-x])
         
-
         # White captures with en passant
         prev_move = self.previous_move
-        if prev_move!=None and abs(prev_move[3]-prev_move[1])==2 and abs(self.board.pieces[prev_move[2]][prev_move[3]].value)== 1: # If previous move was made by a pawn moving 2 squares forward
-            black_pawn_moves = []
-            for i in range(8):
-                black_pawn_moves.append([6,i,4,i])     # All possible moves 2 forward by black pawn
-            if self.white_turn and prev_move in black_pawn_moves:
+        if abs(prev_move[2]-prev_move[0])==2 and abs(self.board.pieces[prev_move[2]][prev_move[3]].value)== 1: # If previous move was made by a pawn moving 2 squares forward
+            if self.white_turn:
                 # Must have a white pawn at [4, i+-1] if prev move [6,i,4,i]
                 if prev_move[1]>0 and self.board.pieces[4][prev_move[1]-1]!=None and self.board.pieces[4][prev_move[1]-1].symbol=='P':
                     moves.append([4,prev_move[1]-1,5,prev_move[1]])
                 if prev_move[1]<7 and self.board.pieces[4][prev_move[1]+1]!=None and self.board.pieces[4][prev_move[1]+1].symbol=='P':
                     moves.append([4,prev_move[1]+1,5,prev_move[1]])
-
             # Black captures with en passant
-            white_pawn_moves = []
-            for i in range(8):
-                white_pawn_moves.append([1,i,3,i])     # All possible moves 2 forward by white pawn
-            if self.white_turn== False and prev_move in white_pawn_moves:
+            else:
                 # Must have a black pawn at [3, i+-1] if prev move [1,i,3,i]
                 if prev_move[1]>0 and self.board.pieces[3][prev_move[1]-1]!=None and self.board.pieces[3][prev_move[1]-1].symbol=='p':
                     moves.append([3,prev_move[1]-1,2,prev_move[1]])
@@ -452,42 +636,53 @@ class Game():
                     moves.append([3,prev_move[1]+1,2,prev_move[1]])
             
         # Castling
-        if self.white_turn and self.white_king_can_castle:
+        if self.white_turn and not self.white_is_in_check and self.white_king_can_castle:
             rank0 = self.board.get_rank(0)  # If white king can castle we know the white king is at [0][3]
             if rank0.find('R..K')!=-1 and not self.board.king_side_castle_blocked(self.white_turn):
                 moves.append([0,3,0,1])
             if rank0.find('K...R')!=-1 and not self.board.queen_side_castle_blocked(self.white_turn):
                 moves.append([0,3,0,5])
-        if (not self.white_turn) and self.black_king_can_castle:
+        if (not self.white_turn) and (not self.black_is_in_check) and self.black_king_can_castle:
             rank7 = self.board.get_rank(7)  # If black king can castle we know the black king is at [7][3]
             if rank7.find('r..k')!=-1 and not self.board.king_side_castle_blocked(self.white_turn):
                 moves.append([7,3,7,1])
             if rank7.find('k...r')!=-1 and not self.board.queen_side_castle_blocked(self.white_turn):
                 moves.append([7,3,7,5])
         
-
         # Make the move on a copy board if it's invalid do not add it to valid_moves
         valid_moves = []
-        for move in moves:
-            copy_board = copy.deepcopy(self.board)
-            copy_board.make_move(move[0],move[1],move[2],move[3])  # Make move on copy board
-
-            if not self.white_turn and copy_board.black_king_is_in_check():
-                pass
-            elif self.white_turn and copy_board.white_king_is_in_check():
-                pass
-            else:
-                valid_moves.append(move)
+        if self.white_turn:
+            for move in moves:
+                copy_game = copy.deepcopy(self)
+                copy_game.board.make_move(move[0],move[1],move[2],move[3])  # Make move on copy board
+                if not copy_game.board.white_king_is_in_check():
+                    valid_moves.append(move)
+        else:   # Black's turn
+            for move in moves:
+                copy_game = copy.deepcopy(self)
+                copy_game.board.make_move(move[0],move[1],move[2],move[3])  # Make move on copy board
+                if not copy_game.board.black_king_is_in_check():
+                    valid_moves.append(move)
 
         return valid_moves
 
     def handle_new_successfully_made_move(self, move):
-    # If a new move has been made update current_legal_moves and check for gameover etc...
+    # If a new move has been made update check and current_legal_moves and check for gameover etc...
+        if not self.out_of_book:    # Update book
+            self.update_book(move)
         self.selected_SQUARE = None     # Unselect SQUARE
         self.white_turn = not self.white_turn   # Flip turn
         self.previous_move = move  # Update previous move
         board_string = self.board.board_to_string()  # Add to board states for 3fold repetition rule
         self.move_number += 1       # Update move number
+        self.update_castlability()      # If a king move was made change castability to false
+        # Update check (if you were in check you aren't anymore)
+        if self.black_is_in_check:
+            self.black_is_in_check = False
+        if self.white_is_in_check:
+            self.white_is_in_check = False
+        self.update_check_status()     
+        self.current_legal_moves = self.legal_moves()   # Calculate new legal moves
         if self.board.reset_board_strings:  # Reset board strings when old positions are no longer possible
             self.board_states = {}
             self.board.reset_board_strings = False
@@ -495,11 +690,6 @@ class Game():
             self.board_states[board_string] +=1
         else:
             self.board_states[board_string] = 1
-
-        self.current_legal_moves = self.legal_moves()   # Calculate new legal moves
-
-        # If a king move was made change castability to false
-        self.update_castlability()
 
         # Draw by threefold repetition
         if self.is_draw_by_threefold_repetition():
@@ -532,10 +722,6 @@ class Game():
     def update_castlability(self):
         # If a king move was made change castlability to false
         prev_move = self.previous_move
-        if prev_move == None:   # Must have a previous move
-            return 
-        if self.board.pieces[prev_move[2]][prev_move[3]]== None: # Must not be an empty SQUARE
-            return
         if self.board.pieces[prev_move[2]][prev_move[3]].symbol=='k':
             self.black_king_can_castle = False
         elif self.board.pieces[prev_move[2]][prev_move[3]].symbol=='K':
@@ -684,6 +870,16 @@ class Game():
             return best_move
 
     def engine_move_decision(self, depth = 1):
+        if not self.out_of_book:    # If not out of book make book move and update book
+            move_string = self.book.choose_book_move(self.move_number)
+            self.book.update_book(move_string,self.move_number) # Update book
+            if len(self.book.book_moves)==0:
+                self.out_of_book = True
+            if move_string !='':
+                return self.move_string_to_move(move_string)
+            else:
+                self.out_of_book = True
+
         if depth == 1:
             return self.maximise_move_score()
 
@@ -729,5 +925,30 @@ class Game():
 
                 return move_decision
 
+    def move_string_to_move(self, move_string):
+        # Return move from move string "(i,j,x,y)"
+        i = int(move_string[1])
+        j = int(move_string[3])
+        x = int(move_string[5])
+        y = int(move_string[7])
 
-        
+        return [i,j,x,y]
+
+    def move_to_move_string(self, move):
+        i = str(move[0])
+        j = str(move[1])
+        k = str(move[2])
+        l = str(move[3])
+        string ="("
+        for x in [i,j,k]:
+            string+=x
+            string+=','
+        string+= l
+        string+= ")"
+
+        return string
+
+    def update_book(self, move):
+        self.book.update_book(self.move_to_move_string(move),self.move_number)
+        if len(self.book.book_moves) == 0:
+            self.out_of_book = True
