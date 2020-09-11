@@ -2,7 +2,6 @@ import csv
 import random
 
 class Book():
-    # Maps list of moves played to a move (book move)
     # Store book moves in CSV file
     # Each row in the csv file is an opening variation
     # Store a list of lists of book moves
