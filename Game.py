@@ -1,5 +1,6 @@
 from Pieces import *
 from Board import *
+from CharBoard import *
 from Book import *
 import random
 
@@ -15,41 +16,13 @@ class Game():
         self.gameIsDraw, self.white_won, self.black_won = False, False, False
         self.out_of_book = False
         self.book = Book()
-        self.board = Board()
+        self.board = CharBoard()
         self.selected_SQUARE = None  # i,j or None
         self.previous_move = [7,0,7,0]     # Used in en passant logic
-        self.current_legal_moves = self.legal_moves()    # A list of all legal moves
         self.board_states = {}     # A mapping from board strings to how many times such a string has occurred in the game
-               
-    def draw_window(self, surface):
-        # Draw empty board
-        WHITE = (238,238,210)
-        DARK = (118,150,86)
-        for i in range(0,8):
-            for j in range(0,8):
-                if (i+j) % 2 ==1:
-                    pygame.draw.rect(surface, DARK, ((i*SQUARE, j*SQUARE), (SQUARE,SQUARE))) # dark squares
-                else:
-                    pygame.draw.rect(surface, WHITE, ((i*SQUARE, j*SQUARE), (SQUARE,SQUARE))) # light squares
-        
-        # Highlight selected SQUARE
-        if self.selected_SQUARE!= None:
-            i,j = self.selected_SQUARE
-            if (i+j)%2 ==1:
-                pygame.draw.rect(surface, (100,100,100), ((j*SQUARE, i*SQUARE), (SQUARE,SQUARE)))
-            else:
-                pygame.draw.rect(surface, (150,150,150), ((j*SQUARE, i*SQUARE), (SQUARE,SQUARE)))
-
-        # Draw pieces on board
-        for i in range(8):
-            for j in range(8):
-                try:
-                    surface.blit(self.board.pieces[i][j].image, (j*SQUARE, i*SQUARE))
-                except:
-                    pass
-
-        pygame.display.update()
-
+        self.current_legal_moves = []
+        self.current_legal_moves = self.legal_moves()    # A list of all legal moves
+         
     def resign(self):
         self.gameover = True
         if self.white_turn:
@@ -78,8 +51,8 @@ class Game():
     def update_check_status(self):
         # Updates check status
         prev_move = self.previous_move  # Previous move played- check if this piece revealed check or is checking opponents king
-        prev_move_was_white = self.board.pieces[prev_move[2]][prev_move[3]].white   # True if previous move was white piece
-        prev_move_symbol = self.board.pieces[prev_move[2]][prev_move[3]].symbol     # Symbol of previous move piece e.g 'k' for black king
+        prev_move_was_white = self.board.pieces[prev_move[2]][prev_move[3]].isupper()   # True if previous move was white piece
+        prev_move_symbol = self.board.pieces[prev_move[2]][prev_move[3]]     # Symbol of previous move piece e.g 'k' for black king
         if prev_move_was_white: #Check if black king is now in check
             self.white_is_in_check = False  # White not in check
             # Revealed checks
@@ -271,60 +244,60 @@ class Game():
             for i in range(8):
                 for j in range(8):
                 # Piece must be white
-                    if self.board.pieces[i][j]!= None and self.board.pieces[i][j].white:                        
+                    if self.board.pieces[i][j].isupper():                        
                         # Pawn
-                        if self.board.pieces[i][j].symbol == 'P':
-                            if i<7 and self.board.pieces[i+1][j]==None:
+                        if self.board.pieces[i][j] == 'P':
+                            if i<7 and self.board.pieces[i+1][j]=='.':
                                 moves.append([i,j,i+1,j])   # Move one SQUARE forward
-                            if i == 1 and self.board.pieces[2][j]==None and self.board.pieces[3][j]==None:
+                            if i == 1 and self.board.pieces[2][j]=='.' and self.board.pieces[3][j]=='.':
                                 moves.append([i,j,i+2,j])   # Move two squares forward on
-                            if i<7 and j<7 and (self.board.pieces[i+1][j+1]!= None and not self.board.pieces[i+1][j+1].white):
+                            if i<7 and j<7 and (self.board.pieces[i+1][j+1]!= '.' and not self.board.pieces[i+1][j+1].isupper()):
                                 moves.append([i,j,i+1,j+1]) # Capture piece
-                            if i<7 and j>0 and (self.board.pieces[i+1][j-1]!= None and not self.board.pieces[i+1][j-1].white):
+                            if i<7 and j>0 and (self.board.pieces[i+1][j-1]!= '.' and not self.board.pieces[i+1][j-1].isupper()):
                                 moves.append([i,j,i+1,j-1]) # Capture piece
                         
                         # Knight
-                        elif self.board.pieces[i][j].symbol == 'N':
-                            if i>0 and j>1 and ((self.board.pieces[i-1][j-2]==None) or (not self.board.pieces[i-1][j-2].white)):
+                        elif self.board.pieces[i][j] == 'N':
+                            if i>0 and j>1 and ((self.board.pieces[i-1][j-2]=='.') or (not self.board.pieces[i-1][j-2].isupper())):
                                 moves.append([i,j,i-1,j-2])
-                            if i>0 and j<6 and ((self.board.pieces[i-1][j+2]==None) or (not self.board.pieces[i-1][j+2].white)):
+                            if i>0 and j<6 and ((self.board.pieces[i-1][j+2]=='.') or (not self.board.pieces[i-1][j+2].isupper())):
                                 moves.append([i,j,i-1,j+2])
-                            if i>1 and j<7 and ((self.board.pieces[i-2][j+1]==None) or (not self.board.pieces[i-2][j+1].white)):
+                            if i>1 and j<7 and ((self.board.pieces[i-2][j+1]=='.') or (not self.board.pieces[i-2][j+1].isupper())):
                                 moves.append([i,j,i-2,j+1])
-                            if i>1 and j>0 and ((self.board.pieces[i-2][j-1]==None) or (not self.board.pieces[i-2][j-1].white)):
+                            if i>1 and j>0 and ((self.board.pieces[i-2][j-1]=='.') or (not self.board.pieces[i-2][j-1].isupper())):
                                 moves.append([i,j,i-2,j-1])
-                            if i<7 and j>1 and ((self.board.pieces[i+1][j-2]==None) or (not self.board.pieces[i+1][j-2].white)):
+                            if i<7 and j>1 and ((self.board.pieces[i+1][j-2]=='.') or (not self.board.pieces[i+1][j-2].isupper())):
                                 moves.append([i,j,i+1,j-2])
-                            if i<7 and j<6 and ((self.board.pieces[i+1][j+2]==None) or (not self.board.pieces[i+1][j+2].white)):
+                            if i<7 and j<6 and ((self.board.pieces[i+1][j+2]=='.') or (not self.board.pieces[i+1][j+2].isupper())):
                                 moves.append([i,j,i+1,j+2])
-                            if i<6 and j<7 and ((self.board.pieces[i+2][j+1]==None) or (not self.board.pieces[i+2][j+1].white)):
+                            if i<6 and j<7 and ((self.board.pieces[i+2][j+1]=='.') or (not self.board.pieces[i+2][j+1].isupper())):
                                 moves.append([i,j,i+2,j+1])
-                            if i<6 and j>0 and ((self.board.pieces[i+2][j-1]==None) or (not self.board.pieces[i+2][j-1].white)):
+                            if i<6 and j>0 and ((self.board.pieces[i+2][j-1]=='.') or (not self.board.pieces[i+2][j-1].isupper())):
                                 moves.append([i,j,i+2,j-1])
 
 
                         # King
-                        elif self.board.pieces[i][j].symbol == 'K':
-                            if i>0 and ((self.board.pieces[i-1][j]==None) or (not self.board.pieces[i-1][j].white)):
+                        elif self.board.pieces[i][j] == 'K':
+                            if i>0 and ((self.board.pieces[i-1][j]=='.') or (not self.board.pieces[i-1][j].isupper())):
                                 moves.append([i,j,i-1,j])
-                            if i>0 and j>0 and ((self.board.pieces[i-1][j-1]==None) or (not self.board.pieces[i-1][j-1].white)):
+                            if i>0 and j>0 and ((self.board.pieces[i-1][j-1]=='.') or (not self.board.pieces[i-1][j-1].isupper())):
                                 moves.append([i,j,i-1,j-1])
-                            if i>0 and j<7 and ((self.board.pieces[i-1][j+1]==None) or (not self.board.pieces[i-1][j+1].white)):
+                            if i>0 and j<7 and ((self.board.pieces[i-1][j+1]=='.') or (not self.board.pieces[i-1][j+1].isupper())):
                                 moves.append([i,j,i-1,j+1])
-                            if i<7 and ((self.board.pieces[i+1][j]==None) or (not self.board.pieces[i+1][j].white)):
+                            if i<7 and ((self.board.pieces[i+1][j]=='.') or (not self.board.pieces[i+1][j].isupper())):
                                 moves.append([i,j,i+1,j])
-                            if i<7 and j>0 and ((self.board.pieces[i+1][j-1]==None) or (not self.board.pieces[i+1][j-1].white)):
+                            if i<7 and j>0 and ((self.board.pieces[i+1][j-1]=='.') or (not self.board.pieces[i+1][j-1].isupper())):
                                 moves.append([i,j,i+1,j-1])
-                            if i<7 and j<7 and ((self.board.pieces[i+1][j+1]==None) or (not self.board.pieces[i+1][j+1].white)):
+                            if i<7 and j<7 and ((self.board.pieces[i+1][j+1]=='.') or (not self.board.pieces[i+1][j+1].isupper())):
                                 moves.append([i,j,i+1,j+1])
-                            if j>0 and ((self.board.pieces[i][j-1]==None) or (not self.board.pieces[i][j-1].white)):
+                            if j>0 and ((self.board.pieces[i][j-1]=='.') or (not self.board.pieces[i][j-1].isupper())):
                                 moves.append([i,j,i,j-1])
-                            if j<7 and ((self.board.pieces[i][j+1]==None) or (not self.board.pieces[i][j+1].white)):
+                            if j<7 and ((self.board.pieces[i][j+1]=='.') or (not self.board.pieces[i][j+1].isupper())):
                                 moves.append([i,j,i,j+1])
                             
 
                         # Vertical and horizontal moves by rooks and queens
-                        elif self.board.pieces[i][j].symbol in ['R','Q']:
+                        elif self.board.pieces[i][j] in ['R','Q']:
                             up, down, right, left = 0,0,0,0 # Indicates how many squares the piece can move in each direction
                             file_string = self.board.get_file(j)    
                             rank_string = self.board.get_rank(i)
@@ -385,7 +358,7 @@ class Game():
 
 
                         # Diagonal moves by bishops and queens
-                        if self.board.pieces[i][j].symbol in ['B','Q']:
+                        if self.board.pieces[i][j] in ['B','Q']:
                             diagonals = self.board.get_diagonals(i,j)
                             diag1, diag2 = diagonals[0], diagonals[1] # These are strings of length 8 like 'q.r..B..'
                             up_right, up_left , down_right, down_left = 0,0,0,0 # Indicates how many squares the piece can move in each direction
@@ -447,60 +420,60 @@ class Game():
             for i in range(8):
                 for j in range(8):
                 # Piece must be black
-                    if self.board.pieces[i][j]!= None and not self.board.pieces[i][j].white:                        
+                    if self.board.pieces[i][j]!= '.' and not self.board.pieces[i][j].isupper():                        
                         # Pawn
-                        if self.board.pieces[i][j].symbol == 'p':
-                            if i>0 and self.board.pieces[i-1][j]==None:
+                        if self.board.pieces[i][j] == 'p':
+                            if i>0 and self.board.pieces[i-1][j]=='.':
                                 moves.append([i,j,i-1,j])   # Move one SQUARE forward
-                            if i == 6 and self.board.pieces[5][j]==None and self.board.pieces[4][j]==None:
+                            if i == 6 and self.board.pieces[5][j]=='.' and self.board.pieces[4][j]=='.':
                                 moves.append([i,j,4,j])   # Move two squares forward on
-                            if i>0 and j<7 and (self.board.pieces[i-1][j+1]!= None and self.board.pieces[i-1][j+1].white):
+                            if i>0 and j<7 and (self.board.pieces[i-1][j+1]!= '.' and self.board.pieces[i-1][j+1].isupper()):
                                 moves.append([i,j,i-1,j+1]) # Capture piece
-                            if i>0 and j>0 and (self.board.pieces[i-1][j-1]!= None and self.board.pieces[i-1][j-1].white):
+                            if i>0 and j>0 and (self.board.pieces[i-1][j-1]!= '.' and self.board.pieces[i-1][j-1].isupper()):
                                 moves.append([i,j,i-1,j-1]) # Capture piece
                         
                         # Knight
-                        elif self.board.pieces[i][j].symbol == 'n':
-                            if i>0 and j>1 and ((self.board.pieces[i-1][j-2]==None) or (self.board.pieces[i-1][j-2].white)):
+                        elif self.board.pieces[i][j] == 'n':
+                            if i>0 and j>1 and ((self.board.pieces[i-1][j-2]=='.') or (self.board.pieces[i-1][j-2].isupper())):
                                 moves.append([i,j,i-1,j-2])
-                            if i>0 and j<6 and ((self.board.pieces[i-1][j+2]==None) or (self.board.pieces[i-1][j+2].white)):
+                            if i>0 and j<6 and ((self.board.pieces[i-1][j+2]=='.') or (self.board.pieces[i-1][j+2].isupper())):
                                 moves.append([i,j,i-1,j+2])
-                            if i>1 and j<7 and ((self.board.pieces[i-2][j+1]==None) or (self.board.pieces[i-2][j+1].white)):
+                            if i>1 and j<7 and ((self.board.pieces[i-2][j+1]=='.') or (self.board.pieces[i-2][j+1].isupper())):
                                 moves.append([i,j,i-2,j+1])
-                            if i>1 and j>0 and ((self.board.pieces[i-2][j-1]==None) or (self.board.pieces[i-2][j-1].white)):
+                            if i>1 and j>0 and ((self.board.pieces[i-2][j-1]=='.') or (self.board.pieces[i-2][j-1].isupper())):
                                 moves.append([i,j,i-2,j-1])
-                            if i<7 and j>1 and ((self.board.pieces[i+1][j-2]==None) or (self.board.pieces[i+1][j-2].white)):
+                            if i<7 and j>1 and ((self.board.pieces[i+1][j-2]=='.') or (self.board.pieces[i+1][j-2].isupper())):
                                 moves.append([i,j,i+1,j-2])
-                            if i<7 and j<6 and ((self.board.pieces[i+1][j+2]==None) or (self.board.pieces[i+1][j+2].white)):
+                            if i<7 and j<6 and ((self.board.pieces[i+1][j+2]=='.') or (self.board.pieces[i+1][j+2].isupper())):
                                 moves.append([i,j,i+1,j+2])
-                            if i<6 and j<7 and ((self.board.pieces[i+2][j+1]==None) or (self.board.pieces[i+2][j+1].white)):
+                            if i<6 and j<7 and ((self.board.pieces[i+2][j+1]=='.') or (self.board.pieces[i+2][j+1].isupper())):
                                 moves.append([i,j,i+2,j+1])
-                            if i<6 and j>0 and ((self.board.pieces[i+2][j-1]==None) or (self.board.pieces[i+2][j-1].white)):
+                            if i<6 and j>0 and ((self.board.pieces[i+2][j-1]=='.') or (self.board.pieces[i+2][j-1].isupper())):
                                 moves.append([i,j,i+2,j-1])
 
 
                         # King
-                        elif self.board.pieces[i][j].symbol == 'k':
-                            if i>0 and ((self.board.pieces[i-1][j]==None) or (self.board.pieces[i-1][j].white)):
+                        elif self.board.pieces[i][j] == 'k':
+                            if i>0 and ((self.board.pieces[i-1][j]=='.') or (self.board.pieces[i-1][j].isupper())):
                                 moves.append([i,j,i-1,j])
-                            if i>0 and j>0 and ((self.board.pieces[i-1][j-1]==None) or (self.board.pieces[i-1][j-1].white)):
+                            if i>0 and j>0 and ((self.board.pieces[i-1][j-1]=='.') or (self.board.pieces[i-1][j-1].isupper())):
                                 moves.append([i,j,i-1,j-1])
-                            if i>0 and j<7 and ((self.board.pieces[i-1][j+1]==None) or (self.board.pieces[i-1][j+1].white)):
+                            if i>0 and j<7 and ((self.board.pieces[i-1][j+1]=='.') or (self.board.pieces[i-1][j+1].isupper())):
                                 moves.append([i,j,i-1,j+1])
-                            if i<7 and ((self.board.pieces[i+1][j]==None) or (self.board.pieces[i+1][j].white)):
+                            if i<7 and ((self.board.pieces[i+1][j]=='.') or (self.board.pieces[i+1][j].isupper())):
                                 moves.append([i,j,i+1,j])
-                            if i<7 and j>0 and ((self.board.pieces[i+1][j-1]==None) or (self.board.pieces[i+1][j-1].white)):
+                            if i<7 and j>0 and ((self.board.pieces[i+1][j-1]=='.') or (self.board.pieces[i+1][j-1].isupper())):
                                 moves.append([i,j,i+1,j-1])
-                            if i<7 and j<7 and ((self.board.pieces[i+1][j+1]==None) or (self.board.pieces[i+1][j+1].white)):
+                            if i<7 and j<7 and ((self.board.pieces[i+1][j+1]=='.') or (self.board.pieces[i+1][j+1].isupper())):
                                 moves.append([i,j,i+1,j+1])
-                            if j>0 and ((self.board.pieces[i][j-1]==None) or (self.board.pieces[i][j-1].white)):
+                            if j>0 and ((self.board.pieces[i][j-1]=='.') or (self.board.pieces[i][j-1].isupper())):
                                 moves.append([i,j,i,j-1])
-                            if j<7 and ((self.board.pieces[i][j+1]==None) or (self.board.pieces[i][j+1].white)):
+                            if j<7 and ((self.board.pieces[i][j+1]=='.') or (self.board.pieces[i][j+1].isupper())):
                                 moves.append([i,j,i,j+1])
                             
 
                         # Vertical and horizontal moves by rooks and queens
-                        elif self.board.pieces[i][j].symbol in ['r','q']:
+                        elif self.board.pieces[i][j] in ['r','q']:
                             up, down, right, left = 0,0,0,0 # Indicates how many squares the piece can move in each direction
                             file_string = self.board.get_file(j)    
                             rank_string = self.board.get_rank(i)
@@ -561,7 +534,7 @@ class Game():
 
 
                         # Diagonal moves by bishops and queens
-                        if self.board.pieces[i][j].symbol in ['b','q']:
+                        if self.board.pieces[i][j] in ['b','q']:
                             diagonals = self.board.get_diagonals(i,j)
                             diag1, diag2 = diagonals[0], diagonals[1] # These are strings of length 8 like 'q.r..B..'
                             up_right, up_left , down_right, down_left = 0,0,0,0 # Indicates how many squares the piece can move in each direction
@@ -620,19 +593,19 @@ class Game():
         
         # White captures with en passant
         prev_move = self.previous_move
-        if abs(prev_move[2]-prev_move[0])==2 and abs(self.board.pieces[prev_move[2]][prev_move[3]].value)== 1: # If previous move was made by a pawn moving 2 squares forward
+        if abs(prev_move[2]-prev_move[0])==2 and self.board.pieces[prev_move[2]][prev_move[3]] in ['p','P']: # If previous move was made by a pawn moving 2 squares forward
             if self.white_turn:
                 # Must have a white pawn at [4, i+-1] if prev move [6,i,4,i]
-                if prev_move[1]>0 and self.board.pieces[4][prev_move[1]-1]!=None and self.board.pieces[4][prev_move[1]-1].symbol=='P':
+                if prev_move[1]>0 and self.board.pieces[4][prev_move[1]-1]!='.' and self.board.pieces[4][prev_move[1]-1]=='P':
                     moves.append([4,prev_move[1]-1,5,prev_move[1]])
-                if prev_move[1]<7 and self.board.pieces[4][prev_move[1]+1]!=None and self.board.pieces[4][prev_move[1]+1].symbol=='P':
+                if prev_move[1]<7 and self.board.pieces[4][prev_move[1]+1]!='.' and self.board.pieces[4][prev_move[1]+1]=='P':
                     moves.append([4,prev_move[1]+1,5,prev_move[1]])
             # Black captures with en passant
             else:
                 # Must have a black pawn at [3, i+-1] if prev move [1,i,3,i]
-                if prev_move[1]>0 and self.board.pieces[3][prev_move[1]-1]!=None and self.board.pieces[3][prev_move[1]-1].symbol=='p':
+                if prev_move[1]>0 and self.board.pieces[3][prev_move[1]-1]!='.' and self.board.pieces[3][prev_move[1]-1]=='p':
                     moves.append([3,prev_move[1]-1,2,prev_move[1]])
-                if prev_move[1]<7 and self.board.pieces[3][prev_move[1]+1]!=None and self.board.pieces[3][prev_move[1]+1].symbol=='p':
+                if prev_move[1]<7 and self.board.pieces[3][prev_move[1]+1]!='.' and self.board.pieces[3][prev_move[1]+1]=='p':
                     moves.append([3,prev_move[1]+1,2,prev_move[1]])
             
         # Castling
@@ -722,9 +695,9 @@ class Game():
     def update_castlability(self):
         # If a king move was made change castlability to false
         prev_move = self.previous_move
-        if self.board.pieces[prev_move[2]][prev_move[3]].symbol=='k':
+        if self.board.pieces[prev_move[2]][prev_move[3]]=='k':
             self.black_king_can_castle = False
-        elif self.board.pieces[prev_move[2]][prev_move[3]].symbol=='K':
+        elif self.board.pieces[prev_move[2]][prev_move[3]]=='K':
             self.white_king_can_castle = False
     
     def evaluate_position_score(self):
@@ -742,7 +715,7 @@ class Game():
         unprotected_capturable_value = 0
         capture_squares = []    # Squares on which captures (not necessarily unprotected captures) can occur
         for move in self.current_legal_moves:
-            if self.board.pieces[move[2]][move[3]]!=None and [move[2],move[3]] not in capture_squares:    # if moves onto a piece (capturing move)
+            if self.board.pieces[move[2]][move[3]]!='.' and [move[2],move[3]] not in capture_squares:    # if moves onto a piece (capturing move)
                 capture_squares.append([move[2],move[3]])
                 copy_game = copy.deepcopy(self)     # on copy board
                 copy_game.board.make_move(move[0],move[1],move[2],move[3])  # Make move on copy board
@@ -754,7 +727,7 @@ class Game():
                         break
                         
                 if not recapturable:
-                    unprotected_capturable_value -= self.board.pieces[move[2]][move[3]].value
+                    unprotected_capturable_value -= self.board.char_to_value(self.board.pieces[move[2]][move[3]])
         self.board.scores.capturable_unprotected = 0.8*unprotected_capturable_value # Update unprotected capturables value 
         
         score = self.board.scores.get_total() # Initialise score to stored board scores total
@@ -770,8 +743,8 @@ class Game():
         max_capture = 0
         for move in self.current_legal_moves:
             try:
-                if abs(self.board.pieces[move[2]][move[3]].value)>1:    # Find capturing moves on pieces (not pawns)
-                    capture_value = abs(self.board.pieces[move[2]][move[3]].value)-abs(self.board.pieces[move[0]][move[1]].value)
+                if abs(self.board.char_to_value(self.board.pieces[move[2]][move[3]]))>1:    # Find capturing moves on pieces (not pawns)
+                    capture_value = abs(self.board.char_to_value(self.board.pieces[move[2]][move[3]]))-abs(self.board.char_to_value(self.board.pieces[move[0]][move[1]]))
                     if capture_value>max_capture:
                         max_capture = copy.copy(capture_value)
             except:
@@ -811,7 +784,7 @@ class Game():
     def maximise_move_score_depth_0(self):
         # Returns best move depth 0 (looking 0 moves ahead)
         if self.white_turn:
-            best_move = None
+            best_move = '.'
             best_score = -10000
             for move in self.current_legal_moves:
                 copy_game = copy.deepcopy(self)     # on copy board
@@ -823,7 +796,7 @@ class Game():
                     best_move = move
             return best_move
         else:   # Blacks turn 
-            best_move = None
+            best_move = '.'
             best_score = 10000
             for move in self.current_legal_moves:
                 copy_game = copy.deepcopy(self)     # on copy board
@@ -858,7 +831,7 @@ class Game():
                     if likely_reply in copy_game.current_legal_moves:  # Remove and insert likely_reply at front of list
                         copy_game.current_legal_moves.remove(likely_reply)  
                         copy_game.current_legal_moves.insert(0,likely_reply)
-                best_reply = None   # Used to add new good replies for black
+                best_reply = '.'   # Used to add new good replies for black
                 for move2 in copy_game.current_legal_moves: 
                     copy_copy_game = copy.deepcopy(copy_game)    # on copycopy board
                     copy_copy_game.board.make_move(move2[0],move2[1],move2[2],move2[3])  # Make move on copycopy board
@@ -870,7 +843,7 @@ class Game():
                         best_reply = move2  # Update best reply
                     if move!=best_move and score < best_score:  # ALPHA BETA PRUNING
                         break
-                if best_reply!=None and best_reply not in likely_replies:    # Add best reply to likely replies
+                if best_reply!='.' and best_reply not in likely_replies:    # Add best reply to likely replies
                     likely_replies.append(best_reply)
                 if min_score>best_score:    # maximise these min scores
                     best_score = copy.deepcopy(min_score)

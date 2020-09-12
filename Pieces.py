@@ -15,7 +15,7 @@ class Piece():
         cp.value = self.value
         cp.white = self.white
         cp.symbol = self.symbol
-        return copy.copy(cp)
+        return cp
 
 class Black_Pawn(Piece):
     def __init__(self):

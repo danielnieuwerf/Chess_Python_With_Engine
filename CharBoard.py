@@ -1,16 +1,16 @@
-from Pieces import *
 from Scores import *
-# Board class initialised to game start
-class Board():
+import copy
+class CharBoard:
+    """Char representation of the board"""
     def __init__(self):
-        self.pieces = [[White_Rook(), White_Knight(), White_Bishop(), White_King(), White_Queen(), White_Bishop(), White_Knight(), White_Rook()],
-                       [White_Pawn(), White_Pawn(), White_Pawn(), White_Pawn(), White_Pawn(), White_Pawn(), White_Pawn(), White_Pawn()],
-                       [None, None, None, None, None, None, None, None],
-                       [None, None, None, None, None, None, None, None],
-                       [None, None, None, None, None, None, None, None],
-                       [None, None, None, None, None, None, None, None],
-                       [Black_Pawn(), Black_Pawn(), Black_Pawn(), Black_Pawn(), Black_Pawn(), Black_Pawn(), Black_Pawn(), Black_Pawn()],
-                       [Black_Rook(), Black_Knight(), Black_Bishop(), Black_King(), Black_Queen(), Black_Bishop(), Black_Knight(), Black_Rook()]
+        self.pieces = [['R', 'N', 'B', 'K', 'Q', 'B', 'N', 'R'],
+                       ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
+                       ['.', '.', '.', '.', '.', '.', '.', '.'],
+                       ['.', '.', '.', '.', '.', '.', '.', '.'],
+                       ['.', '.', '.', '.', '.', '.', '.', '.'],
+                       ['.', '.', '.', '.', '.', '.', '.', '.'],
+                       ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
+                       ['r', 'n', 'b', 'k', 'q', 'b', 'n', 'r']
                       ]
         self.scores = Scores()
         self.white_king_position = [0,3]
@@ -27,8 +27,8 @@ class Board():
         r = r - min1
         c = c - min1
         while r<8 and c<8:
-            if self.pieces[r][c]!= None:
-                diag1 += self.pieces[r][c].symbol
+            if self.pieces[r][c]!= '.':
+                diag1 += self.pieces[r][c]
             else:
                 diag1 += '.'
             r+=1    # Move in direction 1,1
@@ -37,8 +37,8 @@ class Board():
         r = old_r - min2
         c = old_c + min2
         while r<8 and c>-1:
-            if self.pieces[r][c]!= None:
-                diag2 += self.pieces[r][c].symbol
+            if self.pieces[r][c]!= '.':
+                diag2 += self.pieces[r][c]
             else:
                 diag2 += '.'
             r+=1    # Move in direction 1, -1
@@ -57,16 +57,16 @@ class Board():
         r = r - min1
         c = c - min1
         while r<8 and c<8:
-            if self.pieces[r][c]!= None:
-                diag1 += self.pieces[r][c].symbol
+            if self.pieces[r][c]!= '.':
+                diag1 += self.pieces[r][c]
             r+=1    # Move in direction 1,1
             c+=1
 
         r = old_r - min2
         c = old_c + min2
         while r<8 and c>-1:
-            if self.pieces[r][c]!= None:
-                diag2 += self.pieces[r][c].symbol
+            if self.pieces[r][c]!= '.':
+                diag2 += self.pieces[r][c]
             r+=1    # Move in direction 1, -1
             c-=1
 
@@ -77,8 +77,8 @@ class Board():
         # Returns string of symbols for file c
         file = ""
         for i in range(8):
-            if self.pieces[i][c]!=None:
-                file += self.pieces[i][c].symbol
+            if self.pieces[i][c]!='.':
+                file += self.pieces[i][c]
             else:
                 file += "." # Empty SQUARE
 
@@ -87,16 +87,16 @@ class Board():
     def get_file_without_empty_squares(self,c):
         file = ""
         for i in range(8):
-            if self.pieces[i][c]!=None:
-                file += self.pieces[i][c].symbol
+            if self.pieces[i][c]!='.':
+                file += self.pieces[i][c]
         return file
 
     def get_rank(self, r):
         # Returns string of piece symbols for rank r
         rank = ""
         for i in range(8):
-            if self.pieces[r][i]!=None:
-                rank += self.pieces[r][i].symbol
+            if self.pieces[r][i]!='.':
+                rank += self.pieces[r][i]
             else:
                 rank += "." # Empty SQUARE
 
@@ -105,8 +105,8 @@ class Board():
     def get_rank_without_empty_squares(self,r):
         rank = ''
         for i in range(8):
-            if self.pieces[r][i]!=None:
-                rank += self.pieces[r][i].symbol
+            if self.pieces[r][i]!='.':
+                rank += self.pieces[r][i]
         return rank
             
     def is_draw_by_lack_of_material(self):
@@ -114,14 +114,14 @@ class Board():
         pieces =[]
         for row in self.pieces:
             for piece in row:
-                if piece!= None:
+                if piece!= '.':
                     # If board contains a pawn queen or rook return false
-                    if type(piece)==White_Pawn or type(piece)==Black_Pawn:
+                    if piece in ['p', 'P']:
                         return False
-                    if piece.symbol =='q' or piece.symbol =='Q' or piece.symbol =='r' or piece.symbol =='R':
+                    if piece in ['q', 'Q', 'r', 'R']:
                         return False
                     # Else append the piece into pieces
-                    pieces.append(piece.symbol)
+                    pieces.append(piece)
         # If we reach here pieces contains only kings, knights and bishops
         return len(pieces)<4    # Return true if length less than 4 else false
 
@@ -159,14 +159,11 @@ class Board():
         # Try to make a move from board[i][j] to board[x][y]
         # Update scores when appropriate within this function
         # Update king positions where appropriate
-        try:
-            sym = self.pieces[i][j].symbol  # If try to move an empty square return
-        except:
+        sym = self.pieces[i][j]
+        if sym == '.':  # If try to move an empty square
             return
-        try:
-            captured_symbol = self.pieces[x][y].symbol
-        except:
-            captured_symbol = None
+        
+        captured_symbol = self.pieces[x][y] # '.' if not capturing move
 
         # Update king positions
         if sym == 'k':
@@ -175,13 +172,6 @@ class Board():
             self.white_king_position = [x,y]
 
         # Update control of the centre
-        """
-        if (i in [2,3,4,5] and j in [2,3,4,5]) or (x in [2,3,4,5] and y in [2,3,4,5]):    # Move from outside centre to inside centre
-            if sym.islower():
-                self.scores.control_of_centre -= 0.1
-            else:
-                self.scores.control_of_centre += 0.1
-        """
 
         # Update pawn counts
         if captured_symbol == 'P':
@@ -198,81 +188,81 @@ class Board():
         # Update threat by pawns score
         # Capturing a threatening pawn
         if captured_symbol== 'p':   # Capturing black pawn
-            if x!=0 and y!=0 and self.pieces[x-1][y-1]!=None and self.pieces[x-1][y-1].symbol in ['N','B','R','Q']:   # If black pawn was threatening
+            if x!=0 and y!=0 and self.pieces[x-1][y-1] in ['N','B','R','Q']:   # If black pawn was threatening
                 self.scores.threat_by_pawns += 0.05
-            if x!=0 and y!=7 and self.pieces[x-1][y+1]!=None and self.pieces[x-1][y+1].symbol in ['N','B','R','Q']:
+            if x!=0 and y!=7 and self.pieces[x-1][y+1] in ['N','B','R','Q']:
                 self.scores.threat_by_pawns += 0.05
         elif captured_symbol== 'P': # Capturing white pawn
-            if x!=7 and y!=0 and self.pieces[x+1][y-1]!=None and self.pieces[x+1][y-1].symbol in ['n','b','r','q']:   # If white pawn was threatening
+            if x!=7 and y!=0 and self.pieces[x+1][y-1] in ['n','b','r','q']:   # If white pawn was threatening
                 self.scores.threat_by_pawns -= 0.05
-            if x!=7 and y!=7 and self.pieces[x+1][y+1]!=None and self.pieces[x+1][y+1].symbol in ['n','b','r','q']:
+            if x!=7 and y!=7 and self.pieces[x+1][y+1] in ['n','b','r','q']:
                 self.scores.threat_by_pawns -= 0.05
         # Move a pawn
         if sym == 'p':  # Move a black pawn
             initial_threat = 0  # number of pieces the pawn threatens
-            if j!=0 and i!=0 and self.pieces[i-1][j-1]!=None and self.pieces[i-1][j-1].symbol in ['N','B','R','Q']:
+            if j!=0 and i!=0 and self.pieces[i-1][j-1] in ['N','B','R','Q']:
                 initial_threat +=1
-            if i!=0 and j!=7 and self.pieces[i-1][j+1]!=None and self.pieces[i-1][j+1].symbol in ['N','B','R','Q']:
+            if i!=0 and j!=7 and self.pieces[i-1][j+1] in ['N','B','R','Q']:
                 initial_threat +=1
             final_threat = 0
             if x!=0:    # If not pawn promotion
-                if j!=0 and self.pieces[x-1][j-1]!=None and self.pieces[x-1][j-1].symbol in ['N','B','R','Q']:
+                if j!=0 and self.pieces[x-1][j-1] in ['N','B','R','Q']:
                     final_threat +=1
-                if j!=7 and self.pieces[x-1][j+1]!=None and self.pieces[x-1][j+1].symbol in ['N','B','R','Q']:
+                if j!=7 and self.pieces[x-1][j+1] in ['N','B','R','Q']:
                     final_threat +=1
             threat_change = (final_threat - initial_threat)
             self.scores.threat_by_pawns -= (threat_change*0.05)  # Update threat by pawn
         elif sym == 'P':    # Move a white pawn
             initial_threat = 0
-            if i!=7 and j!=0 and self.pieces[i+1][j-1]!=None and self.pieces[i+1][j-1].symbol in ['n','b','r','q']:
+            if i!=7 and j!=0 and self.pieces[i+1][j-1] in ['n','b','r','q']:
                 initial_threat +=1
-            if i!=7 and j!=7 and self.pieces[i+1][j+1]!=None and self.pieces[i+1][j+1].symbol in ['n','b','r','q']:
+            if i!=7 and j!=7 and self.pieces[i+1][j+1] in ['n','b','r','q']:
                 initial_threat +=1
             final_threat = 0
             if x!=7:    # If not pawn promotion
-                if j!=0 and self.pieces[x+1][j-1]!=None and self.pieces[x+1][j-1].symbol in ['n','b','r','q']:
+                if j!=0 and self.pieces[x+1][j-1] in ['n','b','r','q']:
                     final_threat +=1
-                if j!=7 and self.pieces[x+1][j+1]!=None and self.pieces[x+1][j+1].symbol in ['n','b','r','q']:
+                if j!=7 and self.pieces[x+1][j+1] in ['n','b','r','q']:
                     final_threat +=1
             threat_change = (final_threat - initial_threat)
             self.scores.threat_by_pawns += (threat_change*0.05)  # Update threat by pawn
         # Move a piece away from/ to threatening pawn
         if sym in ['n','b','r','q']:    # Move black piece
             initial_threat = 0  # Initial threat to moving black piece
-            if i>1 and j!=0 and self.pieces[i-1][j-1]!=None and self.pieces[i-1][j-1].symbol == 'P':
+            if i>1 and j!=0 and self.pieces[i-1][j-1] == 'P':
                 initial_threat +=1
-            if i>1 and j!=7 and self.pieces[i-1][j+1]!=None and self.pieces[i-1][j+1].symbol == 'P':
+            if i>1 and j!=7 and self.pieces[i-1][j+1] == 'P':
                 initial_threat +=1
             final_threat = 0
-            if x>1 and y!=0 and self.pieces[x-1][y-1]!=None and self.pieces[x-1][y-1].symbol == 'P':
+            if x>1 and y!=0 and self.pieces[x-1][y-1]== 'P':
                 final_threat +=1
-            if x>1 and y!=7 and self.pieces[x-1][y+1]!=None and self.pieces[x-1][y+1].symbol == 'P':
+            if x>1 and y!=7 and self.pieces[x-1][y+1]== 'P':
                 final_threat +=1
             threat_change = final_threat - initial_threat
             self.scores.threat_by_pawns += (threat_change*0.05)
         elif sym in ['N','B','R','Q']:  # Move white piece
             initial_threat = 0  # Initial threat to moving white piece
-            if i<6 and j!=0 and self.pieces[i+1][j-1]!=None and self.pieces[i+1][j-1].symbol == 'p':
+            if i<6 and j!=0 and self.pieces[i+1][j-1]== 'p':
                 initial_threat +=1
-            if i<6 and j!=7 and self.pieces[i+1][j+1]!=None and self.pieces[i+1][j+1].symbol == 'p':
+            if i<6 and j!=7 and self.pieces[i+1][j+1] == 'p':
                 initial_threat +=1
             final_threat = 0
-            if x<6 and y!=0 and self.pieces[x+1][y-1]!=None and self.pieces[x+1][y-1].symbol == 'p':
+            if x<6 and y!=0 and self.pieces[x+1][y-1] == 'p':
                 final_threat +=1
-            if x<6 and y!=7 and self.pieces[x+1][y+1]!=None and self.pieces[x+1][y+1].symbol == 'p':
+            if x<6 and y!=7 and self.pieces[x+1][y+1] == 'p':
                 final_threat +=1
             threat_change = final_threat - initial_threat
             self.scores.threat_by_pawns -= (threat_change*0.05)
         # A piece threatened by a pawn was captured 
         if captured_symbol in ['n','b','r','q']:    # Capture black piece
-            if x>0 and y>0 and self.pieces[x-1][y-1]!=None and self.pieces[x-1][y-1].symbol=='P':
+            if x>0 and y>0 and self.pieces[x-1][y-1] =='P':
                 self.scores.threat_by_pawns -=0.05
-            if x>0 and y<7 and self.pieces[x-1][y+1]!=None and self.pieces[x-1][y+1].symbol=='P':
+            if x>0 and y<7 and self.pieces[x-1][y+1] =='P':
                 self.scores.threat_by_pawns -=0.05
         elif captured_symbol in ['N','B','R','Q']:  # Capture white piece
-            if x<7 and y>0 and self.pieces[x+1][y-1]!=None and self.pieces[x+1][y-1].symbol=='p':
+            if x<7 and y>0 and self.pieces[x+1][y-1] =='p':
                 self.scores.threat_by_pawns +=0.05
-            if x<7 and y<7 and self.pieces[x+1][y+1]!=None and self.pieces[x+1][y+1].symbol=='p':
+            if x<7 and y<7 and self.pieces[x+1][y+1] =='p':
                 self.scores.threat_by_pawns +=0.05
 
         # Update bad knights score
@@ -293,20 +283,20 @@ class Board():
                 self.scores.bad_knights -= 0.1
 
         # Check if enpassant move was made
-        if abs(i-x)==1 and abs(j-y)==1 and self.pieces[x][y]==None and sym in ['p','P']:   # If this we have en passant
-            self.pieces[i][y] = None    # Delete captured pawn by enpassant and move the capturing pawn later in the function
+        if abs(i-x)==1 and abs(j-y)==1 and self.pieces[x][y]=='.' and sym in ['p','P']:   # If this we have en passant
+            self.pieces[i][y] = '.'    # Delete captured pawn by enpassant and move the capturing pawn later in the function
             # Update threatened by pawns score contributed by the captured pawn
             if x == 2: # Captured white pawn
                 self.scores.material -=1    # Pawn value 1 captured
-                if y!=0 and self.pieces[4][y-1]!= None and self.pieces[4][y-1].symbol in ['n','b','r','q']:
+                if y!=0 and self.pieces[4][y-1] in ['n','b','r','q']:
                     self.scores.threat_by_pawns -=0.05
-                if y!=7 and self.pieces[4][y+1]!= None and self.pieces[4][y+1].symbol in ['n','b','r','q']:
+                if y!=7 and self.pieces[4][y+1] in ['n','b','r','q']:
                     self.scores.threat_by_pawns -=0.05
             elif x == 5:  # Captured black pawn by en passant
                 self.scores.material +=1    # Pawn value -1 captured
-                if y!=0 and self.pieces[3][y-1]!= None and self.pieces[3][y-1].symbol in ['N','B','R','Q']:
+                if y!=0 and self.pieces[3][y-1] in ['N','B','R','Q']:
                     self.scores.threat_by_pawns +=0.05
-                if y!=7 and self.pieces[3][y+1]!= None and self.pieces[3][y+1].symbol in ['N','B','R','Q']:
+                if y!=7 and self.pieces[3][y+1] in ['N','B','R','Q']:
                     self.scores.threat_by_pawns +=0.05
             # Update pawn counts
             if sym == 'p':
@@ -319,30 +309,30 @@ class Board():
             # Handle the rook move here and updating king safety value (we move the king later on)
             if sym == 'k':  # Black king castling
                 if y==1:    # King side castling
-                    self.pieces[7][0]= None # Move rook
-                    self.pieces[7][2]= Black_Rook()
+                    self.pieces[7][0]= '.' # Move rook
+                    self.pieces[7][2]= 'r'
                     self.scores.king_safety -= 0.14 # Update king safety score  
                 elif y==5:  # Queen side castling
-                    self.pieces[7][7]= None # Move rook
-                    self.pieces[7][4]= Black_Rook()
+                    self.pieces[7][7]= '.' # Move rook
+                    self.pieces[7][4]= 'r'
                     self.scores.king_safety -= 0.13 # Update king safety score       
             elif sym == 'K': # White king castling
                 if y==1:    # King side castling
-                    self.pieces[0][0]= None # Move rook
-                    self.pieces[0][2]= White_Rook()
+                    self.pieces[0][0]= '.' # Move rook
+                    self.pieces[0][2]= 'R'
                     self.scores.king_safety += 0.14 # Update king safety score             
                 elif y==5:  # Queen side castling
-                    self.pieces[0][7]= None # Move rook
-                    self.pieces[0][4]= White_Rook()
+                    self.pieces[0][7]= '.' # Move rook
+                    self.pieces[0][4]= 'R'
                     self.scores.king_safety += 0.13 # Update king safety score  
 
         # If move is capturing move update material score
-        if captured_symbol!=None:
-            self.scores.material -=self.pieces[x][y].value
+        if captured_symbol!='.':
+            self.scores.material -=self.char_to_value(captured_symbol)
 
         # move piece at i,j to x,y
         temp = self.pieces[i][j]
-        self.pieces[i][j] = None
+        self.pieces[i][j] = '.'
         self.pieces[x][y] = temp
 
         # Check for pawn promotion
@@ -356,12 +346,12 @@ class Board():
             self.reset_board_strings = True
 
     def pawn_promotion(self,x,y):
-        if x==0 and self.pieces[0][y]!= None and self.pieces[0][y].symbol=='p':
-            self.pieces[0][y]= Black_Queen()
+        if x==0 and self.pieces[0][y]=='p':
+            self.pieces[0][y]= 'q'
             self.scores.material -=8
             self.scores.black_pawns_count[y]-=1
-        if x==7 and self.pieces[7][y]!= None and self.pieces[7][y].symbol=='P':
-            self.pieces[7][y]= White_Queen()
+        if x==7 and self.pieces[7][y] =='P':
+            self.pieces[7][y]= 'Q'
             self.scores.material +=8
             self.scores.white_pawns_count[y]-=1
 
@@ -369,37 +359,34 @@ class Board():
         board_string = ''
         for i in range(8):
             for j in range(8):
-                if self.pieces[i][j]==None:
-                    board_string += '.'
-                else:
-                    board_string += self.pieces[i][j].symbol
+                board_string += self.pieces[i][j]
         return board_string
 
     def white_king_is_in_check(self):
         white_king_pos = self.white_king_position
         row, col = white_king_pos[0], white_king_pos[1] # row and column of white king
         # Check by black pawn
-        if row < 7 and col>0 and self.pieces[row+1][col-1]!=None and self.pieces[row+1][col-1].symbol=='p':
+        if row < 7 and col>0 and self.pieces[row+1][col-1]=='p':
             return True
-        if row < 7 and col<7 and self.pieces[row+1][col+1]!=None and self.pieces[row+1][col+1].symbol=='p':
+        if row < 7 and col<7 and self.pieces[row+1][col+1]=='p':
             return True
         
         # Check by black knight
-        if row >1 and col>0 and self.pieces[row-2][col-1]!=None and self.pieces[row-2][col-1].symbol=='n':
+        if row >1 and col>0 and self.pieces[row-2][col-1]=='n':
             return True
-        if row >1 and col<7 and self.pieces[row-2][col+1]!=None and self.pieces[row-2][col+1].symbol=='n':
+        if row >1 and col<7 and self.pieces[row-2][col+1]=='n':
             return True
-        if row>0 and col>1 and self.pieces[row-1][col-2]!=None and self.pieces[row-1][col-2].symbol=='n':
+        if row>0 and col>1 and self.pieces[row-1][col-2]=='n':
             return True
-        if row>0 and col<6 and self.pieces[row-1][col+2]!=None and self.pieces[row-1][col+2].symbol=='n':
+        if row>0 and col<6 and self.pieces[row-1][col+2]=='n':
             return True
-        if row < 6 and col>0 and self.pieces[row+2][col-1]!=None and self.pieces[row+2][col-1].symbol=='n':
+        if row < 6 and col>0 and self.pieces[row+2][col-1]=='n':
             return True
-        if row < 6 and col<7 and self.pieces[row+2][col+1]!=None and self.pieces[row+2][col+1].symbol=='n':
+        if row < 6 and col<7 and self.pieces[row+2][col+1]=='n':
             return True
-        if row < 7 and col>1 and self.pieces[row+1][col-2]!=None and self.pieces[row+1][col-2].symbol=='n':
+        if row < 7 and col>1 and self.pieces[row+1][col-2]=='n':
             return True
-        if row < 7 and col<6 and self.pieces[row+1][col+2]!=None and self.pieces[row+1][col+2].symbol=='n':
+        if row < 7 and col<6 and self.pieces[row+1][col+2]=='n':
             return True
 
         # Check by black king (effectively)
@@ -471,27 +458,27 @@ class Board():
         black_king_pos = self.black_king_position
         row, col = black_king_pos[0], black_king_pos[1] # row and column of black king
         # Check by white pawn
-        if row > 0 and col>0 and self.pieces[row-1][col-1]!=None and self.pieces[row-1][col-1].symbol=='P':
+        if row > 0 and col>0 and self.pieces[row-1][col-1]=='P':
             return True
-        if row > 0 and col<7 and self.pieces[row-1][col+1]!=None and self.pieces[row-1][col+1].symbol=='P':
+        if row > 0 and col<7 and self.pieces[row-1][col+1]=='P':
             return True
         
         # Check by white knight
-        if row >1 and col>0 and self.pieces[row-2][col-1]!=None and self.pieces[row-2][col-1].symbol=='N':
+        if row >1 and col>0 and self.pieces[row-2][col-1]=='N':
             return True
-        if row >1 and col<7 and self.pieces[row-2][col+1]!=None and self.pieces[row-2][col+1].symbol=='N':
+        if row >1 and col<7 and self.pieces[row-2][col+1]=='N':
             return True
-        if row>0 and col>1 and self.pieces[row-1][col-2]!=None and self.pieces[row-1][col-2].symbol=='N':
+        if row>0 and col>1 and self.pieces[row-1][col-2]=='N':
             return True
-        if row>0 and col<6 and self.pieces[row-1][col+2]!=None and self.pieces[row-1][col+2].symbol=='N':
+        if row>0 and col<6 and self.pieces[row-1][col+2]=='N':
             return True
-        if row < 6 and col>0 and self.pieces[row+2][col-1]!=None and self.pieces[row+2][col-1].symbol=='N':
+        if row < 6 and col>0 and self.pieces[row+2][col-1]=='N':
             return True
-        if row < 6 and col<7 and self.pieces[row+2][col+1]!=None and self.pieces[row+2][col+1].symbol=='N':
+        if row < 6 and col<7 and self.pieces[row+2][col+1]=='N':
             return True
-        if row < 7 and col>1 and self.pieces[row+1][col-2]!=None and self.pieces[row+1][col-2].symbol=='N':
+        if row < 7 and col>1 and self.pieces[row+1][col-2]=='N':
             return True
-        if row < 7 and col<6 and self.pieces[row+1][col+2]!=None and self.pieces[row+1][col+2].symbol=='N':
+        if row < 7 and col<6 and self.pieces[row+1][col+2]=='N':
             return True
 
         # Check by white king (effectively)
@@ -558,3 +545,29 @@ class Board():
 
         # If we reach here the black king is not in check so return false
         return False
+        
+
+
+    def char_to_value(self, char):
+        # Given a char returns its value
+        if char!='.':
+            if char == 'p':
+                return -1
+            elif char == 'P':
+                return 1
+            elif char == 'n':
+                return -3
+            elif char == 'N':
+                return 3
+            elif char == 'b':
+                return -3.15
+            elif char == 'B':
+                return 3.15
+            elif char == 'r':
+                return -5
+            elif char == 'R':
+                return 5
+            elif char == 'Q':
+                return 9
+            elif char == 'q':
+                return -9

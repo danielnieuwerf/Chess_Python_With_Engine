@@ -11,12 +11,15 @@ class New_Game():
         screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
         pygame.display.set_icon(pygame.image.load('blackpawn.png')) # Icon
         pygame.display.set_caption("Python Chess")  # Set Caption
+        # Load piece images
+        self.images = {}
+        self.load_images()    # dictionary of piece symbols mapping to their images
         # Game loops depending on whose playing
         if not white_is_engine and black_is_engine:
             # Engine is black, player is white
             while self.game.gameover == False:
                 # Draw game window
-                self.game.draw_window(screen)
+                self.draw_window(screen)
 
                 # Listen for events
                 for event in pygame.event.get():
@@ -37,7 +40,7 @@ class New_Game():
                                         self.game.board.make_move(i,j,y//SQUARE,x//SQUARE)   # Make move
                                         self.game.handle_new_successfully_made_move([i,j,y//SQUARE,x//SQUARE])
                                         print(self.game.previous_move)
-                                        self.game.draw_window(screen)
+                                        self.draw_window(screen)
                                         print(str(self.game.move_number)+" " +str(self.game.previous_move))
                                         print("Score: "+ str(self.game.evaluate_position_score()))
                                         self.game.board.scores.print_totals()
@@ -63,7 +66,7 @@ class New_Game():
             # 2 engines
             while self.game.gameover==False:
                 # Draw game window
-                self.game.draw_window(screen)
+                self.draw_window(screen)
 
                 # Listen for events
                 for event in pygame.event.get():
@@ -94,7 +97,7 @@ class New_Game():
             # Engine is white, player is black
             while self.game.gameover == False:
                 # Draw game window
-                self.game.draw_window(screen)
+                self.draw_window(screen)
 
                 # Listen for events
                 for event in pygame.event.get():
@@ -114,8 +117,8 @@ class New_Game():
                                     if [i,j,y//SQUARE,x//SQUARE] in self.game.current_legal_moves:
                                         self.game.board.make_move(i,j,y//SQUARE,x//SQUARE)   # Make move
                                         self.game.handle_new_successfully_made_move([i,j,y//SQUARE,x//SQUARE])
-                                        print(self.game.previous_move)
-                                        self.game.draw_window(screen)
+                                        # print(self.game.previous_move)
+                                        self.draw_window(screen)
                                     # Move request unsuccessful
                                     else:
                                         self.game.selected_SQUARE = y//SQUARE, x//SQUARE     # Select new SQUARE
@@ -125,12 +128,12 @@ class New_Game():
                     engine_move = self.game.engine_move_decision(depth=white_engine_depth)
                     self.game.board.make_move(engine_move[0],engine_move[1],engine_move[2],engine_move[3])   # Make move
                     self.game.handle_new_successfully_made_move(engine_move)
-                    print(str(self.game.move_number)+" " +str(self.game.previous_move))
+                    # print(str(self.game.move_number)+" " +str(self.game.previous_move))
         elif not white_is_engine and not black_is_engine:
             # 2 Players
             while self.game.gameover == False:
                 # Draw game window
-                self.game.draw_window(screen)
+                self.draw_window(screen)
 
                 # Listen for events
                 for event in pygame.event.get():
@@ -163,3 +166,36 @@ class New_Game():
                     self.game = Game()
                     print('GAMEOVER')
 
+    def load_images(self):
+        # Dictionary of piece symbols to their correctly resized images
+        self.images = {}
+        for piece in [Black_Pawn(), Black_Knight(), Black_Bishop(), Black_Rook(), Black_Queen(), Black_King(), White_Pawn(), White_Knight(), White_Bishop(), White_Rook(), White_Queen(), White_King()]:
+            self.images[piece.symbol]=copy.copy(piece.image)
+        return
+
+    def draw_window(self, surface):
+        # Draw empty board
+        WHITE = (238,238,210)
+        DARK = (118,150,86)
+        for i in range(0,8):
+            for j in range(0,8):
+                if (i+j) % 2 ==1:
+                    pygame.draw.rect(surface, DARK, ((i*SQUARE, j*SQUARE), (SQUARE,SQUARE))) # dark squares
+                else:
+                    pygame.draw.rect(surface, WHITE, ((i*SQUARE, j*SQUARE), (SQUARE,SQUARE))) # light squares
+        
+        # Highlight selected SQUARE
+        if self.game.selected_SQUARE!= None:
+            i, j = self.game.selected_SQUARE
+            if (i+j)%2 ==1:
+                pygame.draw.rect(surface, (100,100,100), ((j*SQUARE, i*SQUARE), (SQUARE,SQUARE)))
+            else:
+                pygame.draw.rect(surface, (150,150,150), ((j*SQUARE, i*SQUARE), (SQUARE,SQUARE)))
+
+        # Draw pieces on board
+        for i in range(8):
+            for j in range(8):
+                if self.game.board.pieces[i][j]!='.':
+                    surface.blit(self.images[self.game.board.pieces[i][j]], (j*SQUARE, i*SQUARE))
+
+        pygame.display.update()
