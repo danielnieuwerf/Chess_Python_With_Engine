@@ -1,8 +1,11 @@
 # Chess_Python_With_Engine
 
 Improvements:
-- Increase efficiency of minimax by using Alpha Beta Pruning
-- Add opening book
+- Add more measures to score to help better evaluate positions
+- Use a larger opening book
+- Increase efficiency of move decision algorithms with simpler forms of board (charboard/bitboard)
+- Guidance in end game
+
 
 Current elo:
 - ???
