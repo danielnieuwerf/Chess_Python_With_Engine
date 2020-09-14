@@ -1,5 +1,7 @@
 from Scores import *
 import copy
+from bitboard import BitBoard
+
 class CharBoard:
     """Char representation of the board"""
     def __init__(self):
@@ -365,6 +367,10 @@ class CharBoard:
     def white_king_is_in_check(self):
         white_king_pos = self.white_king_position
         row, col = white_king_pos[0], white_king_pos[1] # row and column of white king
+
+        threats = self.create_bitboard_direct_threats_to_king(True)
+        return threats.bits[row][col]==1
+
         # Check by black pawn
         if row < 7 and col>0 and self.pieces[row+1][col-1]=='p':
             return True
@@ -457,6 +463,10 @@ class CharBoard:
     def black_king_is_in_check(self):
         black_king_pos = self.black_king_position
         row, col = black_king_pos[0], black_king_pos[1] # row and column of black king
+
+        threats = self.create_bitboard_direct_threats_to_king(False)
+        return threats.bits[row][col]==1
+
         # Check by white pawn
         if row > 0 and col>0 and self.pieces[row-1][col-1]=='P':
             return True
@@ -546,8 +556,6 @@ class CharBoard:
         # If we reach here the black king is not in check so return false
         return False
         
-
-
     def char_to_value(self, char):
         # Given a char returns its value
         if char!='.':
@@ -571,3 +579,525 @@ class CharBoard:
                 return 9
             elif char == 'q':
                 return -9
+
+        return 0
+
+    def create_bitboard_direct_threats_to_king(self, king_colour_is_white):
+        # Return bitboard where 1 represents this square is seen by (opponent of king_colour)
+        threats = BitBoard()
+        if king_colour_is_white:    # Threats to white king
+            # Loop through board finding black pieces
+            for i in range(8):
+                for j in range(8):
+                    if self.pieces[i][j]!='.' and self.pieces[i][j].islower():
+                        if self.pieces[i][j]== 'p': # Black pawn
+                            if i!=0 and j!=0:
+                                threats.set_true(i-1,j-1)
+                            if i!=0 and j!=7:
+                                threats.set_true(i-1,j+1)
+                        elif self.pieces[i][j] == 'k':  # Black king
+                            if i!=0:
+                                if j!=0:
+                                    threats.set_true(i-1,j-1)
+                                threats.set_true(i-1,j)
+                                if j!=7:
+                                    threats.set_true(i-1,j+1)
+                            if i!=7:
+                                if j!=0:
+                                    threats.set_true(i+1,j-1)
+                                threats.set_true(i+1,j)
+                                if j!=7:
+                                    threats.set_true(i+1,j+1)
+                            if j!=0:
+                                threats.set_true(i,j-1)
+                            if j!=7:
+                                threats.set_true(i,j+1)
+                        elif self.pieces[i][j] == 'n':  # Black knight
+                            if i>1:
+                                if j>0:
+                                    threats.set_true(i-2,j-1)
+                                if j<7:
+                                    threats.set_true(i-2,j+1)
+                            if i>0:
+                                if j>1:
+                                    threats.set_true(i-1,j-2)
+                                if j<6:
+                                    threats.set_true(i-1,j+2)
+                            if i<7:
+                                if j>1:
+                                    threats.set_true(i+1,j-2)
+                                if j<6:
+                                    threats.set_true(i+1,j+2)
+                            if i<6:
+                                if j>0:
+                                    threats.set_true(i+2,j-1)
+                                if j<7:
+                                    threats.set_true(i+2,j+1)
+                        elif self.pieces[i][j] in ['b','q']:    # Diagonal attacks
+                            diagonals = self.get_diagonals(i,j)
+                            diag1, diag2 = diagonals[0], diagonals[1] # These are strings of length 8 like 'q.r..B..'
+                            up_right, up_left , down_right, down_left = 0,0,0,0 # Indicates how many squares the piece can move in each direction
+
+                            # South east diagonal (diag1)
+                            if not (i==7 or j==7):  # Down + right
+                                x = min(i,j)+1    # min(i,j) is index of our piece in the diag1 string
+                                while x<len(diag1) and diag1[x]=='.':
+                                    down_right += 1
+                                    x += 1
+                                # If not past the end of the diagonal, it sees one more square
+                                if x!=len(diag1):
+                                    down_right += 1
+
+                            if not (i==0 or j==0):  # Up + left
+                                x = min(i,j) - 1    # min(i,j) is index of our piece in the diag1 string
+                                while x>-1 and diag1[x]=='.':
+                                    up_left += 1
+                                    x -=1
+                                # If not past the end of the diagonal, it sees one more square
+                                if x!=-1:
+                                    up_left += 1                            
+
+                            # South west diagonal (diag2)
+                            if not (i==7 or j==0):  # Down + left
+                                x = min(i,7-j)+1  # min(i,7-j) is index of our piece in the diag2 string
+                                while x<len(diag2) and diag2[x]=='.':
+                                    down_left += 1
+                                    x += 1
+                                # If not past the end of the diagonal, it sees one more square
+                                if x!=len(diag2):
+                                    down_left += 1 
+
+                            if not (i==0 or j==7):  # Up + right
+                                x = min(i,7-j)-1  # min(i,7-j) is index of our piece in the diag2 string
+                                while x>-1 and diag2[x]=='.':
+                                    up_right += 1
+                                    x -= 1
+                                # If not past the end of the diagonal, it sees one more square
+                                if x!=-1:
+                                    up_right += 1
+
+                            # Add all the up and down (left and right) moves to moves 
+                            if up_right>0:
+                                for x in range(1,up_right+1):    
+                                    threats.set_true(i-x,j+x)
+                            if up_left>0:
+                                for x in range(1,up_left+1):
+                                    threats.set_true(i-x,j-x)
+                            if down_right>0:
+                                for x in range(1,down_right+1):
+                                    threats.set_true(i+x,j+x)
+                            if down_left>0:
+                                for x in range(1,down_left+1):
+                                    threats.set_true(i+x,j-x)     
+                        if self.pieces[i][j] in ['r', 'q']:   # Horizontal and vertical attacks
+                            up, down, right, left = 0,0,0,0 # Indicates how many squares the piece can move in each direction
+                            file_string = self.get_file(j)    
+                            rank_string = self.get_rank(i)
+
+                            if j<7: # Right
+                                x = j+1
+                                while x<8 and rank_string[x]=='.':
+                                    x+=1
+                                    right+=1
+
+                                # If not at end of row/file can go one more
+                                if x<8:
+                                    right += 1
+
+                            if j>0: # Left
+                                x = j - 1
+                                while x>-1 and rank_string[x]=='.':
+                                    x-=1
+                                    left+=1
+
+                                # If not at end of row/file can go one more
+                                if x>-1:
+                                    left += 1
+
+                            if i>0: # Down (in column index)
+                                x = i - 1
+                                while x>-1 and file_string[x]=='.':
+                                    x-=1
+                                    down+=1
+
+                                # If not at end of row/file can go one more
+                                if x>-1:
+                                    down+=1
+
+                            if i<7: # Up
+                                x = i+1
+                                while x<8 and file_string[x]=='.':
+                                    x += 1
+                                    up += 1
+                                # If not at end of row/file can go one more
+                                if x<8:
+                                    up += 1
+
+                            # Add all up down left right moves to moves 
+                            if right>0:
+                                for x in range(1,right+1):    
+                                    threats.set_true(i,j+x)
+                            if left>0:
+                                for x in range(1,left+1):
+                                    threats.set_true(i,j-x)
+                            if up>0:
+                                for x in range(1,up+1):
+                                    threats.set_true(i+x,j)
+                            if down>0:
+                                for x in range(1,down+1):
+                                    threats.set_true(i-x,j)                      
+        else:   # Threats to black king
+            # Loop through board finding blackwhite pieces
+            for i in range(8):
+                for j in range(8):
+                    if self.pieces[i][j]!='.' and self.pieces[i][j].isupper():
+                        if self.pieces[i][j]== 'P': # White pawn
+                            if i!=7 and j!=0:
+                                threats.set_true(i+1,j-1)
+                            if i!=7 and j!=7:
+                                threats.set_true(i+1,j+1)
+                        elif self.pieces[i][j] == 'K':  # White king
+                            if i!=0:
+                                if j!=0:
+                                    threats.set_true(i-1,j-1)
+                                threats.set_true(i-1,j)
+                                if j!=7:
+                                    threats.set_true(i-1,j+1)
+                            if i!=7:
+                                if j!=0:
+                                    threats.set_true(i+1,j-1)
+                                threats.set_true(i+1,j)
+                                if j!=7:
+                                    threats.set_true(i+1,j+1)
+                            if j!=0:
+                                threats.set_true(i,j-1)
+                            if j!=7:
+                                threats.set_true(i,j+1)
+                        elif self.pieces[i][j] == 'N':  # White knight
+                            if i>1:
+                                if j>0:
+                                    threats.set_true(i-2,j-1)
+                                if j<7:
+                                    threats.set_true(i-2,j+1)
+                            if i>0:
+                                if j>1:
+                                    threats.set_true(i-1,j-2)
+                                if j<6:
+                                    threats.set_true(i-1,j+2)
+                            if i<7:
+                                if j>1:
+                                    threats.set_true(i+1,j-2)
+                                if j<6:
+                                    threats.set_true(i+1,j+2)
+                            if i<6:
+                                if j>0:
+                                    threats.set_true(i+2,j-1)
+                                if j<7:
+                                    threats.set_true(i+2,j+1)
+                        elif self.pieces[i][j] in ['B','Q']:    # Diagonal attacks
+                            diagonals = self.get_diagonals(i,j)
+                            diag1, diag2 = diagonals[0], diagonals[1] # These are strings of length 8 like 'q.r..B..'
+                            up_right, up_left , down_right, down_left = 0,0,0,0 # Indicates how many squares the piece can move in each direction
+
+                            # South east diagonal (diag1)
+                            if not (i==7 or j==7):  # Down + right
+                                x = min(i,j)+1    # min(i,j) is index of our piece in the diag1 string
+                                while x<len(diag1) and diag1[x]=='.':
+                                    down_right += 1
+                                    x += 1
+                                # If not past the end of the diagonal, it sees one more square
+                                if x!=len(diag1):
+                                    down_right += 1
+
+                            if not (i==0 or j==0):  # Up + left
+                                x = min(i,j) - 1    # min(i,j) is index of our piece in the diag1 string
+                                while x>-1 and diag1[x]=='.':
+                                    up_left += 1
+                                    x -=1
+                                # If not past the end of the diagonal, it sees one more square
+                                if x!=-1:
+                                    up_left += 1                            
+
+                            # South west diagonal (diag2)
+                            if not (i==7 or j==0):  # Down + left
+                                x = min(i,7-j)+1  # min(i,7-j) is index of our piece in the diag2 string
+                                while x<len(diag2) and diag2[x]=='.':
+                                    down_left += 1
+                                    x += 1
+                                # If not past the end of the diagonal, it sees one more square
+                                if x!=len(diag2):
+                                    down_left += 1 
+
+                            if not (i==0 or j==7):  # Up + right
+                                x = min(i,7-j)-1  # min(i,7-j) is index of our piece in the diag2 string
+                                while x>-1 and diag2[x]=='.':
+                                    up_right += 1
+                                    x -= 1
+                                # If not past the end of the diagonal, it sees one more square
+                                if x!=-1:
+                                    up_right += 1
+
+                            # Add all the up and down (left and right) moves to moves 
+                            if up_right>0:
+                                for x in range(1,up_right+1):    
+                                    threats.set_true(i-x,j+x)
+                            if up_left>0:
+                                for x in range(1,up_left+1):
+                                    threats.set_true(i-x,j-x)
+                            if down_right>0:
+                                for x in range(1,down_right+1):
+                                    threats.set_true(i+x,j+x)
+                            if down_left>0:
+                                for x in range(1,down_left+1):
+                                    threats.set_true(i+x,j-x)     
+                        if self.pieces[i][j] in ['R', 'Q']:   # Horizontal and vertical attacks
+                            up, down, right, left = 0,0,0,0 # Indicates how many squares the piece can move in each direction
+                            file_string = self.get_file(j)    
+                            rank_string = self.get_rank(i)
+
+                            if j<7: # Right
+                                x = j+1
+                                while x<8 and rank_string[x]=='.':
+                                    x+=1
+                                    right+=1
+
+                                # If not at end of row/file can go one more
+                                if x<8:
+                                    right += 1
+
+                            if j>0: # Left
+                                x = j - 1
+                                while x>-1 and rank_string[x]=='.':
+                                    x-=1
+                                    left+=1
+
+                                # If not at end of row/file can go one more
+                                if x>-1:
+                                    left += 1
+
+                            if i>0: # Down (in column index)
+                                x = i - 1
+                                while x>-1 and file_string[x]=='.':
+                                    x-=1
+                                    down+=1
+
+                                # If not at end of row/file can go one more
+                                if x>-1:
+                                    down+=1
+
+                            if i<7: # Up
+                                x = i+1
+                                while x<8 and file_string[x]=='.':
+                                    x += 1
+                                    up += 1
+                                # If not at end of row/file can go one more
+                                if x<8:
+                                    up += 1
+
+                            # Add all up down left right moves to moves 
+                            if right>0:
+                                for x in range(1,right+1):    
+                                    threats.set_true(i,j+x)
+                            if left>0:
+                                for x in range(1,left+1):
+                                    threats.set_true(i,j-x)
+                            if up>0:
+                                for x in range(1,up+1):
+                                    threats.set_true(i+x,j)
+                            if down>0:
+                                for x in range(1,down+1):
+                                    threats.set_true(i-x,j)
+
+        return threats
+
+    def create_bitboard_shields_to_king(self, king_colour_is_white):
+        # Return bitboard where 1 indicates the piece on that square is shielding the king of king_colour from attack
+        # And 0 if moving the piece does not reveal an attack on the king
+        king_pos = None   # The position of our king
+        if king_colour_is_white:
+            king_pos = self.white_king_position
+        else:
+            king_pos = self.black_king_position
+
+        shields = BitBoard()    # Create bit board
+        
+        # Find the file, rank and diagonals on which our king lies
+        file = self.get_file(king_pos[1])
+        rank = self.get_rank(king_pos[0])
+        diagonals = self.get_diagonals(king_pos[0],king_pos[1])
+        diag1, diag2 = diagonals[0], diagonals[1]
+        if king_colour_is_white:    # White king
+            # For a shield to exist on a row or file it must contain a black rook or queen (similarly for diags with bishops and queens)
+            if file.find("q")!=-1 or file.find('r')!=-1:    # File must contain an opposing rook or queen
+                clean_file = self.clean_string_looking_for_shields(file, 'K', ['r','q'])
+                if clean_file.find("KSX")!=-1:  # If contains shield to the right
+                    shield_pos = None
+                    for x in range(king_pos[0]+1,8):
+                        if file[x]!='.':    # First non empty square is the shield
+                            shield_pos = copy.copy(x)
+                            break
+                    shields.bits[shield_pos][king_pos[1]] = 1   # Update shields bitboard
+                if clean_file.find("XSK")!=-1:  # Contains shield to the left
+                    shield_pos = None
+                    for x in range(king_pos[0]-1,-1,-1):
+                        if file[x]!='.':    # First non empty square is the shield
+                            shield_pos = copy.copy(x)
+                            break
+                    shields.bits[shield_pos][king_pos[1]] = 1   # Update shields bitboard
+
+            if rank.find("q")!=-1 or rank.find('r')!=-1:    # File contains an opposing rook or queen
+                clean_rank = self.clean_string_looking_for_shields(rank, 'K', ['r','q'])
+                if clean_rank.find("KSX")!=-1:  # If contains shield to the right
+                    shield_pos = None
+                    for x in range(king_pos[1]+1,8):
+                        if rank[x]!='.':    # First non empty square is the shield
+                            shield_pos = copy.copy(x)
+                            break
+                    shields.bits[king_pos[0]][shield_pos] = 1   # Update shields bitboard
+                if clean_rank.find("XSK")!=-1:  # Contains shield to the left
+                    shield_pos = None
+                    for x in range(king_pos[1]-1,-1,-1):
+                        if rank[x]!='.':    # First non empty square is the shield
+                            shield_pos = copy.copy(x)
+                            break
+                    shields.bits[king_pos[0]][shield_pos] = 1   # Update shields bitboard
+
+            if diag1.find('b')!=-1 or diag1.find('q')!=-1:
+                clean_diag1 = self.clean_string_looking_for_shields(diag1, 'K', ['b','q'])
+                if clean_diag1.find("KSX")!=-1:  # If contains shield to the right
+                    shield_pos = None
+                    king_index_in_diag1 = min(king_pos[0], king_pos[1])
+                    for x in range(king_index_in_diag1+1,8): 
+                        if diag1[x]!='.':    # First non empty square is the shield
+                            shield_pos = copy.copy(x)
+                            break
+                    shield_distance = shield_pos - king_index_in_diag1  # Shield distance from king
+
+                    shields.bits[king_pos[0]+shield_distance][king_pos[1]+shield_distance] = 1   # Update shields bitboard
+                if clean_diag1.find("XSK")!=-1:  # Contains shield to the left
+                    shield_pos = None
+                    king_index_in_diag1 = min(king_pos[0], king_pos[1])
+                    for x in range(king_index_in_diag1-1,-1,-1):
+                        if diag1[x]!='.':    # First non empty square is the shield
+                            shield_pos = copy.copy(x)
+                            break
+                    shield_distance = king_index_in_diag1 - shield_pos  # Shield distance from king
+
+                    shields.bits[king_pos[0]-shield_distance][king_pos[1]-shield_distance] = 1   # Update shields bitboard
+            if diag2.find('b')!=-1 or diag2.find('q')!=-1:
+                clean_diag2 = self.clean_string_looking_for_shields(diag2, 'K', ['b','q'])
+                king_index_in_diag2 = min(king_pos[0], 7-king_pos[1])
+                if clean_diag2.find("KSX")!=-1:  # If contains shield to the right
+                    shield_pos = None
+                    for x in range(king_index_in_diag2+1,8):
+                        if diag2[x]!='.':    # First non empty square is the shield
+                            shield_pos = copy.copy(x)
+                            break
+                    shield_distance = shield_pos - king_index_in_diag2  # Shield distance from king
+
+                    shields.bits[king_pos[0]+shield_distance][king_pos[1]-shield_distance] = 1   # Update shields bitboard
+                if clean_diag2.find("XSK")!=-1:  # Contains shield to the left
+                    shield_pos = None
+                    for x in range(king_index_in_diag2-1,-1,-1):
+                        if diag2[x]!='.':    # First non empty square is the shield
+                            shield_pos = copy.copy(x)
+                            break
+                    shield_distance = king_index_in_diag2 - shield_pos  # Shield distance from king
+
+                    shields.bits[king_pos[0]-shield_distance][king_pos[1]+shield_distance] = 1   # Update shields bitboard
+        else:   # Black king
+            # For a shield to exist on a row or file it must contain a black rook or queen (similarly for diags with bishops and queens)
+            if file.find("Q")!=-1 or file.find('R')!=-1:    # File must contain an opposing rook or queen
+                clean_file = self.clean_string_looking_for_shields(file, 'k', ['R','Q'])
+                if clean_file.find("kSX")!=-1:  # If contains shield to the right
+                    shield_pos = None
+                    for x in range(king_pos[0]+1,8):
+                        if file[x]!='.':    # First non empty square is the shield
+                            shield_pos = copy.copy(x)
+                            break
+                    shields.bits[shield_pos][king_pos[1]] = 1   # Update shields bitboard
+                if clean_file.find("XSk")!=-1:  # Contains shield to the left
+                    shield_pos = None
+                    for x in range(king_pos[0]-1,-1,-1):
+                        if file[x]!='.':    # First non empty square is the shield
+                            shield_pos = copy.copy(x)
+                            break
+                    shields.bits[shield_pos][king_pos[1]] = 1   # Update shields bitboard
+
+            if rank.find("Q")!=-1 or rank.find('R')!=-1:    # File contains an opposing rook or queen
+                clean_rank = self.clean_string_looking_for_shields(rank, 'k', ['R','Q'])
+                if clean_rank.find("kSX")!=-1:  # If contains shield to the right
+                    shield_pos = None
+                    for x in range(king_pos[1]+1,8):
+                        if rank[x]!='.':    # First non empty square is the shield
+                            shield_pos = copy.copy(x)
+                            break
+                    shields.bits[king_pos[0]][shield_pos] = 1   # Update shields bitboard
+                if clean_rank.find("XSk")!=-1:  # Contains shield to the left
+                    shield_pos = None
+                    for x in range(king_pos[1]-1,-1,-1):
+                        if rank[x]!='.':    # First non empty square is the shield
+                            shield_pos = copy.copy(x)
+                            break
+                    shields.bits[king_pos[0]][shield_pos] = 1   # Update shields bitboard
+
+            if diag1.find('B')!=-1 or diag1.find('Q')!=-1:
+                clean_diag1 = self.clean_string_looking_for_shields(diag1, 'k', ['B','Q'])
+                if clean_diag1.find("kSX")!=-1:  # If contains shield to the right
+                    shield_pos = None
+                    king_index_in_diag1 = min(king_pos[0], king_pos[1])
+                    for x in range(king_index_in_diag1+1,8):
+                        if diag1[x]!='.':    # First non empty square is the shield
+                            shield_pos = copy.copy(x)
+                            break
+                    shield_distance = shield_pos - king_index_in_diag1  # Shield distance from king
+
+                    shields.bits[king_pos[0]+shield_distance][king_pos[1]+shield_distance] = 1   # Update shields bitboard
+                if clean_diag1.find("XSk")!=-1:  # Contains shield to the left
+                    shield_pos = None
+                    king_index_in_diag1 = min(king_pos[0], king_pos[1])
+                    for x in range(king_index_in_diag1-1,-1,-1):
+                        if diag1[x]!='.':    # First non empty square is the shield
+                            shield_pos = copy.copy(x)
+                            break
+                    shield_distance = king_index_in_diag1 - shield_pos  # Shield distance from king
+
+                    shields.bits[king_pos[0]-shield_distance][king_pos[1]-shield_distance] = 1   # Update shields bitboard
+            if diag2.find('B')!=-1 or diag2.find('Q')!=-1:
+                clean_diag2 = self.clean_string_looking_for_shields(diag2, 'k', ['B','Q'])
+                king_index_in_diag2 = min(king_pos[0], 7-king_pos[1])
+                if clean_diag2.find("kSX")!=-1:  # If contains shield to the right
+                    shield_pos = None
+                    for x in range(king_index_in_diag2+1,8): 
+                        if diag2[x]!='.':    # First non empty square is the shield
+                            shield_pos = copy.copy(x)
+                            break
+                    shield_distance = shield_pos - king_index_in_diag2  # Shield distance from king
+
+                    shields.bits[king_pos[0]+shield_distance][king_pos[1]-shield_distance] = 1   # Update shields bitboard
+                if clean_diag2.find("XSk")!=-1:  # Contains shield to the left
+                    shield_pos = None
+                    for x in range(king_index_in_diag2-1,-1,-1):
+                        if diag2[x]!='.':    # First non empty square is the shield
+                            shield_pos = copy.copy(x)
+                            break
+                    shield_distance = king_index_in_diag2 - shield_pos  # Shield distance from king
+
+                    shields.bits[king_pos[0]-shield_distance][king_pos[1]+shield_distance] = 1   # Update shields bitboard
+
+        return shields
+
+    def clean_string_looking_for_shields(self, string, shielded, shielding_from):
+        # Given a string which might represent a file or rank or diagonal return a new string in a useful form to determine if there is a shielding piece in the string
+        useful_string = ""  # Useful string we shall return
+        for x in string:
+            if x=='.':
+                continue
+            elif x==shielded:
+                useful_string += x
+            elif x in shielding_from:
+                useful_string += 'X'    # Attacker
+            elif x.isupper()==shielded.isupper():
+                useful_string += 'S'    # Shield
+
+        return useful_string
