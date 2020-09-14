@@ -333,7 +333,7 @@ class CharBoard:
             self.scores.material -=self.char_to_value(captured_symbol)
 
         # move piece at i,j to x,y
-        temp = self.pieces[i][j]
+        temp = copy.copy(self.pieces[i][j])
         self.pieces[i][j] = '.'
         self.pieces[x][y] = temp
 

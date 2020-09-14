@@ -31,7 +31,8 @@ black_shields.print()
 """
 
 # Play games with engines or players
-New_Game(white_is_engine = True, black_is_engine = True, white_engine_depth = 1, black_engine_depth = 1)
+New_Game(white_is_engine = True, black_is_engine = False, white_engine_depth = 2, black_engine_depth = 1)
+New_Game(white_is_engine = True, black_is_engine = False, white_engine_depth = 1, black_engine_depth = 1)
 New_Game(white_is_engine = True, black_is_engine = True, white_engine_depth = 1, black_engine_depth = 1)
 New_Game(white_is_engine = False, black_is_engine = True, white_engine_depth = 1, black_engine_depth = 1)
 New_Game(white_is_engine = False, black_is_engine = True, white_engine_depth = 1, black_engine_depth = 1)
@@ -51,5 +52,14 @@ when pawn captures pawn
 
 in engine decision logic it is printing checkmate to console when checkmates are impossible within the search depth
 
-white king moves into check
+Engine did not stop mate in one
+
+Engine stalemated instead of winning
+
+
+DO depth 4 before doing depth 3 with alpha beta pruning
+
+
+current moves and off them branches of possible boards 
+
 """

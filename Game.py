@@ -741,48 +741,61 @@ class Game():
         if self.gameIsDraw:     # If draw return 0
             return 0
         
+        # Direct threats bitboards
+        direct_threats_to_white_bitboard = self.board.create_bitboard_direct_threats_to_king(True)
+        direct_threats_to_black_bitboard = self.board.create_bitboard_direct_threats_to_king(False)
+
         # For every capturing move check if the capture is unprotected
         unprotected_capturable_value = 0
         capture_squares = []    # Squares on which captures (not necessarily unprotected captures) can occur
         for move in self.current_legal_moves:
             if self.board.pieces[move[2]][move[3]]!='.' and [move[2],move[3]] not in capture_squares:    # if moves onto a piece (capturing move)
                 capture_squares.append([move[2],move[3]])
-                copy_game = copy.deepcopy(self)     # on copy board
-                copy_game.board.make_move(move[0],move[1],move[2],move[3])  # Make move on copy board
-                copy_game.handle_new_successfully_made_move(move)   # Update castlability etc ( unnecessary things done in this function)
-                recapturable = False
-                for copy_move in copy_game.current_legal_moves:
-                    if copy_move[2]== move[2] and copy_move[3]==move[3]:    # Recapturable
-                        recapturable = True
-                        break
-                        
-                if not recapturable:
-                    unprotected_capturable_value -= self.board.char_to_value(self.board.pieces[move[2]][move[3]])
+                if self.white_turn: # White making the capture
+                    if direct_threats_to_white_bitboard.bits[move[2]][move[3]]==0:  # Not seen by black (not recapturable)
+                        unprotected_capturable_value -= self.board.char_to_value(self.board.pieces[move[2]][move[3]])
+                else:   # Black making the capture
+                    if direct_threats_to_black_bitboard.bits[move[2]][move[3]]==0:  # Not seen by white (not recapturable)
+                        unprotected_capturable_value -= self.board.char_to_value(self.board.pieces[move[2]][move[3]])
+                    
         self.board.scores.capturable_unprotected = 0.8*unprotected_capturable_value # Update unprotected capturables value 
         
         score = self.board.scores.get_total() # Initialise score to stored board scores total
 
         # Bonus for mobility
+        """
         if self.white_turn:
             self.board.scores.num_legal_white_moves = len(self.current_legal_moves)
         else:
             self.board.scores.num_legal_black_moves = len(self.current_legal_moves)
         self.board.scores.update_mobility()
+        """
 
         # Add value for capturable piece where taker value less than taken value
         max_capture = 0
+        max_capture_move = None
         for move in self.current_legal_moves:
             try:
                 if abs(self.board.char_to_value(self.board.pieces[move[2]][move[3]]))>1:    # Find capturing moves on pieces (not pawns)
                     capture_value = abs(self.board.char_to_value(self.board.pieces[move[2]][move[3]]))-abs(self.board.char_to_value(self.board.pieces[move[0]][move[1]]))
                     if capture_value>max_capture:
                         max_capture = copy.copy(capture_value)
+                        max_capture_move = copy.copy(move)
             except:
                 pass
-        if self.white_turn:
-            score += max_capture*0.7
-        else:
-            score -= max_capture*0.7
+        if max_capture_move !=None:
+            if self.white_turn:
+                # If recapturable
+                if direct_threats_to_white_bitboard.bits[max_capture_move[2]][max_capture_move[3]]==1:
+                    score += max_capture*0.8
+                else: # Not recapturable
+                    score+= max_capture*0.2
+            else:   # Black's move
+                # If recapturable
+                if direct_threats_to_black_bitboard.bits[max_capture_move[2]][max_capture_move[3]]==1:
+                    score -= max_capture*0.8
+                else: # Not recapturable
+                    score-= max_capture*0.2
 
         # Number of developed pieces bonus
         rank_white = self.board.get_rank_without_empty_squares(0)
@@ -799,7 +812,16 @@ class Game():
         score -= 0.02*white_undeveloped_count
 
         # Control of centre
-
+        """
+        control = 0
+        for i in range(2,6):
+            for j in range(2,6):
+                if direct_threats_to_white_bitboard.bits[i][j]==1:
+                    control -= 0.05
+                if direct_threats_to_black_bitboard.bits[i][j]==1:
+                    control += 0.05
+        score +=control
+        """
         # End game
         if self.move_number > 30:
             # Ending with 3 pawns vs knight or bishop
@@ -808,8 +830,8 @@ class Game():
         # Return score after adjustments
         return score
 
-    def maximise_move_score_depth_0(self):
-        # Returns best move depth 0 (looking 0 moves ahead)
+    def maximise_move_score_depth_1(self):
+        # Returns best move depth 1 (looking 1 move ahead)
         if self.white_turn:
             best_move = None
             best_score = -10000
@@ -836,18 +858,11 @@ class Game():
             return best_move
 
     def maximise_move_score(self):
-        # Returns best move (depth 1) for white and black
+        # Returns best move (depth 2) for white and black
         if self.white_turn: # If white calculate max min (USE ALPHA BETA PRUNING)
             best_move = self.current_legal_moves[0] # Initialise best move to the first legal move
             likely_replies = [] # Candidate good moves for black
             best_score = -1000000   # Compute best score of best move 
-            # Find likely reply
-            mov = self.current_legal_moves[0]
-            copy_game = copy.deepcopy(self)     # on copy board
-            copy_game.board.make_move(mov[0],mov[1],mov[2],mov[3])  # Make move on copy board
-            copy_game.handle_new_successfully_made_move(mov)   # Update castlability etc
-            likely_replies.append(copy_game.maximise_move_score_depth_0())
-            # For all other white moves try likely reply first (as the reply from black)
             for move in self.current_legal_moves:   # Try every legal white move
                 copy_game = copy.deepcopy(self)     # on copy board
                 copy_game.board.make_move(move[0],move[1],move[2],move[3])  # Make move on copy board
@@ -856,8 +871,8 @@ class Game():
                 min_score = 100000  # Make the best black move (min score move)
                 for likely_reply in likely_replies:
                     if likely_reply in copy_game.current_legal_moves:  # Remove and insert likely_reply at front of list
-                        copy_game.current_legal_moves.remove(likely_reply)  
-                        copy_game.current_legal_moves.insert(0,likely_reply)
+                        copy_game.current_legal_moves.remove(copy.copy(likely_reply))  
+                        copy_game.current_legal_moves.insert(0,copy.copy(likely_reply))
                 best_reply = None  # Used to add new good replies for black
                 for move2 in copy_game.current_legal_moves: 
                     copy_copy_game = copy.deepcopy(copy_game)    # on copycopy board
@@ -885,20 +900,14 @@ class Game():
             best_move = self.current_legal_moves[0] # Initialise best move to the first legal move
             likely_replies = []  # Candidate good moves for white
             best_score = 1000000        # minimise score for black
-            # Find likely reply
-            mov = self.current_legal_moves[0]
-            copy_game = copy.deepcopy(self)     # on copy board
-            copy_game.board.make_move(mov[0],mov[1],mov[2],mov[3])  # Make move on copy board
-            copy_game.handle_new_successfully_made_move(mov)   # Update castlability etc
-            likely_replies.append(copy_game.maximise_move_score_depth_0())
             for move in self.current_legal_moves:   # Try every legal black move
                 copy_game = copy.deepcopy(self)     # on copy board
                 copy_game.board.make_move(move[0],move[1],move[2],move[3])  # Make move on copy board
                 copy_game.handle_new_successfully_made_move(move)   # Update castlability etc
                 for likely_reply in likely_replies:
                     if likely_reply in copy_game.current_legal_moves:  # If likely reply is legal move Remove and insert likely_reply at front of list
-                        copy_game.current_legal_moves.remove(likely_reply)  
-                        copy_game.current_legal_moves.insert(0,likely_reply)
+                        copy_game.current_legal_moves.remove(copy.copy(likely_reply))  
+                        copy_game.current_legal_moves.insert(0,copy.copy(likely_reply))
                 # Now it is White's turn... make all legal black moves
                 max_score = -100000  # Make the best white move (max score move)
                 best_reply = None  # Used to add new good replies for white
@@ -937,13 +946,13 @@ class Game():
             else:
                 self.out_of_book = True
                 
-
         if depth == 1:
             return self.maximise_move_score()
 
         elif depth>1:
             if self.white_turn:         # White turn
                 max_score = -10000000
+                move_decision = None    #move we return
                 for move in self.current_legal_moves:   # Try every legal white move
                     copy_game = copy.deepcopy(self)     # on copy board
                     copy_game.board.make_move(move[0],move[1],move[2],move[3])  # Make move on copy board
@@ -964,6 +973,7 @@ class Game():
 
             else:         # Black turn
                 min_score = 10000000
+                move_decision = None
                 for move in self.current_legal_moves:   # Try every legal white move
                     copy_game = copy.deepcopy(self)     # on copy board
                     copy_game.board.make_move(move[0],move[1],move[2],move[3])  # Make move on copy board

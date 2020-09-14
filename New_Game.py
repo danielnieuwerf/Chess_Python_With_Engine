@@ -117,7 +117,7 @@ class New_Game():
                                     if [i,j,y//SQUARE,x//SQUARE] in self.game.current_legal_moves:
                                         self.game.board.make_move(i,j,y//SQUARE,x//SQUARE)   # Make move
                                         self.game.handle_new_successfully_made_move([i,j,y//SQUARE,x//SQUARE])
-                                        # print(self.game.previous_move)
+                                        print((self.game.move_number-1)//2, self.game.previous_move)
                                         self.draw_window(screen)
                                     # Move request unsuccessful
                                     else:
@@ -128,7 +128,7 @@ class New_Game():
                     engine_move = self.game.engine_move_decision(depth=white_engine_depth)
                     self.game.board.make_move(engine_move[0],engine_move[1],engine_move[2],engine_move[3])   # Make move
                     self.game.handle_new_successfully_made_move(engine_move)
-                    # print(str(self.game.move_number)+" " +str(self.game.previous_move))
+                    print(str(self.game.move_number//2)+" " +str(self.game.previous_move))
         elif not white_is_engine and not black_is_engine:
             # 2 Players
             while self.game.gameover == False:
