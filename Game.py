@@ -811,6 +811,21 @@ class Game():
         score += 0.02*black_undeveloped_count   # Apply bonuses
         score -= 0.02*white_undeveloped_count
 
+        # Rook on open file
+        rook_on_open_file = 0
+        for i in range(8):
+            file = self.board.get_file(i)
+            if file.find("r...")!=-1:
+                rook_on_open_file -= 0.07
+            if file.find("...r")!=-1:
+                rook_on_open_file -= 0.07
+            if file.find("R...")!=-1:
+                rook_on_open_file += 0.07
+            if file.find("...R")!=-1:
+                rook_on_open_file += 0.07
+        self.board.scores.rook_on_open_file = rook_on_open_file
+        
+
         # Control of centre
         """
         control = 0

@@ -9,6 +9,7 @@ class Scores:
         self.isolated_pawns = 0
         self.double_pawns = 0
         self.capturable_unprotected = 0
+        self.rook_on_open_file = 0
         self.mobility = 0
         self.white_pawns_count = [1, 1, 1, 1, 1, 1, 1, 1]   # num pawns in files from 0 to 7
         self.black_pawns_count = [1, 1, 1, 1, 1, 1, 1, 1]
@@ -17,6 +18,7 @@ class Scores:
     
     def get_total(self):
         score = self.material + self.king_safety + self.control_of_centre + self.bad_knights+ self.threat_by_pawns + self.isolated_pawns+ self.double_pawns + self.mobility + self.capturable_unprotected
+        score += self.rook_on_open_file
         return score
     
     def print_totals(self):
@@ -29,6 +31,7 @@ class Scores:
         print("Isolated pawn penalty: "+ str(self.isolated_pawns))
         print("Double pawns penalty: "+ str(self.double_pawns))
         print("Unprotected capturable: "+ str(self.capturable_unprotected))
+        print("Rook on open file: "+ str(self.rook_on_open_file))
 
     def update_isolated_pawn_penalty(self):
         # If 0,x,0 with x>=1 appears in pawn count apply x penalties to that colour

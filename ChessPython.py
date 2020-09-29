@@ -1,4 +1,4 @@
-from New_Game import *        
+from menu import *
 
 # Testing
 from bitboard import *
@@ -30,19 +30,10 @@ print("Black shields")
 black_shields.print()
 """
 
-# Play games with engines or players
-New_Game(white_is_engine = True, black_is_engine = False, white_engine_depth = 2, black_engine_depth = 1)
-New_Game(white_is_engine = True, black_is_engine = False, white_engine_depth = 1, black_engine_depth = 1)
-New_Game(white_is_engine = True, black_is_engine = True, white_engine_depth = 1, black_engine_depth = 1)
-New_Game(white_is_engine = False, black_is_engine = True, white_engine_depth = 1, black_engine_depth = 1)
-New_Game(white_is_engine = False, black_is_engine = True, white_engine_depth = 1, black_engine_depth = 1)
-New_Game(white_is_engine = False, black_is_engine = False, white_engine_depth = 1, black_engine_depth = 1)
-New_Game(white_is_engine = False, black_is_engine = False, white_engine_depth = 1, black_engine_depth = 1)
-New_Game(white_is_engine = False, black_is_engine = False, white_engine_depth = 1, black_engine_depth = 1)
-New_Game(white_is_engine = True, black_is_engine = True, white_engine_depth = 1, black_engine_depth = 1)
-New_Game(white_is_engine = True, black_is_engine = False, white_engine_depth = 1, black_engine_depth = 1)
-New_Game(white_is_engine = False, black_is_engine = True, white_engine_depth = 1, black_engine_depth = 1)
-New_Game(white_is_engine = False, black_is_engine = False, white_engine_depth = 1, black_engine_depth = 1)
+
+# Menu
+Menu()
+
 
 
 """
@@ -61,5 +52,9 @@ DO depth 4 before doing depth 3 with alpha beta pruning
 
 
 current moves and off them branches of possible boards 
+
+
+Add idea of outposts to score function
+
 
 """
