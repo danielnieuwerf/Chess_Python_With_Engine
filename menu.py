@@ -41,13 +41,11 @@ class Menu:
                     elif event.key == pygame.K_b:
                         black_is_engine = not black_is_engine
                         print(black_is_engine)
-                elif event.type == pygame.K_SPACE:
-                    New_Game(False, False, 1, 1)
 
             self.draw_screen(screen, white_is_engine, black_is_engine)  # Redraw window and update it
 
         if start_new_game:
-            New_Game(white_is_engine, black_is_engine)
+            New_Game(white_is_engine, black_is_engine,1,1)
             Menu()  # When game finishes return to menu
 
 
