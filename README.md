@@ -8,4 +8,4 @@ Improvements:
 
 
 Current elo:
-- ???
+- 1100+
