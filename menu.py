@@ -46,8 +46,7 @@ class Menu:
 
         if start_new_game:
             New_Game(white_is_engine, black_is_engine,1,1)
-            Menu()  # When game finishes return to menu
-
+            # Menu()  # When game finishes return to menu
 
     def draw_screen(self, surface, white_is_engine, black_is_engine):
         # Draw menu depending on selections onto surface
@@ -55,6 +54,10 @@ class Menu:
         BLACK = (0,0,0)
         WHITE = (255,255,255)
         GREEN = (0, 255, 0)
+        # Draw "Python Chess"
+        font = pygame.font.Font('freesansbold.ttf', 48)
+        text = font.render("Python Chess", True, RED)
+        surface.blit(text,(40,20))
         # Draw play button
         pygame.draw.rect(surface, RED, ((150, 300), (100,50)))
         font = pygame.font.Font('freesansbold.ttf', 32)
