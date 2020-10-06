@@ -8,4 +8,7 @@ Improvements:
 
 
 Current elo:
-- 1100+
+- 1100+ 
+
+To play:
+Run chesspython.py after installing required python modules
