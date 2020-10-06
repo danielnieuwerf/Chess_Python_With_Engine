@@ -11,4 +11,4 @@ Current elo:
 - 1100+ 
 
 To play:
--Run chesspython.py after installing required python modules
+- Run chesspython.py after installing required python modules
