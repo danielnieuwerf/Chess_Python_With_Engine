@@ -2,11 +2,9 @@ from menu import *
 import threading
 
 # Testing
-from chessclock import *
 
 
 # Create menu
-
 Menu()
 
 
@@ -34,5 +32,6 @@ current moves and off them branches of possible boards
 
 Add idea of outposts to score function
 
-
+IMPROVEMENTS:
+Add a game over screen instead of returning out of the new game function
 """

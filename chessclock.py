@@ -3,7 +3,7 @@ import pygame
 
 class chessclock:
     """contains clocks for white and black and data about the clock"""
-    def __init__(self, white_time, black_time, WHITE_INCREMENT = 0, BLACK_INCREMENT = 0, white_turn = True):
+    def __init__(self, white_time = 180, black_time = 180, WHITE_INCREMENT = 2, BLACK_INCREMENT = 2, white_turn = True):
         self.PAUSED = False     # Control whether or not the clock is paused
         self.white_clock = clock(white_time)
         self.black_clock = clock(black_time)
@@ -11,6 +11,7 @@ class chessclock:
         self.black_increment = BLACK_INCREMENT
         self.white_clock_is_running = white_turn
         self.black_clock_is_running = not white_turn
+        self.disabled = False   # If disabled clock does not run or get displayed
 
     def update_clock(self):
         if self.PAUSED:
@@ -51,6 +52,56 @@ class chessclock:
         while self.PAUSED == False:
             self.update_clock()
             self.display_clock(surface)
+
+    def set_chess_clock(self, clock_string):
+        """ Given a string such as "3|2" set the chess clock to this setting """
+        if clock_string == 'None':
+            self.disabled = True
+        elif clock_string == '1|0':
+            self.white_clock = clock(60)
+            self.black_clock = clock(60)
+            self.white_increment = 0
+            self.black_increment = 0
+        elif clock_string == '2|1':
+            self.white_clock = clock(120)
+            self.black_clock = clock(120)
+            self.white_increment = 1
+            self.black_increment = 1
+        elif clock_string == '3|0':
+            self.white_clock = clock(180)
+            self.black_clock = clock(180)
+            self.white_increment = 0
+            self.black_increment = 0
+        elif clock_string == '3|2':
+            self.white_clock = clock(180)
+            self.black_clock = clock(180)
+            self.white_increment = 2
+            self.black_increment = 2
+        elif clock_string == '5|0':
+            self.white_clock = clock(300)
+            self.black_clock = clock(300)
+            self.white_increment = 0
+            self.black_increment = 0
+        elif clock_string == '5|5':
+            self.white_clock = clock(300)
+            self.black_clock = clock(300)
+            self.white_increment = 5
+            self.black_increment = 5
+        elif clock_string == '10|0':
+            self.white_clock = clock(600)
+            self.black_clock = clock(600)
+            self.white_increment = 0
+            self.black_increment = 0
+        elif clock_string == '15|10':
+            self.white_clock = clock(900)
+            self.black_clock = clock(900)
+            self.white_increment = 10
+            self.black_increment = 10
+
+
+
+
+
 
 class clock:
     def __init__ (self, seconds=None):

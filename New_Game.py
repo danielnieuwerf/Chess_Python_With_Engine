@@ -2,23 +2,31 @@ from Game import *
 from chessclock import *
 import threading
 class New_Game():
-    def __init__(self,white_is_engine = False, black_is_engine = False, white_engine_depth = 1, black_engine_depth = 1):
+    def __init__(self,white_is_engine = False, black_is_engine = False, white_engine_depth = 1, black_engine_depth = 1, clock_string = '3|2'):
         self.game = Game()
-        self.clock = chessclock(180,180,2,2)
+        self.clock = chessclock()
+        self.clock.set_chess_clock(clock_string)    # Set the chess clock to the correct setting
         # Initialise Pygame
         pygame.init()
         WIDTH, HEIGHT = 400, 400
         ROWS, COLUMNS = 8, 8
         SQUARE = 50
-        screen = pygame.display.set_mode((WIDTH+150, HEIGHT), pygame.RESIZABLE)
+        if not self.clock.disabled: # When there is a clock add some additional width to the display
+            ADDITIONAL_CLOCK_WIDTH = 150
+        else:
+            ADDITIONAL_CLOCK_WIDTH = 0
+        screen = pygame.display.set_mode((WIDTH+ADDITIONAL_CLOCK_WIDTH, HEIGHT), pygame.RESIZABLE)
         pygame.display.set_icon(pygame.image.load('files/blackpawn.png')) # Icon
         pygame.display.set_caption("Python Chess")  # Set Caption
         # Load piece images
         self.images = {}
         self.load_images()    # dictionary of piece symbols mapping to their images
         
-        clock_thread = threading.Thread(target = self.clock.thread, args = (screen,))   # Run clock on seperate thread
-        clock_thread.start()
+        if not self.clock.disabled:
+            clock_thread = threading.Thread(target = self.clock.thread, args = (screen,))   # Run clock on seperate thread
+            clock_thread.start()
+        else:
+            print("NO CLOCK")
 
         # Game loops depending on whose playing
         if not white_is_engine and black_is_engine:
@@ -140,7 +148,6 @@ class New_Game():
                     self.game.handle_new_successfully_made_move(engine_move)
                     print(str(self.game.move_number//2)+" " +str(self.game.previous_move))
                     self.clock.move_made()  # Let the clock know a move was made
-
         elif not white_is_engine and not black_is_engine:
             # 2 Players
             while self.game.gameover == False:
@@ -179,7 +186,7 @@ class New_Game():
                     self.game = Game()
                     print('GAMEOVER')
 
-        clock_thread._delete
+        self.clock.PAUSED = True    # End clock thread as game is over
     def load_images(self):
         # Dictionary of piece symbols to their correctly resized images
         self.images = {}
@@ -213,5 +220,6 @@ class New_Game():
                     surface.blit(self.images[self.game.board.pieces[i][j]], (j*SQUARE, i*SQUARE))
 
         # Draw clock
-        self.clock.display_clock(surface)
+        if not self.clock.disabled:
+            self.clock.display_clock(surface)
         pygame.display.update()
