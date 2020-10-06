@@ -9,7 +9,7 @@ class Menu:
         ROWS, COLUMNS = 8, 8
         SQUARE = 50
         screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
-        pygame.display.set_icon(pygame.image.load('blackpawn.png')) # Icon
+        pygame.display.set_icon(pygame.image.load('files/blackpawn.png')) # Icon
         pygame.display.set_caption("Python Chess")  # Set Caption
 
         # Listen for events

@@ -20,7 +20,7 @@ class Piece():
 class Black_Pawn(Piece):
     def __init__(self):
         super().__init__()
-        self.image = pygame.image.load('blackpawn.png')
+        self.image = pygame.image.load('files/blackpawn.png')
         self.image = pygame.transform.scale(self.image, (SQUARE, SQUARE))
         self.value = -1
         self.white = False
@@ -29,7 +29,7 @@ class Black_Pawn(Piece):
 class Black_Rook(Piece):
     def __init__(self):
         super().__init__()
-        self.image = pygame.image.load('blackrook.png')
+        self.image = pygame.image.load('files/blackrook.png')
         self.image = pygame.transform.scale(self.image, (SQUARE, SQUARE))
         self.value = -5
         self.white = False
@@ -38,7 +38,7 @@ class Black_Rook(Piece):
 class Black_Knight(Piece):
     def __init__(self):
         super().__init__()
-        self.image = pygame.image.load('blackknight.png')
+        self.image = pygame.image.load('files/blackknight.png')
         self.image = pygame.transform.scale(self.image, (SQUARE, SQUARE))
         self.value = -3
         self.white = False
@@ -47,7 +47,7 @@ class Black_Knight(Piece):
 class Black_Bishop(Piece):
     def __init__(self):
         super().__init__()
-        self.image = pygame.image.load('blackbishop.png')
+        self.image = pygame.image.load('files/blackbishop.png')
         self.image = pygame.transform.scale(self.image, (SQUARE, SQUARE))
         self.value = -3.15
         self.white = False
@@ -56,7 +56,7 @@ class Black_Bishop(Piece):
 class Black_Queen(Piece):
     def __init__(self):
         super().__init__()
-        self.image = pygame.image.load('blackqueen.png')
+        self.image = pygame.image.load('files/blackqueen.png')
         self.image = pygame.transform.scale(self.image, (SQUARE, SQUARE))
         self.value = -9
         self.white = False
@@ -65,7 +65,7 @@ class Black_Queen(Piece):
 class Black_King(Piece):
     def __init__(self):
         super().__init__()
-        self.image = pygame.image.load('blackking.png')
+        self.image = pygame.image.load('files/blackking.png')
         self.image = pygame.transform.scale(self.image, (SQUARE, SQUARE))
         self.value = 0
         self.white = False
@@ -74,7 +74,7 @@ class Black_King(Piece):
 class White_Pawn(Piece):
     def __init__(self):
         super().__init__()
-        self.image = pygame.image.load('whitepawn.png')
+        self.image = pygame.image.load('files/whitepawn.png')
         self.image = pygame.transform.scale(self.image, (SQUARE, SQUARE))
         self.value = 1
         self.white = True
@@ -83,7 +83,7 @@ class White_Pawn(Piece):
 class White_Rook(Piece):
     def __init__(self):
         super().__init__()
-        self.image = pygame.image.load('whiterook.png')
+        self.image = pygame.image.load('files/whiterook.png')
         self.image = pygame.transform.scale(self.image, (SQUARE, SQUARE))
         self.value = 5
         self.white = True
@@ -92,7 +92,7 @@ class White_Rook(Piece):
 class White_Knight(Piece):
     def __init__(self):
         super().__init__()
-        self.image = pygame.image.load('whiteknight.png')
+        self.image = pygame.image.load('files/whiteknight.png')
         self.image = pygame.transform.scale(self.image, (SQUARE, SQUARE))
         self.value = 3
         self.white = True
@@ -101,7 +101,7 @@ class White_Knight(Piece):
 class White_Bishop(Piece):
     def __init__(self):
         super().__init__()
-        self.image = pygame.image.load('whitebishop.png')
+        self.image = pygame.image.load('files/whitebishop.png')
         self.image = pygame.transform.scale(self.image, (SQUARE, SQUARE))
         self.value = 3.15
         self.white = True
@@ -110,7 +110,7 @@ class White_Bishop(Piece):
 class White_Queen(Piece):
     def __init__(self):
         super().__init__()
-        self.image = pygame.image.load('whitequeen.png')
+        self.image = pygame.image.load('files/whitequeen.png')
         self.image = pygame.transform.scale(self.image, (SQUARE, SQUARE))
         self.value = 9
         self.white = True
@@ -119,7 +119,7 @@ class White_Queen(Piece):
 class White_King(Piece):
     def __init__(self):
         super().__init__()
-        self.image = pygame.image.load('whiteking.png')
+        self.image = pygame.image.load('files/whiteking.png')
         self.image = pygame.transform.scale(self.image, (SQUARE, SQUARE))
         self.value = 0
         self.white = True

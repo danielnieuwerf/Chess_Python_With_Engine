@@ -11,7 +11,7 @@ class New_Game():
         ROWS, COLUMNS = 8, 8
         SQUARE = 50
         screen = pygame.display.set_mode((WIDTH+150, HEIGHT), pygame.RESIZABLE)
-        pygame.display.set_icon(pygame.image.load('blackpawn.png')) # Icon
+        pygame.display.set_icon(pygame.image.load('files/blackpawn.png')) # Icon
         pygame.display.set_caption("Python Chess")  # Set Caption
         # Load piece images
         self.images = {}

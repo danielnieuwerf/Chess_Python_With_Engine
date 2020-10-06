@@ -1,5 +1,4 @@
 from Pieces import *
-from Board import *
 from CharBoard import *
 from Book import *
 import random

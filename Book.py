@@ -8,7 +8,7 @@ class Book():
     def __init__(self):
         self.book_moves = []
         # opening the CSV file in read mode
-        with open('openingbook.csv', mode ='r') as file: 
+        with open('files/openingbook.csv', mode ='r') as file: 
             csvFile = csv.reader(file) 
             for lines in csvFile: 
                 self.book_moves.append(lines)
