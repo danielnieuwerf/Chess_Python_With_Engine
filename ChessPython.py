@@ -3,10 +3,8 @@ import threading
 
 # Testing
 
-
 # Create menu
 Menu()
-
 
 
 """
@@ -34,4 +32,10 @@ Add idea of outposts to score function
 
 IMPROVEMENTS:
 Add a game over screen instead of returning out of the new game function
+If clock runs out of time... game over is true and go to game over screen
+
+Game over screen:
+Option to save the game
+Option to replay the game
+
 """

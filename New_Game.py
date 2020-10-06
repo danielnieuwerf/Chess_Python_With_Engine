@@ -78,6 +78,14 @@ class New_Game():
                     except:
                         print('Engine resigns')
                         self.game.resign()
+
+                # Check if either player has ran out of time
+                if self.clock.black_flagged:
+                    self.game.white_won = True
+                    self.game.gameover = True
+                if self.clock.white_flagged:
+                    self.game.black_won = True
+                    self.game.gameover = True
         elif white_is_engine and black_is_engine:
             # 2 engines
             self.clock.PAUSED = True    # Pause clock for 2 engines game
@@ -148,6 +156,14 @@ class New_Game():
                     self.game.handle_new_successfully_made_move(engine_move)
                     print(str(self.game.move_number//2)+" " +str(self.game.previous_move))
                     self.clock.move_made()  # Let the clock know a move was made
+
+                # Check if either player has ran out of time
+                if self.clock.black_flagged:
+                    self.game.white_won = True
+                    self.game.gameover = True
+                if self.clock.white_flagged:
+                    self.game.black_won = True
+                    self.game.gameover = True
         elif not white_is_engine and not black_is_engine:
             # 2 Players
             while self.game.gameover == False:
@@ -185,6 +201,13 @@ class New_Game():
                     del self.game
                     self.game = Game()
                     print('GAMEOVER')
+                # Check if either player has ran out of time
+                if self.clock.black_flagged:
+                    self.game.white_won = True
+                    self.game.gameover = True
+                if self.clock.white_flagged:
+                    self.game.black_won = True
+                    self.game.gameover = True
 
         self.clock.PAUSED = True    # End clock thread as game is over
     def load_images(self):

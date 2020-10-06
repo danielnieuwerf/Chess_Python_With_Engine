@@ -12,6 +12,8 @@ class chessclock:
         self.white_clock_is_running = white_turn
         self.black_clock_is_running = not white_turn
         self.disabled = False   # If disabled clock does not run or get displayed
+        self.white_flagged = False  # Store whether or not white/black are out of time
+        self.black_flagged = False  
 
     def update_clock(self):
         if self.PAUSED:
@@ -52,6 +54,12 @@ class chessclock:
         while self.PAUSED == False:
             self.update_clock()
             self.display_clock(surface)
+            if self.black_clock.seconds<0:
+                self.PAUSED = True
+                self.black_flagged = True
+            if self.white_clock.seconds<0:
+                self.PAUSED = True
+                self.white_flagged = True
 
     def set_chess_clock(self, clock_string):
         """ Given a string such as "3|2" set the chess clock to this setting """
@@ -97,11 +105,6 @@ class chessclock:
             self.black_clock = clock(900)
             self.white_increment = 10
             self.black_increment = 10
-
-
-
-
-
 
 class clock:
     def __init__ (self, seconds=None):
