@@ -23,5 +23,13 @@ class BitBoard:
         for i in range(8):
             print(self.bits[i])
 
+    def number_of_ones(self):
+        # Number of 1s in the bitboard
+        count = 0
+        for i in range(8):
+            for j in range(8):
+                if self.bits[i][j]==1:
+                    count+=1
 
+        return count
 

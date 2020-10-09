@@ -3,7 +3,9 @@ class Scores:
     def __init__(self):
         self.material = 0   # Sum of all pieces values on the board
         self.king_safety = 0
+        self.castling_bonus = 0     # When a king castles they receive a bonus (this is reset to 0 when end game is reached)
         self.control_of_centre = 0
+        self.control_of_board = 0
         self.bad_knights = 0    # Sum of all penalties to knights on files 0 and 7
         self.threat_by_pawns = 0 # Bonuses applied when pawns threaten a non pawn piece
         self.isolated_pawns = 0
@@ -13,19 +15,19 @@ class Scores:
         self.mobility = 0
         self.white_pawns_count = [1, 1, 1, 1, 1, 1, 1, 1]   # num pawns in files from 0 to 7
         self.black_pawns_count = [1, 1, 1, 1, 1, 1, 1, 1]
-        self.num_legal_white_moves = 20
-        self.num_legal_black_moves = 20
-    
+
     def get_total(self):
-        score = self.material + self.king_safety + self.control_of_centre + self.bad_knights+ self.threat_by_pawns + self.isolated_pawns+ self.double_pawns + self.mobility + self.capturable_unprotected
-        score += self.rook_on_open_file
+        score = self.material + self.king_safety + self.control_of_board + self.control_of_centre + self.bad_knights+ self.threat_by_pawns + self.isolated_pawns+ self.double_pawns + self.mobility + self.capturable_unprotected
+        score += (self.rook_on_open_file + self.castling_bonus)
         return score
     
     def print_totals(self):
         print("material: "+str(self.material))
         print("mobility: "+str(self.mobility))
         print("king safety: "+str(self.king_safety))
+        print("castling bonus: "+str(self.castling_bonus))
         print("control of centre: "+str(self.control_of_centre))
+        print("control of board: "+str(self.control_of_board))
         print("bad knights: "+str(self.bad_knights))
         print("threat by pawns: "+str(self.threat_by_pawns))
         print("Isolated pawn penalty: "+ str(self.isolated_pawns))
@@ -67,9 +69,19 @@ class Scores:
                 penalty -= (penalty_value+self.black_pawns_count[i]-2)
         self.double_pawns = -penalty
 
-    def update_mobility(self):
-        self.mobility = 0.01*(self.num_legal_white_moves - self.num_legal_black_moves)
+    def update_king_safety(self, white_king_pos, black_king_pos):
+        king_safety = 0
+        # If king is on pawnless file add penalty of 0.2
+        if self.white_pawns_count[white_king_pos[1]] == 0:
+            king_safety -= 0.2
+        if self.black_pawns_count[black_king_pos[1]] == 0:
+            king_safety += 0.2
 
+        self.king_safety = king_safety
+
+
+    def reset_castling_bonus(self):
+        self.castling_bonus = 0
 # Things to add
 # King safety- penalty for king on pawnless file
 # King eyed by pieces etc

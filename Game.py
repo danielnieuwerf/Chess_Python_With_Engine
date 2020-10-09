@@ -642,7 +642,7 @@ class Game():
                     valid_moves.append(move)
                     continue
 
-                # For other moves make the move and see if the king is in check
+                # For other moves make the move on a copy board and see if the king is in check
                 copy_game = copy.deepcopy(self)
                 copy_game.board.make_move(move[0],move[1],move[2],move[3])  # Make move on copy board
                 if not copy_game.board.white_king_is_in_check():
@@ -670,7 +670,7 @@ class Game():
 
     def handle_new_successfully_made_move(self, move):
     # If a new move has been made update check and current_legal_moves and check for gameover etc...
-        if not self.out_of_book:    # Update book
+        if not self.out_of_book:    # Update book if we are not already out of book
             self.update_book(move)
         self.selected_SQUARE = None     # Unselect SQUARE
         self.white_turn = not self.white_turn   # Flip turn
@@ -683,10 +683,10 @@ class Game():
             self.black_is_in_check = False
         if self.white_is_in_check:
             self.white_is_in_check = False
-        self.update_check_status()     
+    
         self.current_legal_moves = self.legal_moves()   # Calculate new legal moves
-        if self.board.reset_board_strings:  # Reset board strings when old positions are no longer possible
-            self.board_states = {}
+        if self.board.reset_board_strings:  # Reset board strings when old positions are no longer possible (when a pawn moves forward)
+            self.board_states = {}  # Empty dictionary
             self.board.reset_board_strings = False
         if board_string in self.board_states.keys():    # Add new board to board states
             self.board_states[board_string] +=1
@@ -730,15 +730,19 @@ class Game():
             self.white_king_can_castle = False
     
     def evaluate_position_score(self):
-        # Returns score to evaluate current position
+        """Returns score to evaluate current position"""
 
         # If checkmate return +- infinity only check for this if it is check
         if self.black_won:
-            return -1000000
+            return -1000
         if self.white_won:
-            return 10000000
+            return 1000
         if self.gameIsDraw:     # If draw return 0
             return 0
+
+        # If forced checkmate return +- 100000
+        # if self.is_forced_checkmate():
+            
         
         # Direct threats bitboards
         direct_threats_to_white_bitboard = self.board.create_bitboard_direct_threats_to_king(True)
@@ -758,17 +762,15 @@ class Game():
                         unprotected_capturable_value -= self.board.char_to_value(self.board.pieces[move[2]][move[3]])
                     
         self.board.scores.capturable_unprotected = 0.8*unprotected_capturable_value # Update unprotected capturables value 
-        
-        score = self.board.scores.get_total() # Initialise score to stored board scores total
 
-        # Bonus for mobility
-        """
-        if self.white_turn:
-            self.board.scores.num_legal_white_moves = len(self.current_legal_moves)
-        else:
-            self.board.scores.num_legal_black_moves = len(self.current_legal_moves)
-        self.board.scores.update_mobility()
-        """
+
+        # Update control of board score
+        self.board.scores.control_of_board = (direct_threats_to_black_bitboard.number_of_ones()-direct_threats_to_white_bitboard.number_of_ones())*0.01
+
+         # Initialise score to stored board scores total
+        score = self.board.scores.get_total()
+
+        # Add temporary bonus for castling to encourage castling
 
         # Add value for capturable piece where taker value less than taken value
         max_capture = 0
@@ -810,7 +812,7 @@ class Game():
         score += 0.02*black_undeveloped_count   # Apply bonuses
         score -= 0.02*white_undeveloped_count
 
-        # Rook on open file
+        # Rook on open file (SPILT INTO SEMI OPEN FILE AND FILE use pawn counts in this logic for efficiency)
         rook_on_open_file = 0
         for i in range(8):
             file = self.board.get_file(i)
@@ -837,9 +839,9 @@ class Game():
         score +=control
         """
         # End game
-        if self.move_number > 30:
+        if self.move_number > 40:
             # Ending with 3 pawns vs knight or bishop
-            pass
+            self.board.scores.reset_castling_bonus()    # Reset castling bonus to 0
 
         # Return score after adjustments
         return score
