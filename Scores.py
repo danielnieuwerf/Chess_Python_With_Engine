@@ -61,12 +61,12 @@ class Scores:
 
     def update_double_pawns_penalty(self):
         penalty = 0
-        penalty_value = 0.2
+        penalty_value = [0.2, 0.8, 1.8, 2.8, 3.8, 4.8]
         for i in range(8):
             if self.white_pawns_count[i]>1:
-                penalty += (penalty_value+self.white_pawns_count[i]-2)
+                penalty += penalty_value[self.white_pawns_count[i]-2]
             if self.black_pawns_count[i]>1:
-                penalty -= (penalty_value+self.black_pawns_count[i]-2)
+                penalty -= penalty_value[self.black_pawns_count[i]-2]
         self.double_pawns = -penalty
 
     def update_king_safety(self, white_king_pos, black_king_pos):
