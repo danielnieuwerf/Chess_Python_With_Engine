@@ -841,7 +841,6 @@ class Game():
         """
         # End game
         if self.move_number > 40:
-            # Ending with 3 pawns vs knight or bishop
             self.board.scores.reset_castling_bonus()    # Reset castling bonus to 0
             pieces_string = self.board.get_pieces_string()  # Calculate what pieces we have left
             # KPk end game
@@ -849,7 +848,10 @@ class Game():
                 KPk_score = KPk(self.board, self.white_turn)
                 if KPk_score != "unknown":
                     return KPk_score
-
+            elif pieces_string == "Kkp":
+                Kkp_score = Kkp(self.board, self.white_turn)
+                if Kkp_score != "unknown":
+                    return Kkp_score
         # Return score after adjustments
         return score
 
