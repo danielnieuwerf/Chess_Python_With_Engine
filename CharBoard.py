@@ -339,7 +339,6 @@ class CharBoard:
         if sym in ['k', 'K']:
             self.scores.update_king_safety(self.white_king_position, self.black_king_position)
 
-
     def pawn_promotion(self,x,y):
         # Promote the pawn on self.pieces[x][y] to a queen
         if x==0 and self.pieces[0][y]=='p':
@@ -919,3 +918,12 @@ class CharBoard:
                 useful_string += 'S'    # Shield
 
         return useful_string
+
+    def get_pieces_string(self):
+        pieces_string = ""
+        for i in range(8):
+            for j in range(8):
+                if self.pieces[i][j]!='.':
+                    pieces_string += self.pieces[i][j]
+        
+        return ''.join(sorted(pieces_string))
