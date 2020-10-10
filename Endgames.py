@@ -10,6 +10,13 @@ def KPk(board, turn):
         return 9.0
     return "unknown"
 
+def Kkp(board, turn):
+    # Given a board, and whose turn it is for a black pawn and king vs king ending
+    # Return the evaluation if it is known else return unknown
+    if black_pawn_promo_cannot_be_stopped(board, turn):
+        return -9.0
+    return "unknown"
+
 def white_pawn_promo_cannot_be_stopped(board, turn):
     # Given a KPk board and whose turn it is return whether or not pawn promotion cannot be stopped
 
@@ -35,10 +42,38 @@ def white_pawn_promo_cannot_be_stopped(board, turn):
     else:
         num_king_moves -= 1
 
-    #
-    print("pawn promo", num_moves_for_pawn_promo)
-    print("king moves", num_king_moves)
-    if num_king_moves-1 > num_moves_for_pawn_promo: # If king can catch pawn
+    # If king can catch pawn
+    if num_king_moves-1 > num_moves_for_pawn_promo:
+        return True
+    return False
+
+def black_pawn_promo_cannot_be_stopped(board, turn):
+    # Given a Kkp board and whose turn it is, return whether or not pawn promotion cannot be stopped
+
+    # Calculate which square is promo square
+    for i in range(8):
+        if board.scores.black_pawns_count[i]==1:
+            promo_file = i
+            break
+
+    # Calculate num moves for pawn to promote
+    for i in range(1,6):
+        if board.pieces[i][promo_file]=='p':
+            num_moves_for_pawn_promo = i
+            break
+    if board.pieces[6][promo_file]=='p':
+        num_moves_for_pawn_promo = 5    # Because can jump 2 squares on first move
+
+    # Calculate min num moves for king to get to promo square
+    num_king_moves = num_moves_for_king_to_reach_position(board.white_king_position, [0,promo_file])
+
+    if not turn:
+        num_moves_for_pawn_promo -= 1
+    else:
+        num_king_moves -= 1
+
+    # If king cannot catch pawn return true
+    if num_king_moves-1 > num_moves_for_pawn_promo:
         return True
     return False
 
@@ -49,10 +84,21 @@ def num_moves_for_king_to_reach_position(king_pos, pos):
 
     return max(vertical, horizontal)
 
-
 # Do kK and only pawns endgame
 
 # KRk endgame... KQk endgame
 
 
 # Create the same functions for black 
+
+def white_king_blocks_pawn_promo(board, turn):
+    # Given a Kkp board and turn return whether or not white king blocks the pawn promo
+    pass
+
+
+
+def white_rook_endgame(board, turn):
+    # Add value to score for cutting off the board with the white rook
+    pass
+
+
