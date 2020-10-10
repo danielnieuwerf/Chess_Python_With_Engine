@@ -2,6 +2,7 @@ from Pieces import *
 from CharBoard import *
 from Book import *
 import random
+from Endgames import *
 
 class Game():
     def __init__(self):
@@ -842,6 +843,12 @@ class Game():
         if self.move_number > 40:
             # Ending with 3 pawns vs knight or bishop
             self.board.scores.reset_castling_bonus()    # Reset castling bonus to 0
+            pieces_string = self.board.get_pieces_string()  # Calculate what pieces we have left
+            # KPk end game
+            if pieces_string == "KPk":
+                KPk_score = KPk(self.board, self.white_turn)
+                if KPk_score != "unknown":
+                    return KPk_score
 
         # Return score after adjustments
         return score
