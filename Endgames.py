@@ -88,7 +88,6 @@ def num_moves_for_king_to_reach_position(king_pos, pos):
 
 # KRk endgame... KQk endgame
 
-
 # Create the same functions for black 
 
 def white_king_blocks_pawn_promo(board, turn):
@@ -96,9 +95,42 @@ def white_king_blocks_pawn_promo(board, turn):
     pass
 
 
-
 def white_rook_endgame(board, turn):
+    # Return score for white rook endgame 
     # Add value to score for cutting off the board with the white rook
-    pass
+    black_king_pos = board.black_king_position
+    # Score based on black king position
+    scores = [
+        [ 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0],
+        [ 7.0, 6.5, 6.5, 6.5, 6.5, 6.5, 6.5, 7.0],
+        [ 7.0, 6.5, 6.0, 6.0, 6.0, 6.0, 6.5, 7.0],
+        [ 7.0, 6.5, 6.0, 5.5, 5.5, 6.0, 6.5, 7.0],
+        [ 7.0, 6.5, 6.0, 5.5, 5.5, 6.0, 6.5, 7.0],
+        [ 7.0, 6.5, 6.0, 6.0, 6.0, 6.0, 6.5, 7.0],
+        [ 7.0, 6.5, 6.5, 6.5, 6.5, 6.5, 6.5, 7.0],
+        [ 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0]     
+        ]
+
+    return scores[black_king_pos[0]][black_king_pos[1]]
+
+def black_rook_endgame(board, turn):
+    # Return score for black rook endgame 
+    # Add value to score for cutting off the board with the black rook
+    white_king_pos = board.white_king_position
+    # Score based on black king position
+    scores = [
+        [ 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0],
+        [ 7.0, 6.5, 6.5, 6.5, 6.5, 6.5, 6.5, 7.0],
+        [ 7.0, 6.5, 6.0, 6.0, 6.0, 6.0, 6.5, 7.0],
+        [ 7.0, 6.5, 6.0, 5.5, 5.5, 6.0, 6.5, 7.0],
+        [ 7.0, 6.5, 6.0, 5.5, 5.5, 6.0, 6.5, 7.0],
+        [ 7.0, 6.5, 6.0, 6.0, 6.0, 6.0, 6.5, 7.0],
+        [ 7.0, 6.5, 6.5, 6.5, 6.5, 6.5, 6.5, 7.0],
+        [ 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0]     
+        ]
+
+    return -scores[white_king_pos[0]][white_king_pos[1]]
+
+    
 
 

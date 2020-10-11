@@ -799,19 +799,6 @@ class Game():
                 else: # Not recapturable
                     score-= max_capture*0.2
 
-        # Number of developed pieces bonus
-        rank_white = self.board.get_rank_without_empty_squares(0)
-        rank_black = self.board.get_rank_without_empty_squares(7)
-        white_undeveloped_count, black_undeveloped_count = 0,0  #number of undeveloped pieces
-        for x in rank_black:
-            if x in ['b','r','n','q']:
-                black_undeveloped_count +=1
-        for x in rank_white:
-            if x in ['B','R','N','Q']:
-                white_undeveloped_count +=1
-        
-        score += 0.02*black_undeveloped_count   # Apply bonuses
-        score -= 0.02*white_undeveloped_count
 
         # Rook on open file (SPILT INTO SEMI OPEN FILE AND FILE use pawn counts in this logic for efficiency)
         rook_on_open_file = 0
@@ -828,17 +815,6 @@ class Game():
         self.board.scores.rook_on_open_file = rook_on_open_file
         
 
-        # Control of centre
-        """
-        control = 0
-        for i in range(2,6):
-            for j in range(2,6):
-                if direct_threats_to_white_bitboard.bits[i][j]==1:
-                    control -= 0.05
-                if direct_threats_to_black_bitboard.bits[i][j]==1:
-                    control += 0.05
-        score +=control
-        """
         # End game
         if self.move_number > 40:
             self.board.scores.reset_castling_bonus()    # Reset castling bonus to 0
@@ -852,6 +828,10 @@ class Game():
                 Kkp_score = Kkp(self.board, self.white_turn)
                 if Kkp_score != "unknown":
                     return Kkp_score
+            elif pieces_string == "KRk":
+                return white_rook_endgame(self.board, self.white_turn)
+            elif pieces_string == "Kkr":
+                return black_rook_endgame(self.board, self.white_turn)
         # Return score after adjustments
         return score
 
@@ -885,7 +865,10 @@ class Game():
     def maximise_move_score(self):
         # Returns best move (depth 2) for white and black
         if self.white_turn: # If white calculate max min (USE ALPHA BETA PRUNING)
-            best_move = self.current_legal_moves[0] # Initialise best move to the first legal move
+            try:
+                best_move = self.current_legal_moves[0] # Initialise best move to the first legal move
+            except:
+                return
             likely_replies = [] # Candidate good moves for black
             best_score = -1000000   # Compute best score of best move 
             for move in self.current_legal_moves:   # Try every legal white move
@@ -922,7 +905,10 @@ class Game():
                         best_move = copy.deepcopy(move)
             return best_move
         else:       # Black's turn calculate min max
-            best_move = self.current_legal_moves[0] # Initialise best move to the first legal move
+            try:
+                best_move = self.current_legal_moves[0] # Initialise best move to the first legal move
+            except:
+                pass
             likely_replies = []  # Candidate good moves for white
             best_score = 1000000        # minimise score for black
             for move in self.current_legal_moves:   # Try every legal black move
