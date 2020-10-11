@@ -189,7 +189,8 @@ class New_Game():
                                     self.game.handle_new_successfully_made_move([i,j,y//SQUARE,x//SQUARE])
                                     print(self.game.previous_move)
                                     print("Legal moves: ", self.game.current_legal_moves)
-                                    print("Score: ", self.game.board.scores.get_total())
+                                    # print("Score: ", self.game.board.scores.get_total())
+                                    print("Eval: ", self.game.evaluate_position_score())
                                     self.clock.move_made()  # Let the clock know a move was made
                                 # Move request unsuccessful
                                 else:
