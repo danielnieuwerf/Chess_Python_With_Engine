@@ -8,6 +8,8 @@ def KPk(board, turn):
     # Return the evaluation if it is known else return unknown
     if white_pawn_promo_cannot_be_stopped(board, turn):
         return 9.0
+    if black_king_blocks_pawn_promo(board, turn):
+        return 0
     return "unknown"
 
 def Kkp(board, turn):
@@ -15,6 +17,8 @@ def Kkp(board, turn):
     # Return the evaluation if it is known else return unknown
     if black_pawn_promo_cannot_be_stopped(board, turn):
         return -9.0
+    if white_king_blocks_pawn_promo(board, turn):
+        return 0
     return "unknown"
 
 def white_pawn_promo_cannot_be_stopped(board, turn):
@@ -84,16 +88,47 @@ def num_moves_for_king_to_reach_position(king_pos, pos):
 
     return max(vertical, horizontal)
 
-# Do kK and only pawns endgame
-
-# KRk endgame... KQk endgame
-
-# Create the same functions for black 
-
 def white_king_blocks_pawn_promo(board, turn):
     # Given a Kkp board and turn return whether or not white king blocks the pawn promo
-    pass
+    white_king_pos = board.white_king_position
+    black_king_pos = board.black_king_position
 
+    # Compute black pawn pos and promo pos
+    for i in range(8):
+        if board.scores.black_pawns_count[i]==1:
+            black_pawn_file = i
+            break
+    for j in range(8):
+        if board.pieces[j][black_pawn_file]=='p':
+            black_pawn_pos = [j, black_pawn_file]
+            break
+    promo_pos = [0,black_pawn_pos[1]]
+
+    if white_king_pos[0]+1 == black_pawn_pos[0] and white_king_pos[1]==black_pawn_pos[1]:   # If white king blocks pawn promo
+        return True
+
+    return False
+
+def black_king_blocks_pawn_promo(board, turn):
+    # Given a KPk board and turn return whether or not black king blocks the pawn promo
+    white_king_pos = board.white_king_position
+    black_king_pos = board.black_king_position
+
+    # Compute white pawn pos and promo pos
+    for i in range(8):
+        if board.scores.white_pawns_count[i]==1:
+            white_pawn_file = i
+            break
+    for j in range(8):
+        if board.pieces[j][white_pawn_file]=='P':
+            white_pawn_pos = [j, white_pawn_file]
+            break
+    promo_pos = [7,white_pawn_pos[1]]
+
+    if black_king_pos[0]-1 == white_pawn_pos[0] and black_king_pos[1]==white_pawn_pos[1]:   # If white king blocks pawn promo
+        return True
+
+    return False
 
 def white_rook_endgame(board, turn):
     # Return score for white rook endgame 
@@ -130,7 +165,4 @@ def black_rook_endgame(board, turn):
         ]
 
     return -scores[white_king_pos[0]][white_king_pos[1]]
-
-    
-
 
