@@ -675,7 +675,7 @@ class Game():
             self.update_book(move)
         self.selected_SQUARE = None     # Unselect SQUARE
         self.white_turn = not self.white_turn   # Flip turn
-        self.previous_move = move  # Update previous move
+        self.previous_move = copy.copy(move)  # Update previous move
         board_string = self.board.board_to_string()  # Add to board states for 3fold repetition rule
         self.move_number += 1       # Update move number
         self.update_castlability()      # If a king move was made change castability to false
@@ -829,9 +829,10 @@ class Game():
                 if Kkp_score != "unknown":
                     return Kkp_score
             elif pieces_string == "KRk":
-                return white_rook_endgame(self.board, self.white_turn)
+                return white_rook_endgame(self)
             elif pieces_string == "Kkr":
                 return black_rook_endgame(self.board, self.white_turn)
+
         # Return score after adjustments
         return score
 
@@ -882,6 +883,15 @@ class Game():
                         copy_game.current_legal_moves.remove(copy.copy(likely_reply))  
                         copy_game.current_legal_moves.insert(0,copy.copy(likely_reply))
                 best_reply = None  # Used to add new good replies for black
+
+                # If no legal moves in response to move it is game over in this line 
+                if len(copy_game.current_legal_moves) == 0:
+                    score = copy_game.evaluate_position_score()
+                    if score > best_score:
+                        best_score = copy.copy(score)
+                        best_move = copy.copy(move)
+
+                # Try every response to move
                 for move2 in copy_game.current_legal_moves: 
                     copy_copy_game = copy.deepcopy(copy_game)    # on copycopy board
                     copy_copy_game.board.make_move(move2[0],move2[1],move2[2],move2[3])  # Make move on copycopy board
@@ -922,6 +932,15 @@ class Game():
                 # Now it is White's turn... make all legal black moves
                 max_score = -100000  # Make the best white move (max score move)
                 best_reply = None  # Used to add new good replies for white
+                
+                # If no legal moves in response to move it is game over in this line 
+                if len(copy_game.current_legal_moves) == 0:
+                    score = copy_game.evaluate_position_score()
+                    if score < best_score:
+                        best_score = copy.copy(score)
+                        best_move = copy.copy(move)
+
+                # Try every response to move
                 for move2 in copy_game.current_legal_moves: 
                     copy_copy_game = copy.deepcopy(copy_game)    # on copycopy board
                     copy_copy_game.board.make_move(move2[0],move2[1],move2[2],move2[3])  # Make move on copycopy board
