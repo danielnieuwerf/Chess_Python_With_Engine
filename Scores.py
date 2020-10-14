@@ -79,10 +79,8 @@ class Scores:
 
         self.king_safety = king_safety
 
-
     def reset_castling_bonus(self):
         self.castling_bonus = 0
 # Things to add
-# King safety- penalty for king on pawnless file
 # King eyed by pieces etc
 # Open semi open rook file (no friendly pawn on file)
