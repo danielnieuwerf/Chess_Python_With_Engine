@@ -130,10 +130,23 @@ def black_king_blocks_pawn_promo(board, turn):
 
     return False
 
-def white_rook_endgame(board, turn):
+def white_rook_endgame(game):
     # Return score for white rook endgame 
     # Add value to score for cutting off the board with the white rook
-    black_king_pos = board.black_king_position
+    black_king_pos = game.board.black_king_position
+
+    # If black turn and black king can take the white rook return 0
+    if not game.white_turn:
+        # If white rook is one square away from black king
+        for i in [-1, 0, -1]:
+            for j in [-1, 0, -1]:
+                try:
+                    if game.board.pieces[black_king_pos[0] + i][black_king_pos[1] + j] == 'R':   # If black king sees white rook
+                        if max(abs(game.board.white_king_position[0] - (black_king_pos[0] + i)), abs(game.board.white_king_position[1] - (black_king_pos[1] + j)))!=1:    # If white king does not protect white rook
+                            return 0
+                except:
+                    pass
+    
     # Score based on black king position
     scores = [
         [ 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0],
@@ -146,7 +159,9 @@ def white_rook_endgame(board, turn):
         [ 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0]     
         ]
 
-    return scores[black_king_pos[0]][black_king_pos[1]]
+    distance_between_kings = distance_between_two_kings(game.board)
+    bonus_for_closeness_of_kings = (8-distance_between_kings)*0.3
+    return scores[black_king_pos[0]][black_king_pos[1]] + bonus_for_closeness_of_kings
 
 def black_rook_endgame(board, turn):
     # Return score for black rook endgame 
@@ -164,5 +179,68 @@ def black_rook_endgame(board, turn):
         [ 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0]     
         ]
 
-    return -scores[white_king_pos[0]][white_king_pos[1]]
+    distance_between_kings = distance_between_two_kings(board)
+    bonus_for_closeness_of_kings = (8-distance_between_kings)*0.3
+    return -scores[white_king_pos[0]][white_king_pos[1]] - bonus_for_closeness_of_kings
 
+def white_queen_endgame(board, turn):
+    # Board with only a white queen and kings
+    black_king_pos = board.black_king_position
+    # Score based on black king position
+    scores = [
+        [ 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0],
+        [ 7.0, 6.5, 6.5, 6.5, 6.5, 6.5, 6.5, 7.0],
+        [ 7.0, 6.5, 6.0, 6.0, 6.0, 6.0, 6.5, 7.0],
+        [ 7.0, 6.5, 6.0, 5.5, 5.5, 6.0, 6.5, 7.0],
+        [ 7.0, 6.5, 6.0, 5.5, 5.5, 6.0, 6.5, 7.0],
+        [ 7.0, 6.5, 6.0, 6.0, 6.0, 6.0, 6.5, 7.0],
+        [ 7.0, 6.5, 6.5, 6.5, 6.5, 6.5, 6.5, 7.0],
+        [ 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0]     
+        ]
+
+    distance_between_kings = distance_between_two_kings(board)
+    bonus_for_closeness_of_kings = (8-distance_between_kings)*0.3
+    return 3+scores[black_king_pos[0]][black_king_pos[1]] + bonus_for_closeness_of_kings
+
+def black_queen_endgame(board, turn):
+    white_king_pos = board.white_king_position
+    # Score based on black king position
+    scores = [
+        [ 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0],
+        [ 7.0, 6.5, 6.5, 6.5, 6.5, 6.5, 6.5, 7.0],
+        [ 7.0, 6.5, 6.0, 6.0, 6.0, 6.0, 6.5, 7.0],
+        [ 7.0, 6.5, 6.0, 5.5, 5.5, 6.0, 6.5, 7.0],
+        [ 7.0, 6.5, 6.0, 5.5, 5.5, 6.0, 6.5, 7.0],
+        [ 7.0, 6.5, 6.0, 6.0, 6.0, 6.0, 6.5, 7.0],
+        [ 7.0, 6.5, 6.5, 6.5, 6.5, 6.5, 6.5, 7.0],
+        [ 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0]     
+        ]
+
+    distance_between_kings = distance_between_two_kings(board)
+    bonus_for_closeness_of_kings = (8-distance_between_kings)*0.3
+    return -3 - scores[white_king_pos[0]][white_king_pos[1]] - bonus_for_closeness_of_kings
+
+def distance_between_two_kings(board):
+    # Given a board return the distance between the two kings
+    black_king_pos = board.black_king_position
+    white_king_pos = board.white_king_position
+    return max(abs(black_king_pos[0]-white_king_pos[0]),abs(black_king_pos[1]-white_king_pos[1]))
+
+
+
+
+
+# If there are only pawns left return the score evaluation if it is known
+
+# Pass pwans get a bonus score
+
+def pawns_only_endgame(board, turn):
+    # Given a board that only contains kings and pawns return the score evaluation if it is known
+    pass
+    # Find furthest forward white pawns
+    # Find furthest forward black pawns
+    # If pawn is a pass pawn ( no threats on it's path to promo)
+    
+    # And also opponent king cannot reach in time
+    # Add bonus
+    # Only if opponent can't promote same time or before

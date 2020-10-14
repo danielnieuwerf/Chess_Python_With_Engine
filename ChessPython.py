@@ -1,25 +1,31 @@
 from menu import *
 import threading
 
+"""
 # Testing
-g = Game()
-g.move_number = 69
-for i in range(8):
-    for j in range(8):
-        g.board.pieces[i][j] = '.'
+while True:
+    g = Game()
+    g.move_number = 69
+    for i in range(8):
+        for j in range(8):
+            g.board.pieces[i][j] = '.'
 
-g.board.pieces[2][2] = 'k'
-g.board.pieces[3][3] = 'p'
-g.board.pieces[1][1] = 'K'
-g.board.scores.white_pawns_count = [0,0,0,0,0,0,0,0]
-g.board.scores.black_pawns_count = [0,0,0,1,0,0,0,0]
-g.board.black_king_position = [2,2]
-g.board.white_king_position = [1,1]
-print(Kkp(g.board, True))
-print()
-print("pieces string: ", g.board.get_pieces_string())
-print("pos eval", g.evaluate_position_score())
+    g.board.pieces[3][3] = 'k'
+    g.board.pieces[4][4] = 'R'
+    g.board.pieces[4][5] = 'K'
+    g.board.scores.white_pawns_count = [0,0,0,0,0,0,0,0]
+    g.board.scores.black_pawns_count = [0,0,0,0,0,0,0,0]
+    g.board.black_king_position = [3,3]
+    g.board.white_king_position = [4,5]
+    print("pieces string: ", g.board.get_pieces_string())
+    print("pos eval", g.evaluate_position_score())
+    g.out_of_book = True
 
+
+    New_Game_Test(g, True,True)
+
+
+"""
 # Create menu
 Menu()
 
