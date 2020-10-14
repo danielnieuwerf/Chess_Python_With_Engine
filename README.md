@@ -3,8 +3,8 @@
 Improvements:
 - Add more measures to score to help better evaluate positions
 - Use a larger opening book
-- Increase efficiency of move decision algorithms with simpler forms of board (charboard/bitboard)
-- Guidance in end game
+- More guidance in end game
+- Efficiency of search tree
 
 
 Current elo:
