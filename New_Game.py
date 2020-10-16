@@ -119,8 +119,6 @@ class New_Game():
                     print("white won?:", self.game.white_won)
                     print("Draw?: ", self.game.gameIsDraw)
                     print("Black won?:", self.game.black_won)
-                    del self.game
-                    self.game = Game()
         elif white_is_engine and not black_is_engine:
             # Engine is white, player is black
             while self.game.gameover == False:
@@ -202,8 +200,6 @@ class New_Game():
 
                 # Check for game over
                 if self.game.gameover:
-                    del self.game
-                    self.game = Game()
                     print('GAMEOVER')
                 # Check if either player has ran out of time
                 if self.clock.black_flagged:
@@ -213,7 +209,53 @@ class New_Game():
                     self.game.black_won = True
                     self.game.gameover = True
 
+        # Handle game over
         self.clock.PAUSED = True    # End clock thread as game is over
+        self.draw_window(screen)    # Display game in it's final state
+        time.sleep(0.5)
+
+        end_session = False
+        display_game_over_screen = True
+        game_saved = False
+        rematch_request = False     # If user requests rematch set this to true
+        return_to_menu_request = False  # If user requests to return to menu set this to true
+        while not end_session:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:    
+                    end_session = True
+                    break
+                if event.type == pygame.MOUSEBUTTONDOWN:    
+                    x, y = pygame.mouse.get_pos()
+                    if display_game_over_screen and y>109 and y<131 and x>270 and x<291: # If presses on close button for gameover screen
+                        display_game_over_screen = False
+                    elif display_game_over_screen and not game_saved and x>119 and x<191 and y>249 and y<291: # If press save game
+                        game_saved = True
+                        # Save the game here too
+                    elif display_game_over_screen and y>249 and y<291 and x>209 and x<281: # If press on rematch
+                        rematch_request = True
+                        end_session = True
+                    elif display_game_over_screen and x>119 and x<281 and y>189 and y<231: # If press return to menu
+                        return_to_menu_request = True
+                        end_session = True
+
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_m:
+                        display_game_over_screen = not display_game_over_screen
+            
+            # Display game over screen if display_game_over_screen == True
+            if display_game_over_screen:
+                self.gameover_screen(screen, game_saved)
+            else:
+                self.draw_window(screen)
+            
+        if rematch_request:
+            New_Game(white_is_engine, black_is_engine, 1, 1, clock_string)
+
+        if return_to_menu_request:
+            del self
+            from menu import Menu
+            Menu()
+
     def load_images(self):
         # Dictionary of piece symbols to their correctly resized images
         self.images = {}
@@ -251,7 +293,63 @@ class New_Game():
             self.clock.display_clock(surface)
         pygame.display.update()
 
+    def gameover_screen(self, surface, game_saved = False):
+        BLACK = (0, 0, 0)
+        WHITE = (255, 255, 255)
+        RED = (255, 0, 0)
+        ORANGE = (255, 165, 0)
+        GREY = (112,128,144)
+        GREEN = (0, 255, 0)
 
+        # Draw gameover screen box
+        pygame.draw.rect(surface, WHITE, ((100, 100), (200,200)))
+
+        # Draw game result into the gameover box
+        
+        game_result = ""
+        FONT_SIZE = 32
+        if self.game.white_won:
+            game_result = "White won"
+        elif self.game.black_won:
+            game_result = "Black won"
+        else:
+            game_result = "Game is draw"
+            FONT_SIZE = 26
+
+        font = pygame.font.Font('freesansbold.ttf', FONT_SIZE)
+        text = font.render(game_result, True, BLACK)
+        surface.blit(text,(116,144))
+
+        # Draw close button in box
+        pygame.draw.line(surface, RED, (270,110), (290,130), 5)
+        pygame.draw.line(surface, RED, (270,130), (290,110), 5)
+
+        # Draw return to menu box
+        pygame.draw.rect(surface, ORANGE, ((120, 190), (160,40)))
+        font = pygame.font.Font('freesansbold.ttf', 18)
+        text = font.render("Return to menu", True, WHITE)
+        surface.blit(text, (130, 200))
+
+        # Draw save game box     
+        if not game_saved:
+            font = pygame.font.Font('freesansbold.ttf', 12)
+            pygame.draw.rect(surface, GREY, ((120, 250), (70, 40)))
+            text = font.render("Save game", True, BLACK)
+            surface.blit(text, (125, 263))
+        else:
+            font = pygame.font.Font('freesansbold.ttf', 11)
+            pygame.draw.rect(surface, GREEN, ((120, 250), (70, 40)))
+            text = font.render("Game saved", True, BLACK)
+            surface.blit(text, (122, 263))
+       
+        # Draw rematch box
+        pygame.draw.rect(surface, GREY, ((210, 250), (70, 40)))
+        font = pygame.font.Font('freesansbold.ttf', 14)
+        text = font.render("Rematch", True, BLACK)
+        surface.blit(text, (215, 263))
+
+        # Update display
+        pygame.display.update()
 
 
 """
@@ -363,11 +461,13 @@ class New_Game_Test():
                     engine_move = self.game.engine_move_decision(depth=white_engine_depth)
                     self.game.board.make_move(engine_move[0],engine_move[1],engine_move[2],engine_move[3])   # Make move
                     self.game.handle_new_successfully_made_move(engine_move)
+                    time.sleep(0.5)
                     print(str(self.game.move_number)+" " +str(self.game.previous_move))
                 else:
                     engine_move = self.game.engine_move_decision(depth=black_engine_depth)
                     self.game.board.make_move(engine_move[0],engine_move[1],engine_move[2],engine_move[3])   # Make move
                     self.game.handle_new_successfully_made_move(engine_move)
+                    time.sleep(0.5)
                     print(str(self.game.move_number)+" " +str(self.game.previous_move))
         
                 # Check for game over
