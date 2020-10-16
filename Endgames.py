@@ -133,7 +133,9 @@ def black_king_blocks_pawn_promo(board, turn):
 def white_rook_endgame(game):
     # Return score for white rook endgame 
     # Add value to score for cutting off the board with the white rook
+    # Successfully checkmates but takes more moves than necessary.
     black_king_pos = game.board.black_king_position
+    white_king_pos = game.board.white_king_position
 
     # If black turn and black king can take the white rook return 0
     if not game.white_turn:
@@ -146,7 +148,34 @@ def white_rook_endgame(game):
                             return 0
                 except:
                     pass
-    
+
+    # If black's turn and black king in a corner check for stalemate
+    if game.white_turn == False and black_king_pos[0] in [0,7] and black_king_pos[1] in [0,7]:
+        # If we reach here in the function we know the rook cannot be captured
+        if game.board.pieces[1][1] == 'R' and black_king_pos[0] == 0 and black_king_pos[1] == 0:
+            return 0
+        if game.board.pieces[1][6] == 'R' and black_king_pos[0] == 0 and black_king_pos[1] == 7:
+            return 0
+        if game.board.pieces[6][1] == 'R' and black_king_pos[0] == 7 and black_king_pos[1] == 0:
+            return 0
+        if game.board.pieces[6][6] == 'R' and black_king_pos[0] == 7 and black_king_pos[1] == 7:
+            return 0
+
+    # If checkmate return 10000
+    if black_king_pos[0] in [0, 7]:
+        if abs(white_king_pos[0]-black_king_pos[0]) == 2 and white_king_pos[1] == black_king_pos[1]:    
+            # Since the rook cannot be captured by the king if it is in row black_king_pos[0] then it is checkmate
+            for i in range(8):
+                if game.board.pieces[black_king_pos[0]][i] == 'R':  # It is checkmate
+                    return 10000
+
+    if black_king_pos[1] in [0, 7]:
+        if abs(white_king_pos[1]-black_king_pos[1]) == 2 and white_king_pos[0] == black_king_pos[0]:    
+            # Since the rook cannot be captured by the king if it is in row black_king_pos[0] then it is checkmate
+            for i in range(8):
+                if game.board.pieces[i][black_king_pos[1]] == 'R':  # It is checkmate
+                    return 10000
+
     # Score based on black king position
     scores = [
         [ 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0],
@@ -163,10 +192,52 @@ def white_rook_endgame(game):
     bonus_for_closeness_of_kings = (8-distance_between_kings)*0.3
     return scores[black_king_pos[0]][black_king_pos[1]] + bonus_for_closeness_of_kings
 
-def black_rook_endgame(board, turn):
+def black_rook_endgame(game):
     # Return score for black rook endgame 
     # Add value to score for cutting off the board with the black rook
-    white_king_pos = board.white_king_position
+    # Successfully checkmates but takes more moves than necessary.
+    black_king_pos = game.board.black_king_position
+    white_king_pos = game.board.white_king_position
+
+    # If white turn and white king can take the black rook return 0
+    if game.white_turn:
+        # If black rook is one square away from white king
+        for i in [-1, 0, -1]:
+            for j in [-1, 0, -1]:
+                try:
+                    if game.board.pieces[white_king_pos[0] + i][white_king_pos[1] + j] == 'r':   # If white king sees black rook
+                        if max(abs(black_king_pos[0] - (white_king_pos[0] + i)), abs(black_king_pos[1] - (white_king_pos[1] + j)))!=1:    # If black king does not protect white rook
+                            return 0
+                except:
+                    pass
+
+    # If white's turn and white king in a corner check for stalemate
+    if game.white_turn and white_king_pos[0] in [0,7] and white_king_pos[1] in [0,7]:
+        # If we reach here in the function we know the rook cannot be captured
+        if game.board.pieces[1][1] == 'r' and white_king_pos[0] == 0 and white_king_pos[1] == 0:
+            return 0
+        if game.board.pieces[1][6] == 'r' and white_king_pos[0] == 0 and white_king_pos[1] == 7:
+            return 0
+        if game.board.pieces[6][1] == 'r' and white_king_pos[0] == 7 and white_king_pos[1] == 0:
+            return 0
+        if game.board.pieces[6][6] == 'r' and white_king_pos[0] == 7 and white_king_pos[1] == 7:
+            return 0
+
+    # If checkmate return -10000
+    if white_king_pos[0] in [0, 7]:
+        if abs(white_king_pos[0]-black_king_pos[0]) == 2 and white_king_pos[1] == black_king_pos[1]:    
+            # Since the rook cannot be captured by the king if it is in row white_king_pos[0] then it is checkmate
+            for i in range(8):
+                if game.board.pieces[white_king_pos[0]][i] == 'r':  # It is checkmate
+                    return -10000
+
+    if white_king_pos[1] in [0, 7]:
+        if abs(white_king_pos[1]-black_king_pos[1]) == 2 and white_king_pos[0] == black_king_pos[0]:    
+            # Since the rook cannot be captured by the king if it is in row black_king_pos[0] then it is checkmate
+            for i in range(8):
+                if game.board.pieces[i][white_king_pos[1]] == 'r':  # It is checkmate
+                    return -10000
+
     # Score based on black king position
     scores = [
         [ 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0],
@@ -179,7 +250,7 @@ def black_rook_endgame(board, turn):
         [ 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0]     
         ]
 
-    distance_between_kings = distance_between_two_kings(board)
+    distance_between_kings = distance_between_two_kings(game.board)
     bonus_for_closeness_of_kings = (8-distance_between_kings)*0.3
     return -scores[white_king_pos[0]][white_king_pos[1]] - bonus_for_closeness_of_kings
 
@@ -225,10 +296,6 @@ def distance_between_two_kings(board):
     black_king_pos = board.black_king_position
     white_king_pos = board.white_king_position
     return max(abs(black_king_pos[0]-white_king_pos[0]),abs(black_king_pos[1]-white_king_pos[1]))
-
-
-
-
 
 # If there are only pawns left return the score evaluation if it is known
 
