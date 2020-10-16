@@ -30,6 +30,18 @@ class Game():
         else:
             self.white_won = True
 
+    def is_check(self):
+        # If white turn check if white king is under threat
+        if self.white_turn:
+            threats_bb = self.board.create_bitboard_direct_threats_to_king(True)
+            if threats_bb.bits[self.board.white_king_position[0]][self.board.white_king_position[1]] == 1:
+                self.white_is_in_check = True
+        # Same for black king
+        else:
+            threats_bb = self.board.create_bitboard_direct_threats_to_king(False)
+            if threats_bb.bits[self.board.black_king_position[0]][self.board.black_king_position[1]] == 1:
+                self.black_is_in_check = True
+
     def is_checkmate(self):
         # If w/b turn and w/b king is in check and number of legal moves is 0 return true 
         if (self.white_is_in_check or self.black_is_in_check) and len(self.current_legal_moves)==0:
@@ -684,7 +696,8 @@ class Game():
             self.black_is_in_check = False
         if self.white_is_in_check:
             self.white_is_in_check = False
-    
+        self.is_check() # Check if the board is in check and update whether or not white/black is in check
+
         self.current_legal_moves = self.legal_moves()   # Calculate new legal moves
         if self.board.reset_board_strings:  # Reset board strings when old positions are no longer possible (when a pawn moves forward)
             self.board_states = {}  # Empty dictionary
@@ -694,21 +707,30 @@ class Game():
         else:
             self.board_states[board_string] = 1
 
+        # If no legal moves check for check mate and stalemate
+        if len(self.current_legal_moves) == 0:
+            # Check for checkmate
+            if self.is_checkmate():
+                self.checkmate = True
+                self.gameover = True
+                if self.white_turn:
+                    self.black_won = True
+                else:
+                    self.white_won = True
+                #print('checkmate')
+
+             # Check for stalemate
+            if self.is_stalemate():
+                self.gameIsDraw = True
+                self.gameover = True
+                self.stalemate = True
+                #print('draw by stalemate')
+
         # Draw by threefold repetition
         if self.is_draw_by_threefold_repetition():
             self.gameIsDraw = True
             self.gameover = True
             #print('draw by threefold repetition')
-
-        # Check for checkmate
-        if self.is_checkmate():
-            self.checkmate = True
-            self.gameover = True
-            if self.white_turn:
-                self.black_won = True
-            else:
-                self.white_won = True
-            #print('checkmate')
 
         # Draw by lack of material
         if self.board.is_draw_by_lack_of_material():
@@ -716,12 +738,8 @@ class Game():
             self.gameover = True
             #print('draw by lack of material')
 
-        # Check for stalemate
-        if self.is_stalemate():
-            self.gameIsDraw = True
-            self.gameover = True
-            #print('draw by stalemate')
 
+             
     def update_castlability(self):
         # If a king move was made change castlability to false
         prev_move = self.previous_move
@@ -734,12 +752,13 @@ class Game():
         """Returns score to evaluate current position"""
 
         # If checkmate return +- infinity only check for this if it is check
-        if self.black_won:
-            return -1000
-        if self.white_won:
-            return 1000
-        if self.gameIsDraw:     # If draw return 0
-            return 0
+        if self.gameover:
+            if self.black_won:
+                return -10000
+            if self.white_won:
+                return 10000
+            if self.gameIsDraw:     
+                return 0
 
         # If forced checkmate return +- 100000
         # if self.is_forced_checkmate():
@@ -831,7 +850,7 @@ class Game():
             elif pieces_string == "KRk":
                 return white_rook_endgame(self)
             elif pieces_string == "Kkr":
-                return black_rook_endgame(self.board, self.white_turn)
+                return black_rook_endgame(self)
 
         # Return score after adjustments
         return score
@@ -1052,3 +1071,5 @@ class Game():
         self.book.update_book(self.move_to_move_string(move),self.move_number)
         if len(self.book.book_moves) == 0:
             self.out_of_book = True
+
+    
