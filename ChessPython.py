@@ -10,13 +10,14 @@ while True:
         for j in range(8):
             g.board.pieces[i][j] = '.'
 
-    g.board.pieces[3][3] = 'k'
-    g.board.pieces[4][4] = 'R'
-    g.board.pieces[4][5] = 'K'
+    g.board.pieces[3][0] = 'k'
+    g.board.pieces[6][1] = 'R'
+    g.board.pieces[2][2] = 'K'
+    g.white_turn = True
     g.board.scores.white_pawns_count = [0,0,0,0,0,0,0,0]
     g.board.scores.black_pawns_count = [0,0,0,0,0,0,0,0]
-    g.board.black_king_position = [3,3]
-    g.board.white_king_position = [4,5]
+    g.board.black_king_position = [3,0]
+    g.board.white_king_position = [2,2]
     print("pieces string: ", g.board.get_pieces_string())
     print("pos eval", g.evaluate_position_score())
     g.out_of_book = True
@@ -24,8 +25,8 @@ while True:
 
     New_Game_Test(g, True,True)
 
-
 """
+
 # Create menu
 Menu()
 
@@ -48,6 +49,7 @@ DO depth 4 before doing depth 3 with alpha beta pruning
 current moves and off them branches of possible boards 
 
 Add idea of outposts to score function
+Add idea of pass pawns to score function
 
 IMPROVEMENTS:
 Add a game over screen instead of returning out of the new game function
