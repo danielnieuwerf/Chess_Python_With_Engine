@@ -2,10 +2,11 @@ from Game import *
 from chessclock import *
 import threading
 class New_Game():
-    def __init__(self,white_is_engine = False, black_is_engine = False, white_engine_depth = 1, black_engine_depth = 1, clock_string = '3|2'):
+    def __init__(self,white_is_engine = False, black_is_engine = False, white_engine_depth = 2, black_engine_depth = 2, clock_string = '3|2'):
         self.game = Game()
         self.clock = chessclock()
         self.clock.set_chess_clock(clock_string)    # Set the chess clock to the correct setting
+        self.moves = [] # Store the moves made in the game so the game may be saved if user requests it
         # Initialise Pygame
         pygame.init()
         WIDTH, HEIGHT = 400, 400
@@ -53,6 +54,7 @@ class New_Game():
                                     if [i,j,y//SQUARE,x//SQUARE] in self.game.current_legal_moves:
                                         self.game.board.make_move(i,j,y//SQUARE,x//SQUARE)   # Make move
                                         self.game.handle_new_successfully_made_move([i,j,y//SQUARE,x//SQUARE])
+                                        self.moves.append([i,j,y//SQUARE,x//SQUARE])
                                         print(self.game.previous_move)
                                         self.draw_window(screen)
                                         print(str(self.game.move_number)+" " +str(self.game.previous_move))
@@ -71,6 +73,7 @@ class New_Game():
                         engine_move = self.game.engine_move_decision(depth=black_engine_depth)
                         self.game.board.make_move(engine_move[0],engine_move[1],engine_move[2],engine_move[3])   # Make move
                         self.game.handle_new_successfully_made_move(engine_move)
+                        self.moves.append(engine_move)
                         print(str(self.game.move_number)+" " +str(self.game.previous_move))
                         print("Score: "+ str(self.game.evaluate_position_score()))
                         self.game.board.scores.print_totals()
@@ -106,13 +109,16 @@ class New_Game():
                     engine_move = self.game.engine_move_decision(depth=white_engine_depth)
                     self.game.board.make_move(engine_move[0],engine_move[1],engine_move[2],engine_move[3])   # Make move
                     self.game.handle_new_successfully_made_move(engine_move)
+                    self.moves.append(engine_move)  # Add engine move to moves
                     print(str(self.game.move_number)+" " +str(self.game.previous_move))
                 else:
                     engine_move = self.game.engine_move_decision(depth=black_engine_depth)
                     self.game.board.make_move(engine_move[0],engine_move[1],engine_move[2],engine_move[3])   # Make move
                     self.game.handle_new_successfully_made_move(engine_move)
+                    self.moves.append(engine_move)  # Add engine move to moves
                     print(str(self.game.move_number)+" " +str(self.game.previous_move))
-        
+                
+                
                 # Check for game over
                 if self.game.gameover:
                     print('GAMEOVER')
@@ -143,6 +149,7 @@ class New_Game():
                                     if [i,j,y//SQUARE,x//SQUARE] in self.game.current_legal_moves:
                                         self.game.board.make_move(i,j,y//SQUARE,x//SQUARE)   # Make move
                                         self.game.handle_new_successfully_made_move([i,j,y//SQUARE,x//SQUARE])
+                                        self.moves.append([i,j,y//SQUARE,x//SQUARE])
                                         print((self.game.move_number-1)//2, self.game.previous_move)
                                         self.draw_window(screen)
                                         self.clock.move_made()  # Let the clock know a move was made
@@ -157,6 +164,7 @@ class New_Game():
                     self.game.handle_new_successfully_made_move(engine_move)
                     print(str(self.game.move_number//2)+" " +str(self.game.previous_move))
                     self.clock.move_made()  # Let the clock know a move was made
+                    self.moves.append(engine_move)
 
                 # Check if either player has ran out of time
                 if self.clock.black_flagged:
@@ -188,6 +196,7 @@ class New_Game():
                                 if [i,j,y//SQUARE,x//SQUARE] in self.game.current_legal_moves:
                                     self.game.board.make_move(i,j,y//SQUARE,x//SQUARE)   # Make move
                                     self.game.handle_new_successfully_made_move([i,j,y//SQUARE,x//SQUARE])
+                                    self.moves.append([i,j,y//SQUARE,x//SQUARE])
                                     print(self.game.previous_move)
                                     print("Legal moves: ", self.game.current_legal_moves)
                                     # print("Score: ", self.game.board.scores.get_total())
@@ -231,6 +240,7 @@ class New_Game():
                     elif display_game_over_screen and not game_saved and x>119 and x<191 and y>249 and y<291: # If press save game
                         game_saved = True
                         # Save the game here too
+                        self.save_game()
                     elif display_game_over_screen and y>249 and y<291 and x>209 and x<281: # If press on rematch
                         rematch_request = True
                         end_session = True
@@ -350,6 +360,20 @@ class New_Game():
 
         # Update display
         pygame.display.update()
+
+    def save_game(self):
+        if len(self.moves)==0: # If no moves in game do not save it
+            return
+        # Create a new csv file in saved_games folder
+        import os
+
+        files = os.listdir("saved_games")  # Count number of saved games
+        num_files = len(files)
+
+        import csv 
+        with open("saved_games/game_id"+str(num_files+1),"w",newline="") as file:
+            wr = csv.writer(file, quoting=csv.QUOTE_ALL,delimiter='\n')
+            wr.writerow(self.moves)
 
 
 """
