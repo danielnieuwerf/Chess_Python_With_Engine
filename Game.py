@@ -3,6 +3,8 @@ from CharBoard import *
 from Book import *
 import random
 from Endgames import *
+from cprofilev import *
+
 
 class Game():
     def __init__(self):
@@ -250,7 +252,6 @@ class Game():
 
     def legal_moves(self):
         moves = []  # Store legal moves here
-
         # White's move (loop thorugh board to find white pieces)
         if self.white_turn:
             for i in range(8):
@@ -738,8 +739,7 @@ class Game():
             self.gameover = True
             #print('draw by lack of material')
 
-
-             
+          
     def update_castlability(self):
         # If a king move was made change castlability to false
         prev_move = self.previous_move
@@ -759,6 +759,8 @@ class Game():
                 return 10000
             if self.gameIsDraw:     
                 return 0
+
+
 
         # If forced checkmate return +- 100000
         # if self.is_forced_checkmate():
@@ -1072,4 +1074,6 @@ class Game():
         if len(self.book.book_moves) == 0:
             self.out_of_book = True
 
+    
+    # Best move depth 1
     
