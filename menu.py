@@ -61,7 +61,7 @@ class Menu:
             
 
         if start_new_game:
-            New_Game(white_is_engine, black_is_engine,1,1, self.clock_times[self.clock_index_selected])
+            New_Game(white_is_engine, black_is_engine, 1, 1, self.clock_times[self.clock_index_selected])
             # Menu()  # When game finishes return to menu
 
     def draw_screen(self, surface, white_is_engine, black_is_engine):
