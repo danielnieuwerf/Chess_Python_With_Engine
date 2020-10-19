@@ -1,4 +1,5 @@
 from New_Game import *
+from ReplayGame import *
 
 class Menu:
     """Main menu pygame window where you start new game"""
@@ -40,6 +41,9 @@ class Menu:
                         self.clock_index_selected = (self.clock_index_selected-1)%len(self.clock_times)
                     elif x>279 and x<301 and y<270 and y>240:
                         self.clock_index_selected = (self.clock_index_selected+1)%len(self.clock_times)
+                    # If press on saved games box
+                    elif x>324 and x<376 and y>299 and y<351:
+                        Replay_Menu()
 
 
                 elif event.type == pygame.KEYDOWN:
@@ -65,21 +69,25 @@ class Menu:
             # Menu()  # When game finishes return to menu
 
     def draw_screen(self, surface, white_is_engine, black_is_engine):
+        surface.fill((0,0,0))   # Black background
         # Draw menu depending on selections onto surface
         RED = (255,0,0)
         BLACK = (0,0,0)
         WHITE = (255,255,255)
         GREEN = (0, 255, 0)
         BLUE = (0, 0, 255)
+
         # Draw "Python Chess"
         font = pygame.font.Font('freesansbold.ttf', 48)
         text = font.render("Python Chess", True, RED)
         surface.blit(text,(40,20))
+
         # Draw play button
         pygame.draw.rect(surface, RED, ((150, 300), (100,50)))
         font = pygame.font.Font('freesansbold.ttf', 32)
         text = font.render("Play", True, BLACK)
         surface.blit(text,(168,308))
+
         # Draw white selection
         pygame.draw.rect(surface, RED, ((50, 100), (250,50)))
         font = pygame.font.Font('freesansbold.ttf', 25)
@@ -90,6 +98,7 @@ class Menu:
         else:
             box_colour = RED
         pygame.draw.rect(surface, box_colour, ((325, 100), (50,50)))
+
         # Draw black selection
         pygame.draw.rect(surface, RED, ((50, 160), (250,50)))
         font = pygame.font.Font('freesansbold.ttf', 25)
@@ -100,6 +109,7 @@ class Menu:
         else:
             box_colour = RED
         pygame.draw.rect(surface, box_colour, ((325, 160), (50,50)))
+
         # Draw clock selection
         font = pygame.font.Font('freesansbold.ttf', 32)
         current_clock_selection = font.render(self.clock_times[self.clock_index_selected], True, (0,255,0))
@@ -112,9 +122,18 @@ class Menu:
         elif self.clock_times[self.clock_index_selected]=='10|0':
             clock_selection_position_on_surface = (168,240)
         surface.blit(current_clock_selection, clock_selection_position_on_surface)    # Currenct clock selection
+
         # Toggle clock selection arrows
         pygame.draw.polygon(surface, BLUE, [(120,270),(120,240),(100,255)])
         pygame.draw.polygon(surface, BLUE, [(280,270), (280,240), (300,255)])
+
+        # Draw saved games menu button
+        SANDY = (194,178,128)
+        pygame.draw.rect(surface, SANDY, ((325, 300),(50,50)))
+        savegame_image = pygame.image.load("files/save_game.png")
+        savegame_image = pygame.transform.scale(savegame_image, (50, 50))
+        surface.blit(savegame_image, (325,300))
+
         # Update display
         pygame.display.update()
 

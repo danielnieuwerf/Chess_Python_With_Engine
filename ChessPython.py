@@ -1,8 +1,25 @@
 from menu import *
 import threading
+import cProfile
+
+# Testing
 
 """
-# Testing
+def abcd():
+    g = Game()
+    x = 0
+    while x<1000:
+        g.legal_moves()
+        x +=1
+
+cProfile.run("abcd()")
+
+time1 = time.time()
+abcd()
+time2 = time.time()
+print("abcd took", time2 - time1)
+
+
 while True:
     g = Game()
     g.move_number = 69
