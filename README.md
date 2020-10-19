@@ -5,7 +5,7 @@ Improvements:
 - Use a larger opening book
 - More guidance in end game
 - Efficiency of search tree
-
+- Use Cython to speed up the code
 
 Current elo:
 - 1100+ 
