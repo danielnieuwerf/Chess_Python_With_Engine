@@ -24,16 +24,21 @@ class Replay_Menu():
                     break
                 if event.type == pygame.MOUSEBUTTONDOWN:    
                     x, y = pygame.mouse.get_pos()
-                    # If press on game selection toggle buttons
-                    if x>99 and x<121 and y<270 and y>240:
-                        self.game_id_selected = (self.game_id_selected-1)%num_saved_games
-                    elif x>279 and x<301 and y<270 and y>240:
-                        self.game_id_selected = (self.game_id_selected + 1)%num_saved_games
+                    # If press on game selection toggle buttons and num games not 0
+                    if num_saved_games !=0:
+                        if x>99 and x<121 and y<270 and y>240:
+                            self.game_id_selected = (self.game_id_selected-1)%num_saved_games
+                        elif x>279 and x<301 and y<270 and y>240:
+                            self.game_id_selected = (self.game_id_selected + 1)%num_saved_games
                     # If we press play
                     if y>300 and y<350 and x>150 and x<250: # If presses on play button
                         replay_game_id = self.game_id_selected
                         exit = True
                         break
+                    # If press back to menu button
+                    if y>299 and y<351 and x>324 and x<376:
+                        exit = True
+                        return
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_LEFT:
                         self.game_id_selected = (self.game_id_selected-1)%num_saved_games
@@ -58,26 +63,27 @@ class Replay_Menu():
         BLACK = (0, 0, 0)
         RED = (255, 0, 0)
         # Make note game 0 is most recent saved game
-        font = pygame.font.Font('freesansbold.ttf', 26)
+        font = pygame.font.SysFont('comicsansms', 26)
         text = font.render("Replay your saved games", True, BLUE)
         surface.blit(text,(44,42))
-        font = pygame.font.Font('freesansbold.ttf', 14)
-        text = font.render("(game 0 is your most recent saved game)", True, BLUE)
-        surface.blit(text, (70,80))
         # Draw play button
         pygame.draw.rect(surface, RED, ((150, 300), (100,50)))
-        font = pygame.font.Font('freesansbold.ttf', 26)
+        font = pygame.font.SysFont('comicsansms', 26)
         text = font.render("Replay", True, BLACK)
-        surface.blit(text,(156,312))
+        surface.blit(text,(159,306))
         # Draw game id selection
-        font = pygame.font.Font('freesansbold.ttf', 22)
+        font = pygame.font.SysFont('comicsansms', 22)
         text = font.render("Game "+str(self.game_id_selected), True, BLACK)
         pygame.draw.rect(surface, BLUE, ((140, 230), (120,50)))  # Clock display box
-        surface.blit(text, (150, 245))
+        surface.blit(text, (150, 240))
         # Toggle clock selection arrows
         pygame.draw.polygon(surface, BLUE, [(120,270), (120,240), (100,255)])
         pygame.draw.polygon(surface, BLUE, [(280,270), (280,240), (300,255)])
-        
+        # Draw the return button
+        pygame.draw.circle(surface, RED, (350,325), 25, 5)
+        font = pygame.font.SysFont("comicsansms", 12)
+        text = font.render("Menu", True, RED)
+        surface.blit(text, (335,315))
         # Update display
         pygame.display.update()
 

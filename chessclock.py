@@ -33,11 +33,11 @@ class chessclock:
         pygame.draw.rect(surface, BACKGROUND_COLOUR, ((420, 300), (100,50))) # Black time background
 
         # Draw times onto screen in these boxes
-        font = pygame.font.Font('freesansbold.ttf', 30)
+        font = pygame.font.SysFont('comicsansms', 30)
         white_time = font.render(self.white_clock.print_clock(), True, (0,0,0))
         black_time = font.render(self.black_clock.print_clock(), True, (0,0,0))
-        surface.blit(white_time,(430,60))     # Display white time
-        surface.blit(black_time,(430,310))     # Display black time
+        surface.blit(white_time,(430,53))     # Display white time
+        surface.blit(black_time,(430,303))     # Display black time
 
         pygame.display.update() # Update window
         

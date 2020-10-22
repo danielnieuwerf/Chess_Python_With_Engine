@@ -78,21 +78,21 @@ class Menu:
         BLUE = (0, 0, 255)
 
         # Draw "Python Chess"
-        font = pygame.font.Font('freesansbold.ttf', 48)
+        font = pygame.font.SysFont('comicsansms', 48)
         text = font.render("Python Chess", True, RED)
-        surface.blit(text,(40,20))
+        surface.blit(text,(56,15))
 
         # Draw play button
         pygame.draw.rect(surface, RED, ((150, 300), (100,50)))
-        font = pygame.font.Font('freesansbold.ttf', 32)
+        font = pygame.font.SysFont('comicsansms', 32)
         text = font.render("Play", True, BLACK)
-        surface.blit(text,(168,308))
+        surface.blit(text,(169,300))
 
         # Draw white selection
         pygame.draw.rect(surface, RED, ((50, 100), (250,50)))
-        font = pygame.font.Font('freesansbold.ttf', 25)
+        font = pygame.font.SysFont('comicsansms', 25)
         text2 = font.render("White is computer?", True, BLACK)
-        surface.blit(text2,(54,115))
+        surface.blit(text2,(63,107))
         if white_is_engine:
             box_colour = GREEN
         else:
@@ -101,9 +101,9 @@ class Menu:
 
         # Draw black selection
         pygame.draw.rect(surface, RED, ((50, 160), (250,50)))
-        font = pygame.font.Font('freesansbold.ttf', 25)
+        font = pygame.font.SysFont('comicsansms', 25)
         text2 = font.render("Black is computer?", True, BLACK)
-        surface.blit(text2,(54,175))
+        surface.blit(text2,(66,167))
         if black_is_engine:
             box_colour = GREEN
         else:
@@ -111,16 +111,16 @@ class Menu:
         pygame.draw.rect(surface, box_colour, ((325, 160), (50,50)))
 
         # Draw clock selection
-        font = pygame.font.Font('freesansbold.ttf', 32)
+        font = pygame.font.SysFont('comicsansms', 32)
         current_clock_selection = font.render(self.clock_times[self.clock_index_selected], True, (0,255,0))
         pygame.draw.rect(surface, BLUE, ((140, 230), (120,50)))  # Clock display box
-        clock_selection_position_on_surface = (180,240)
+        clock_selection_position_on_surface = (176,232)
         if self.clock_times[self.clock_index_selected]=='None':
-            clock_selection_position_on_surface = (160,240)
+            clock_selection_position_on_surface = (160,232)
         elif self.clock_times[self.clock_index_selected] =='15|10':
-            clock_selection_position_on_surface = (160,240)
+            clock_selection_position_on_surface = (160,232)
         elif self.clock_times[self.clock_index_selected]=='10|0':
-            clock_selection_position_on_surface = (168,240)
+            clock_selection_position_on_surface = (168,232)
         surface.blit(current_clock_selection, clock_selection_position_on_surface)    # Currenct clock selection
 
         # Toggle clock selection arrows

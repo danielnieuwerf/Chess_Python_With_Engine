@@ -375,9 +375,9 @@ class New_Game():
             game_result = "Game is draw"
             FONT_SIZE = 26
 
-        font = pygame.font.Font('freesansbold.ttf', FONT_SIZE)
+        font = pygame.font.SysFont('comicsansms', FONT_SIZE)
         text = font.render(game_result, True, BLACK)
-        surface.blit(text,(116,144))
+        surface.blit(text,(116,140))
 
         # Draw close button in box
         pygame.draw.line(surface, RED, (270,110), (290,130), 5)
@@ -385,27 +385,27 @@ class New_Game():
 
         # Draw return to menu box
         pygame.draw.rect(surface, ORANGE, ((120, 190), (160,40)))
-        font = pygame.font.Font('freesansbold.ttf', 18)
+        font = pygame.font.SysFont('comicsansms', 18)
         text = font.render("Return to menu", True, WHITE)
-        surface.blit(text, (130, 200))
+        surface.blit(text, (137, 196))
 
         # Draw save game box     
         if not game_saved:
-            font = pygame.font.Font('freesansbold.ttf', 12)
+            font = pygame.font.SysFont('comicsansms', 12)
             pygame.draw.rect(surface, GREY, ((120, 250), (70, 40)))
             text = font.render("Save game", True, BLACK)
-            surface.blit(text, (125, 263))
+            surface.blit(text, (125, 262))
         else:
-            font = pygame.font.Font('freesansbold.ttf', 11)
+            font = pygame.font.SysFont('comicsansms', 12)
             pygame.draw.rect(surface, GREEN, ((120, 250), (70, 40)))
             text = font.render("Game saved", True, BLACK)
-            surface.blit(text, (122, 263))
+            surface.blit(text, (122, 262))
        
         # Draw rematch box
         pygame.draw.rect(surface, GREY, ((210, 250), (70, 40)))
-        font = pygame.font.Font('freesansbold.ttf', 14)
+        font = pygame.font.SysFont('comicsansms', 14)
         text = font.render("Rematch", True, BLACK)
-        surface.blit(text, (215, 263))
+        surface.blit(text, (215, 260))
 
         # Update display
         pygame.display.update()
