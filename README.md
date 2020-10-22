@@ -12,6 +12,8 @@ Current elo:
 
 To play:
 - https://drive.google.com/drive/folders/1on5gi2D1rVTAU95dEjVC3RLY9jVuEQQR?usp=sharing
-- Download the folder Dist, unzip all files. Double click chesspython.exe to run. 
+- Download the folder Dist.
+- unzip all files. 
+- Double click chesspython.exe to run. 
 - On Windows 10 it'll warn you it may be a virus
 - Click read more then run anyway.
