@@ -31,7 +31,7 @@ class New_Game():
         if not self.clock.disabled: # When there is a clock add some additional width to the display
             ADDITIONAL_CLOCK_WIDTH = 150
         else:
-            ADDITIONAL_CLOCK_WIDTH = 0
+            ADDITIONAL_CLOCK_WIDTH = 150
         screen = pygame.display.set_mode((WIDTH+ADDITIONAL_CLOCK_WIDTH, HEIGHT), pygame.RESIZABLE)
 
         # Start clock thread
@@ -84,6 +84,8 @@ class New_Game():
                         if self.game.white_turn:
                             if event.type == pygame.MOUSEBUTTONDOWN:    
                                 x, y = pygame.mouse.get_pos()
+                                if x > 8*SQUARE+40 and x < 8*SQUARE + 110 and y < 4*SQUARE + 15 and y > 4*SQUARE - 15:  # Clicked on resign button
+                                    self.game.resign()
                                 if x< 8*SQUARE and y<8*SQUARE:      # If click on board    
                                     if self.game.selected_SQUARE == None:    # Select SQUARE
                                         self.game.selected_SQUARE = y//SQUARE, x//SQUARE
@@ -93,6 +95,7 @@ class New_Game():
                                         # Move request successful
                                         if [i,j,y//SQUARE,x//SQUARE] in self.game.current_legal_moves:
                                             self.game.board.make_move(i,j,y//SQUARE,x//SQUARE)   # Make move
+                                            pygame.mixer.Sound.play(MOVE_SOUND) # Play move sound
                                             self.game.handle_new_successfully_made_move([i,j,y//SQUARE,x//SQUARE])
                                             self.moves.append([i,j,y//SQUARE,x//SQUARE])
                                             print(self.game.previous_move)
@@ -103,7 +106,7 @@ class New_Game():
                                             print(self.game.current_legal_moves)
                                             print("out of book?", self.game.out_of_book)
                                             self.clock.move_made()  # Let the clock know a move was made
-                                            pygame.mixer.Sound.play(MOVE_SOUND) # Play move sound
+                                            
                                         # Move request unsuccessful
                                         else:
                                             self.game.selected_SQUARE = y//SQUARE, x//SQUARE     # Select new SQUARE
@@ -113,13 +116,13 @@ class New_Game():
                         try:
                             engine_move = self.game.engine_move_decision(depth=black_engine_depth)
                             self.game.board.make_move(engine_move[0],engine_move[1],engine_move[2],engine_move[3])   # Make move
+                            pygame.mixer.Sound.play(MOVE_SOUND) # Play move sound
                             self.game.handle_new_successfully_made_move(engine_move)
                             self.moves.append(engine_move)
                             print(str(self.game.move_number)+" " +str(self.game.previous_move))
                             print("Score: "+ str(self.game.evaluate_position_score()))
                             self.game.board.scores.print_totals()
                             self.clock.move_made()  # Let the clock know a move was made
-                            pygame.mixer.Sound.play(MOVE_SOUND) # Play move sound
                         except:
                             print('Engine resigns')
                             self.game.resign()
@@ -151,10 +154,10 @@ class New_Game():
                         try:
                             engine_move = self.game.engine_move_decision(depth=white_engine_depth)
                             self.game.board.make_move(engine_move[0],engine_move[1],engine_move[2],engine_move[3])   # Make move
+                            pygame.mixer.Sound.play(MOVE_SOUND) # Play move sound
                             self.game.handle_new_successfully_made_move(engine_move)
                             self.moves.append(engine_move)  # Add engine move to moves
                             print(str(self.game.move_number)+" " +str(self.game.previous_move))
-                            pygame.mixer.Sound.play(MOVE_SOUND) # Play move sound
                         except:
                             print('Engine resigns')
                             self.game.resign()
@@ -162,10 +165,10 @@ class New_Game():
                         try:
                             engine_move = self.game.engine_move_decision(depth=black_engine_depth)
                             self.game.board.make_move(engine_move[0],engine_move[1],engine_move[2],engine_move[3])   # Make move
+                            pygame.mixer.Sound.play(MOVE_SOUND) # Play move sound
                             self.game.handle_new_successfully_made_move(engine_move)
                             self.moves.append(engine_move)  # Add engine move to moves
                             print(str(self.game.move_number)+" " +str(self.game.previous_move))
-                            pygame.mixer.Sound.play(MOVE_SOUND) # Play move sound
                         except:
                             print('Engine resigns')
                             self.game.resign()
@@ -191,6 +194,8 @@ class New_Game():
                         if not self.game.white_turn:
                             if event.type == pygame.MOUSEBUTTONDOWN:    
                                 x, y = pygame.mouse.get_pos()
+                                if x > 8*SQUARE+40 and x < 8*SQUARE + 110 and y < 4*SQUARE + 15 and y > 4*SQUARE - 15:  # Clicked on resign button
+                                    self.game.resign()
                                 if x< 8*SQUARE and y<8*SQUARE:      # If click on board    
                                     if self.game.selected_SQUARE == None:    # Select SQUARE
                                         self.game.selected_SQUARE = y//SQUARE, x//SQUARE
@@ -200,12 +205,12 @@ class New_Game():
                                         # Move request successful
                                         if [i,j,y//SQUARE,x//SQUARE] in self.game.current_legal_moves:
                                             self.game.board.make_move(i,j,y//SQUARE,x//SQUARE)   # Make move
+                                            pygame.mixer.Sound.play(MOVE_SOUND) # Play move sound
                                             self.game.handle_new_successfully_made_move([i,j,y//SQUARE,x//SQUARE])
                                             self.moves.append([i,j,y//SQUARE,x//SQUARE])
                                             print((self.game.move_number-1)//2, self.game.previous_move)
                                             self.draw_window(screen)
                                             self.clock.move_made()  # Let the clock know a move was made
-                                            pygame.mixer.Sound.play(MOVE_SOUND) # Play move sound
                                         # Move request unsuccessful
                                         else:
                                             self.game.selected_SQUARE = y//SQUARE, x//SQUARE     # Select new SQUARE
@@ -215,11 +220,11 @@ class New_Game():
                         try:
                             engine_move = self.game.engine_move_decision(depth=white_engine_depth)
                             self.game.board.make_move(engine_move[0],engine_move[1],engine_move[2],engine_move[3])   # Make move
+                            pygame.mixer.Sound.play(MOVE_SOUND) # Play move sound
                             self.game.handle_new_successfully_made_move(engine_move)
                             print(str(self.game.move_number//2)+" " +str(self.game.previous_move))
                             self.clock.move_made()  # Let the clock know a move was made
                             self.moves.append(engine_move)
-                            pygame.mixer.Sound.play(MOVE_SOUND) # Play move sound
                         except:
                             print('Engine resigns')
                             self.game.resign()
@@ -243,6 +248,8 @@ class New_Game():
             
                         if event.type == pygame.MOUSEBUTTONDOWN:    
                             x, y = pygame.mouse.get_pos()
+                            if x > 8*SQUARE+40 and x < 8*SQUARE + 110 and y < 4*SQUARE + 15 and y > 4*SQUARE - 15:  # Clicked on resign button
+                                self.game.resign()
                             if x< 8*SQUARE and y<8*SQUARE:      # If click on board    
                                 if self.game.selected_SQUARE == None:    # Select SQUARE
                                     self.game.selected_SQUARE = y//SQUARE, x//SQUARE
@@ -252,6 +259,7 @@ class New_Game():
                                     # Move request successful
                                     if [i,j,y//SQUARE,x//SQUARE] in self.game.current_legal_moves:
                                         self.game.board.make_move(i,j,y//SQUARE,x//SQUARE)   # Make move
+                                        pygame.mixer.Sound.play(MOVE_SOUND) # Play move sound
                                         self.game.handle_new_successfully_made_move([i,j,y//SQUARE,x//SQUARE])
                                         self.moves.append([i,j,y//SQUARE,x//SQUARE])
                                         print(self.game.previous_move)
@@ -259,7 +267,6 @@ class New_Game():
                                         # print("Score: ", self.game.board.scores.get_total())
                                         print("Eval: ", self.game.evaluate_position_score())
                                         self.clock.move_made()  # Let the clock know a move was made
-                                        pygame.mixer.Sound.play(MOVE_SOUND) # Play move sound
                                     # Move request unsuccessful
                                     else:
                                         self.game.selected_SQUARE = y//SQUARE, x//SQUARE     # Select new SQUARE
@@ -359,7 +366,14 @@ class New_Game():
         # Draw clock
         if not self.clock.disabled:
             self.clock.display_clock(surface)
+
+        # Draw resign button
+        pygame.draw.rect(surface, (255, 0, 0), ((SQUARE*8 + 40, SQUARE*3.7), (70, 30)))
+        font = pygame.font.SysFont('comicsansms', 18)
+        text = font.render("Resign", True, (255,255,255))
+        surface.blit(text, (450, 190))
         pygame.display.update()
+
 
     def gameover_screen(self, surface, game_saved = False):
         BLACK = (0, 0, 0)
