@@ -8,7 +8,8 @@ class New_Game():
         self.clock = chessclock()
         self.clock.set_chess_clock(clock_string)    # Set the chess clock to the correct setting
         self.moves = [] # Store the moves made in the game so the game may be saved if user requests it
-        
+        self.board_flipped = True # Used for view of board (user may flip the board in game)
+
         # Initialise Pygame
         pygame.init()
         WIDTH, HEIGHT = 400, 400
@@ -86,18 +87,27 @@ class New_Game():
                                 x, y = pygame.mouse.get_pos()
                                 if x > 8*SQUARE+40 and x < 8*SQUARE + 110 and y < 4*SQUARE + 15 and y > 4*SQUARE - 15:  # Clicked on resign button
                                     self.game.resign()
+                                elif x > 460 and x < 491 and y>369 and y<399: # Press flip board button
+                                    self.flip_board()
                                 if x< 8*SQUARE and y<8*SQUARE:      # If click on board    
                                     if self.game.selected_SQUARE == None:    # Select SQUARE
                                         self.game.selected_SQUARE = y//SQUARE, x//SQUARE
                                     else:   # If already selected try to make the move
                                         i, j = self.game.selected_SQUARE
                                         self.game.selected_SQUARE = y//SQUARE, x//SQUARE
+                                        xpos = y//SQUARE
+                                        ypos = x//SQUARE
+                                        if self.board_flipped:
+                                            i = 7 - i
+                                            j = 7 - j
+                                            xpos = 7 - xpos
+                                            ypos = 7 - ypos
                                         # Move request successful
-                                        if [i,j,y//SQUARE,x//SQUARE] in self.game.current_legal_moves:
-                                            self.game.board.make_move(i,j,y//SQUARE,x//SQUARE)   # Make move
+                                        if [i,j,xpos,ypos] in self.game.current_legal_moves:
+                                            self.game.board.make_move(i,j,xpos,ypos)   # Make move
                                             pygame.mixer.Sound.play(MOVE_SOUND) # Play move sound
-                                            self.game.handle_new_successfully_made_move([i,j,y//SQUARE,x//SQUARE])
-                                            self.moves.append([i,j,y//SQUARE,x//SQUARE])
+                                            self.game.handle_new_successfully_made_move([i,j,xpos,ypos])
+                                            self.moves.append([i,j,xpos,ypos])
                                             print(self.game.previous_move)
                                             self.draw_window(screen)
                                             print(str(self.game.move_number)+" " +str(self.game.previous_move))
@@ -181,6 +191,7 @@ class New_Game():
                         print("Draw?: ", self.game.gameIsDraw)
                         print("Black won?:", self.game.black_won)
             elif white_is_engine and not black_is_engine:
+                self.board_flipped = False  # View board from black's perspective initially
                 # Engine is white, player is black
                 while self.game.gameover == False:
                     # Draw game window
@@ -196,18 +207,27 @@ class New_Game():
                                 x, y = pygame.mouse.get_pos()
                                 if x > 8*SQUARE+40 and x < 8*SQUARE + 110 and y < 4*SQUARE + 15 and y > 4*SQUARE - 15:  # Clicked on resign button
                                     self.game.resign()
+                                elif x > 460 and x < 491 and y>369 and y<399: # Press flip board button
+                                    self.flip_board()
                                 if x< 8*SQUARE and y<8*SQUARE:      # If click on board    
                                     if self.game.selected_SQUARE == None:    # Select SQUARE
                                         self.game.selected_SQUARE = y//SQUARE, x//SQUARE
                                     else:   # If already selected try to make the move
                                         i, j = self.game.selected_SQUARE
                                         self.game.selected_SQUARE = y//SQUARE, x//SQUARE
+                                        xpos = y//SQUARE
+                                        ypos = x//SQUARE
+                                        if self.board_flipped:
+                                            i = 7 - i
+                                            j = 7 - j
+                                            xpos = 7 - xpos
+                                            ypos = 7 - ypos
                                         # Move request successful
-                                        if [i,j,y//SQUARE,x//SQUARE] in self.game.current_legal_moves:
-                                            self.game.board.make_move(i,j,y//SQUARE,x//SQUARE)   # Make move
+                                        if [i,j,xpos,ypos] in self.game.current_legal_moves:
+                                            self.game.board.make_move(i,j,xpos,ypos)   # Make move
                                             pygame.mixer.Sound.play(MOVE_SOUND) # Play move sound
-                                            self.game.handle_new_successfully_made_move([i,j,y//SQUARE,x//SQUARE])
-                                            self.moves.append([i,j,y//SQUARE,x//SQUARE])
+                                            self.game.handle_new_successfully_made_move([i,j,xpos,ypos])
+                                            self.moves.append([i,j,xpos,ypos])
                                             print((self.game.move_number-1)//2, self.game.previous_move)
                                             self.draw_window(screen)
                                             self.clock.move_made()  # Let the clock know a move was made
@@ -250,23 +270,33 @@ class New_Game():
                             x, y = pygame.mouse.get_pos()
                             if x > 8*SQUARE+40 and x < 8*SQUARE + 110 and y < 4*SQUARE + 15 and y > 4*SQUARE - 15:  # Clicked on resign button
                                 self.game.resign()
+                            elif x > 460 and x < 491 and y>369 and y<399: # Press flip board button
+                                self.flip_board()
                             if x< 8*SQUARE and y<8*SQUARE:      # If click on board    
                                 if self.game.selected_SQUARE == None:    # Select SQUARE
                                     self.game.selected_SQUARE = y//SQUARE, x//SQUARE
                                 else:   # If already selected try to make the move
                                     i, j = self.game.selected_SQUARE
                                     self.game.selected_SQUARE = y//SQUARE, x//SQUARE
+                                    xpos = y//SQUARE
+                                    ypos = x//SQUARE
+                                    if self.board_flipped:
+                                        i = 7 - i
+                                        j = 7 - j
+                                        xpos = 7 - xpos
+                                        ypos = 7 - ypos
                                     # Move request successful
-                                    if [i,j,y//SQUARE,x//SQUARE] in self.game.current_legal_moves:
-                                        self.game.board.make_move(i,j,y//SQUARE,x//SQUARE)   # Make move
+                                    if [i,j,xpos,ypos] in self.game.current_legal_moves:
+                                        self.game.board.make_move(i,j,xpos,ypos)   # Make move
                                         pygame.mixer.Sound.play(MOVE_SOUND) # Play move sound
-                                        self.game.handle_new_successfully_made_move([i,j,y//SQUARE,x//SQUARE])
-                                        self.moves.append([i,j,y//SQUARE,x//SQUARE])
+                                        self.game.handle_new_successfully_made_move([i,j,xpos,ypos])
+                                        self.moves.append([i,j,xpos,ypos])
                                         print(self.game.previous_move)
                                         print("Legal moves: ", self.game.current_legal_moves)
                                         # print("Score: ", self.game.board.scores.get_total())
                                         print("Eval: ", self.game.evaluate_position_score())
                                         self.clock.move_made()  # Let the clock know a move was made
+                                        self.flip_board()   # Flip board
                                     # Move request unsuccessful
                                     else:
                                         self.game.selected_SQUARE = y//SQUARE, x//SQUARE     # Select new SQUARE
@@ -286,7 +316,7 @@ class New_Game():
             # Handle game over
             self.clock.PAUSED = True    # End clock thread as game is over
             self.draw_window(screen)    # Display game in it's final state
-            time.sleep(0.5)
+            time.sleep(0.3)
 
             end_session = False
             display_game_over_screen = True
@@ -352,20 +382,27 @@ class New_Game():
         # Highlight selected SQUARE
         if self.game.selected_SQUARE!= None:
             i, j = self.game.selected_SQUARE
-            if (i+j)%2 ==1:
+            if (i+j)%2 == 1:
                 pygame.draw.rect(surface, (100,100,100), ((j*SQUARE, i*SQUARE), (SQUARE,SQUARE)))
             else:
                 pygame.draw.rect(surface, (150,150,150), ((j*SQUARE, i*SQUARE), (SQUARE,SQUARE)))
 
         # Draw pieces on board
-        for i in range(8):
-            for j in range(8):
-                if self.game.board.pieces[i][j]!='.':
-                    surface.blit(self.images[self.game.board.pieces[i][j]], (j*SQUARE, i*SQUARE))
+        if not self.board_flipped:
+            for i in range(8):
+                for j in range(8):
+                    if self.game.board.pieces[i][j]!='.':
+                        surface.blit(self.images[self.game.board.pieces[i][j]], (j*SQUARE, i*SQUARE))
+        else:
+            for i in range(8):
+                for j in range(8):
+                    if self.game.board.pieces[i][j]!='.':
+                        surface.blit(self.images[self.game.board.pieces[i][j]], ((7 - j)*SQUARE, (7 - i)*SQUARE))
+
 
         # Draw clock
         if not self.clock.disabled:
-            self.clock.display_clock(surface)
+            self.clock.display_clock(surface, self.board_flipped)
 
         # Draw resign button
         pygame.draw.rect(surface, (255, 0, 0), ((SQUARE*8 + 40, SQUARE*3.7), (70, 30)))
@@ -374,6 +411,14 @@ class New_Game():
         surface.blit(text, (450, 190))
         pygame.display.update()
 
+        # Draw Flip board button
+        flipboard_image= pygame.image.load('files/flipboard.png')
+        flipboard_image = pygame.transform.scale(flipboard_image, (30, 30))
+        surface.blit(flipboard_image, (460,370))
+
+    def flip_board(self):
+        self.board_flipped = not self.board_flipped
+        self.clock.flipped = self.board_flipped
 
     def gameover_screen(self, surface, game_saved = False):
         BLACK = (0, 0, 0)
@@ -707,5 +752,5 @@ class New_Game_Test():
 
         # Draw clock
         if not self.clock.disabled:
-            self.clock.display_clock(surface)
+            self.clock.display_clock(surface, self.board_flipped)
         pygame.display.update()

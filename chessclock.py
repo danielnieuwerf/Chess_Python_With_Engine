@@ -5,6 +5,7 @@ class chessclock:
     """contains clocks for white and black and data about the clock"""
     def __init__(self, white_time = 180, black_time = 180, WHITE_INCREMENT = 2, BLACK_INCREMENT = 2, white_turn = True):
         self.PAUSED = False     # Control whether or not the clock is paused
+        self.flipped = False    # Whether or not the board is flipped so clocks displayed correctly
         self.white_clock = clock(white_time)
         self.black_clock = clock(black_time)
         self.white_increment = WHITE_INCREMENT
@@ -26,7 +27,7 @@ class chessclock:
         elif self.black_clock_is_running:
             self.black_clock.update_clock(t1)
 
-    def display_clock(self, surface):
+    def display_clock(self, surface, flipped):
         # Display clock on a pygame surface
         BACKGROUND_COLOUR = (111,111,111)
         pygame.draw.rect(surface, BACKGROUND_COLOUR, ((420, 50), (100,50))) # White time background
@@ -36,8 +37,13 @@ class chessclock:
         font = pygame.font.SysFont('comicsansms', 30)
         white_time = font.render(self.white_clock.print_clock(), True, (0,0,0))
         black_time = font.render(self.black_clock.print_clock(), True, (0,0,0))
-        surface.blit(white_time,(430,53))     # Display white time
-        surface.blit(black_time,(430,303))     # Display black time
+        if not flipped:
+            surface.blit(white_time,(430,53))     # Display white time
+            surface.blit(black_time,(430,303))     # Display black time
+        else:
+            surface.blit(white_time,(430,303))     # Display white time
+            surface.blit(black_time,(430,53))     # Display black time
+
 
         pygame.display.update() # Update window
         
@@ -53,7 +59,7 @@ class chessclock:
     def thread(self, surface):
         while self.PAUSED == False:
             self.update_clock()
-            self.display_clock(surface)
+            self.display_clock(surface, self.flipped)
             if self.black_clock.seconds<0:
                 self.PAUSED = True
                 self.black_flagged = True
