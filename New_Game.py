@@ -16,6 +16,8 @@ class New_Game():
         SQUARE = 50
         pygame.display.set_icon(pygame.image.load('files/blackpawn.png')) # Icon
         pygame.display.set_caption("Python Chess")  # Set Caption
+        MOVE_SOUND = pygame.mixer.Sound("files/move_sound.wav") # Load sound to play when a move is made
+        
 
         # Load piece images
         self.images = {}
@@ -101,6 +103,7 @@ class New_Game():
                                             print(self.game.current_legal_moves)
                                             print("out of book?", self.game.out_of_book)
                                             self.clock.move_made()  # Let the clock know a move was made
+                                            pygame.mixer.Sound.play(MOVE_SOUND) # Play move sound
                                         # Move request unsuccessful
                                         else:
                                             self.game.selected_SQUARE = y//SQUARE, x//SQUARE     # Select new SQUARE
@@ -116,6 +119,7 @@ class New_Game():
                             print("Score: "+ str(self.game.evaluate_position_score()))
                             self.game.board.scores.print_totals()
                             self.clock.move_made()  # Let the clock know a move was made
+                            pygame.mixer.Sound.play(MOVE_SOUND) # Play move sound
                         except:
                             print('Engine resigns')
                             self.game.resign()
@@ -150,6 +154,7 @@ class New_Game():
                             self.game.handle_new_successfully_made_move(engine_move)
                             self.moves.append(engine_move)  # Add engine move to moves
                             print(str(self.game.move_number)+" " +str(self.game.previous_move))
+                            pygame.mixer.Sound.play(MOVE_SOUND) # Play move sound
                         except:
                             print('Engine resigns')
                             self.game.resign()
@@ -160,6 +165,7 @@ class New_Game():
                             self.game.handle_new_successfully_made_move(engine_move)
                             self.moves.append(engine_move)  # Add engine move to moves
                             print(str(self.game.move_number)+" " +str(self.game.previous_move))
+                            pygame.mixer.Sound.play(MOVE_SOUND) # Play move sound
                         except:
                             print('Engine resigns')
                             self.game.resign()
@@ -199,6 +205,7 @@ class New_Game():
                                             print((self.game.move_number-1)//2, self.game.previous_move)
                                             self.draw_window(screen)
                                             self.clock.move_made()  # Let the clock know a move was made
+                                            pygame.mixer.Sound.play(MOVE_SOUND) # Play move sound
                                         # Move request unsuccessful
                                         else:
                                             self.game.selected_SQUARE = y//SQUARE, x//SQUARE     # Select new SQUARE
@@ -212,6 +219,7 @@ class New_Game():
                             print(str(self.game.move_number//2)+" " +str(self.game.previous_move))
                             self.clock.move_made()  # Let the clock know a move was made
                             self.moves.append(engine_move)
+                            pygame.mixer.Sound.play(MOVE_SOUND) # Play move sound
                         except:
                             print('Engine resigns')
                             self.game.resign()
@@ -251,6 +259,7 @@ class New_Game():
                                         # print("Score: ", self.game.board.scores.get_total())
                                         print("Eval: ", self.game.evaluate_position_score())
                                         self.clock.move_made()  # Let the clock know a move was made
+                                        pygame.mixer.Sound.play(MOVE_SOUND) # Play move sound
                                     # Move request unsuccessful
                                     else:
                                         self.game.selected_SQUARE = y//SQUARE, x//SQUARE     # Select new SQUARE
