@@ -4,7 +4,7 @@ import cProfile
 
 # Testing
 
-"""
+
 def abcd():
     g = Game()
     x = 0
@@ -19,7 +19,7 @@ abcd()
 time2 = time.time()
 print("abcd took", time2 - time1)
 
-
+"""
 while True:
     g = Game()
     g.move_number = 69
@@ -41,6 +41,7 @@ while True:
 
 
     New_Game_Test(g, True,True)
+
 
 """
 
@@ -70,3 +71,13 @@ Add idea of pass pawns to score function
 
 """
 
+
+
+
+"""
+CYTHON IMPROVEMENTS:
+Most expensive functions are legal_moves() function
+Rewrite this in Cython
+
+
+"""

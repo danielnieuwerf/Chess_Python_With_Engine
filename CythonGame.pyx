@@ -4,10 +4,9 @@ from Book import *
 import random
 from Endgames import *
 from cprofilev import *
-cimport cython
 
-cdef class Game:
-    cdef bool white_king_can_castle, black_king_can_castle, white_turn, white_is_in_check, black_is_in_check
+
+class Game():
     def __init__(self):
         self.white_king_can_castle = True
         self.black_king_can_castle = True
@@ -251,7 +250,8 @@ cdef class Game:
             self.white_is_in_check = False
             return   # White king not in check
 
-    cdef legal_moves(self):
+    def legal_moves(self):
+        cdef int i, j
         moves = []  # Store legal moves here
         # White's move (loop thorugh board to find white pieces)
         if self.white_turn:
