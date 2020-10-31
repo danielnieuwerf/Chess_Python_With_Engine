@@ -73,7 +73,10 @@ class Replay_Menu():
         surface.blit(text,(159,306))
         # Draw game id selection
         font = pygame.font.SysFont('comicsansms', 22)
-        text = font.render("Game "+str(self.game_id_selected), True, BLACK)
+        if self.game_id_selected!=0:
+            text = font.render("Game "+str(self.game_id_selected), True, BLACK)
+        else:
+            text = font.render("Last game", True, BLACK)
         pygame.draw.rect(surface, BLUE, ((140, 230), (120,50)))  # Clock display box
         surface.blit(text, (150, 240))
         # Toggle clock selection arrows
