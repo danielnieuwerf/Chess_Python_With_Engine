@@ -5,7 +5,7 @@ class chessclock:
     """contains clocks for white and black and data about the clock"""
     def __init__(self, white_time = 180, black_time = 180, WHITE_INCREMENT = 2, BLACK_INCREMENT = 2, white_turn = True):
         self.PAUSED = False     # Control whether or not the clock is paused
-        self.flipped = False    # Whether or not the board is flipped so clocks displayed correctly
+        self.flipped = True    # Whether or not the board is flipped so clocks displayed correctly
         self.white_clock = clock(white_time)
         self.black_clock = clock(black_time)
         self.white_increment = WHITE_INCREMENT
