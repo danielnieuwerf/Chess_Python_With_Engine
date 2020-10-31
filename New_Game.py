@@ -192,6 +192,7 @@ class New_Game():
                         print("Black won?:", self.game.black_won)
             elif white_is_engine and not black_is_engine:
                 self.board_flipped = False  # View board from black's perspective initially
+                self.clock.flipped = False
                 # Engine is white, player is black
                 while self.game.gameover == False:
                     # Draw game window
