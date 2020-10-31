@@ -68,12 +68,5 @@ current moves and off them branches of possible boards
 Add idea of outposts to score function
 Add idea of pass pawns to score function
 
-IMPROVEMENTS:
-Add a game over screen instead of returning out of the new game function
-
-Game over screen:
-Option to save the game
-Option to replay the game
-
 """
 
