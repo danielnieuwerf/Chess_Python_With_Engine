@@ -5,7 +5,7 @@ Improvements:
 - Use a larger opening book
 - More guidance in end game
 - Efficiency of search tree
-- Continue to sincrease efficiency with Cython. So far Cython has made the game 1.7x faster.
+- Continue to increase efficiency with Cython. So far Cython has made the game 1.7x faster.
 
 Current elo:
 - 1100+ 
