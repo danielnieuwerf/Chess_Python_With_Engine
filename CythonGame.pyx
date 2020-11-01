@@ -4,9 +4,24 @@ from Book import *
 import random
 from Endgames import *
 from cprofilev import *
-
+from CythonCharBoard import CharBoard
+import cython
 
 class Game():
+    move_number : cython.int
+    white_king_can_castle : cython.bint
+    black_king_can_castle : cython.bint
+    white_turn : cython.bint
+    white_is_in_check : cython.bint
+    black_is_in_check : cython.bint
+    gameover : cython.bint
+    checkmate : cython.bint
+    stalemate : cython.bint
+    gameIsDraw : cython.bint
+    white_won : cython.bint
+    black_won : cython.bint
+    out_of_book : cython.bint
+
     def __init__(self):
         self.white_king_can_castle = True
         self.black_king_can_castle = True
@@ -251,7 +266,7 @@ class Game():
             return   # White king not in check
 
     def legal_moves(self):
-        cdef int i, j
+        cdef int i, j, up, down, right, left, up_right, up_left , down_right, down_left
         moves = []  # Store legal moves here
         # White's move (loop thorugh board to find white pieces)
         if self.white_turn:
@@ -860,6 +875,7 @@ class Game():
 
     def maximise_move_score_depth_1(self):
         # Returns best move depth 1 (looking 1 move ahead)
+        cdef double score
         if self.white_turn:
             best_move = None
             best_score = -10000

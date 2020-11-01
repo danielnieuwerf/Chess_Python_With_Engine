@@ -3,7 +3,6 @@ import timeit
 from Game import Game
 from CythonGame import Game
 
-
 my_setup = """
 
 """
