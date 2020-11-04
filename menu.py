@@ -1,5 +1,9 @@
+import pyximport; pyximport.install()
 from New_Game import *
 from ReplayGame import *
+from CythonCharBoard import *
+from CythonBitBoard import *
+from CythonGame import *
 
 class Menu:
     """Main menu pygame window where you start new game"""

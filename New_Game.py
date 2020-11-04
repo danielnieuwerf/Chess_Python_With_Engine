@@ -1,6 +1,7 @@
 import pyximport; pyximport.install()   # Used for importing CythonGame
 from CythonGame import *
 from chessclock import *
+from Pieces import *
 import threading
 
 class New_Game():
