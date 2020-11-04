@@ -1,10 +1,10 @@
+import pyximport; pyximport.install()
 from Pieces import *
-from CharBoard import *
 from Book import *
 import random
 from Endgames import *
 from cprofilev import *
-from CythonCharBoard import CharBoard
+from CythonCharBoard import *
 import cython
 
 class Game():
@@ -33,7 +33,7 @@ class Game():
         self.gameIsDraw, self.white_won, self.black_won = False, False, False
         self.out_of_book = False
         self.book = Book()
-        self.board = CharBoard()
+        self.board = CCharBoard()
         self.selected_SQUARE = None  # i,j or None
         self.previous_move = [7,0,7,0]     # Used in en passant logic
         self.board_states = {}     # A mapping from board strings to how many times such a string has occurred in the game

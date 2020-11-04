@@ -1218,9 +1218,6 @@ static CYTHON_INLINE void __Pyx_RaiseUnboundLocalError(const char *varname);
 /* Import.proto */
 static PyObject *__Pyx_Import(PyObject *name, PyObject *from_list, int level);
 
-/* ImportFrom.proto */
-static PyObject* __Pyx_ImportFrom(PyObject* module, PyObject* name);
-
 /* FetchCommonType.proto */
 static PyTypeObject* __Pyx_FetchCommonType(PyTypeObject* type);
 
@@ -1477,6 +1474,7 @@ static const char __pyx_k_resign[] = "resign";
 static const char __pyx_k_scores[] = "scores";
 static const char __pyx_k_string[] = "string";
 static const char __pyx_k_values[] = "values";
+static const char __pyx_k_install[] = "install";
 static const char __pyx_k_islower[] = "islower";
 static const char __pyx_k_isupper[] = "isupper";
 static const char __pyx_k_prepare[] = "__prepare__";
@@ -1507,6 +1505,7 @@ static const char __pyx_k_max_score[] = "max_score";
 static const char __pyx_k_metaclass[] = "__metaclass__";
 static const char __pyx_k_min_score[] = "min_score";
 static const char __pyx_k_prev_move[] = "prev_move";
+static const char __pyx_k_pyximport[] = "pyximport";
 static const char __pyx_k_stalemate[] = "stalemate";
 static const char __pyx_k_white_won[] = "white_won";
 static const char __pyx_k_CythonGame[] = "CythonGame";
@@ -1728,6 +1727,7 @@ static PyObject *__pyx_n_s_i;
 static PyObject *__pyx_n_s_import;
 static PyObject *__pyx_n_s_init;
 static PyObject *__pyx_n_s_insert;
+static PyObject *__pyx_n_s_install;
 static PyObject *__pyx_n_s_is_check;
 static PyObject *__pyx_n_s_is_checkmate;
 static PyObject *__pyx_n_s_is_draw_by_lack_of_material;
@@ -1780,6 +1780,7 @@ static PyObject *__pyx_n_s_prev_move_symbol;
 static PyObject *__pyx_n_s_prev_move_was_white;
 static PyObject *__pyx_n_s_previous_move;
 static PyObject *__pyx_n_s_print;
+static PyObject *__pyx_n_s_pyximport;
 static PyObject *__pyx_n_s_q;
 static PyObject *__pyx_n_s_qK;
 static PyObject *__pyx_n_s_qualname;
@@ -28636,6 +28637,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_import, __pyx_k_import, sizeof(__pyx_k_import), 0, 0, 1, 1},
   {&__pyx_n_s_init, __pyx_k_init, sizeof(__pyx_k_init), 0, 0, 1, 1},
   {&__pyx_n_s_insert, __pyx_k_insert, sizeof(__pyx_k_insert), 0, 0, 1, 1},
+  {&__pyx_n_s_install, __pyx_k_install, sizeof(__pyx_k_install), 0, 0, 1, 1},
   {&__pyx_n_s_is_check, __pyx_k_is_check, sizeof(__pyx_k_is_check), 0, 0, 1, 1},
   {&__pyx_n_s_is_checkmate, __pyx_k_is_checkmate, sizeof(__pyx_k_is_checkmate), 0, 0, 1, 1},
   {&__pyx_n_s_is_draw_by_lack_of_material, __pyx_k_is_draw_by_lack_of_material, sizeof(__pyx_k_is_draw_by_lack_of_material), 0, 0, 1, 1},
@@ -28688,6 +28690,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_prev_move_was_white, __pyx_k_prev_move_was_white, sizeof(__pyx_k_prev_move_was_white), 0, 0, 1, 1},
   {&__pyx_n_s_previous_move, __pyx_k_previous_move, sizeof(__pyx_k_previous_move), 0, 0, 1, 1},
   {&__pyx_n_s_print, __pyx_k_print, sizeof(__pyx_k_print), 0, 0, 1, 1},
+  {&__pyx_n_s_pyximport, __pyx_k_pyximport, sizeof(__pyx_k_pyximport), 0, 0, 1, 1},
   {&__pyx_n_s_q, __pyx_k_q, sizeof(__pyx_k_q), 0, 0, 1, 1},
   {&__pyx_n_s_qK, __pyx_k_qK, sizeof(__pyx_k_qK), 0, 0, 1, 1},
   {&__pyx_n_s_qualname, __pyx_k_qualname, sizeof(__pyx_k_qualname), 0, 0, 1, 1},
@@ -29273,124 +29276,124 @@ if (!__Pyx_RefNanny) {
   #endif
 
   /* "CythonGame.pyx":1
- * from Pieces import *             # <<<<<<<<<<<<<<
- * from CharBoard import *
+ * import pyximport; pyximport.install()             # <<<<<<<<<<<<<<
+ * from Pieces import *
  * from Book import *
  */
-  __pyx_t_1 = PyList_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_Import(__pyx_n_s_pyximport, 0, -1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_pyximport, __pyx_t_1) < 0) __PYX_ERR(0, 1, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_pyximport); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_install); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_1 = __Pyx_PyObject_CallNoArg(__pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "CythonGame.pyx":2
+ * import pyximport; pyximport.install()
+ * from Pieces import *             # <<<<<<<<<<<<<<
+ * from Book import *
+ * import random
+ */
+  __pyx_t_1 = PyList_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 2, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_INCREF(__pyx_n_s__7);
   __Pyx_GIVEREF(__pyx_n_s__7);
   PyList_SET_ITEM(__pyx_t_1, 0, __pyx_n_s__7);
-  __pyx_t_2 = __Pyx_Import(__pyx_n_s_Pieces, __pyx_t_1, -1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_Import(__pyx_n_s_Pieces, __pyx_t_1, -1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 2, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (__pyx_import_star(__pyx_t_2) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__pyx_import_star(__pyx_t_2) < 0) __PYX_ERR(0, 2, __pyx_L1_error);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-
-  /* "CythonGame.pyx":2
- * from Pieces import *
- * from CharBoard import *             # <<<<<<<<<<<<<<
- * from Book import *
- * import random
- */
-  __pyx_t_2 = PyList_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 2, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_INCREF(__pyx_n_s__7);
-  __Pyx_GIVEREF(__pyx_n_s__7);
-  PyList_SET_ITEM(__pyx_t_2, 0, __pyx_n_s__7);
-  __pyx_t_1 = __Pyx_Import(__pyx_n_s_CharBoard, __pyx_t_2, -1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 2, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (__pyx_import_star(__pyx_t_1) < 0) __PYX_ERR(0, 2, __pyx_L1_error);
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "CythonGame.pyx":3
+ * import pyximport; pyximport.install()
  * from Pieces import *
- * from CharBoard import *
  * from Book import *             # <<<<<<<<<<<<<<
  * import random
  * from Endgames import *
  */
-  __pyx_t_1 = PyList_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 3, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_2 = PyList_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 3, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
   __Pyx_INCREF(__pyx_n_s__7);
   __Pyx_GIVEREF(__pyx_n_s__7);
-  PyList_SET_ITEM(__pyx_t_1, 0, __pyx_n_s__7);
-  __pyx_t_2 = __Pyx_Import(__pyx_n_s_Book, __pyx_t_1, -1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 3, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (__pyx_import_star(__pyx_t_2) < 0) __PYX_ERR(0, 3, __pyx_L1_error);
+  PyList_SET_ITEM(__pyx_t_2, 0, __pyx_n_s__7);
+  __pyx_t_1 = __Pyx_Import(__pyx_n_s_Book, __pyx_t_2, -1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 3, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  if (__pyx_import_star(__pyx_t_1) < 0) __PYX_ERR(0, 3, __pyx_L1_error);
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "CythonGame.pyx":4
- * from CharBoard import *
+ * from Pieces import *
  * from Book import *
  * import random             # <<<<<<<<<<<<<<
  * from Endgames import *
  * from cprofilev import *
  */
-  __pyx_t_2 = __Pyx_Import(__pyx_n_s_random, 0, -1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 4, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_random, __pyx_t_2) < 0) __PYX_ERR(0, 4, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_1 = __Pyx_Import(__pyx_n_s_random, 0, -1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 4, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_random, __pyx_t_1) < 0) __PYX_ERR(0, 4, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "CythonGame.pyx":5
  * from Book import *
  * import random
  * from Endgames import *             # <<<<<<<<<<<<<<
  * from cprofilev import *
- * from CythonCharBoard import CharBoard
+ * from CythonCharBoard import *
  */
-  __pyx_t_2 = PyList_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 5, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_1 = PyList_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 5, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
   __Pyx_INCREF(__pyx_n_s__7);
   __Pyx_GIVEREF(__pyx_n_s__7);
-  PyList_SET_ITEM(__pyx_t_2, 0, __pyx_n_s__7);
-  __pyx_t_1 = __Pyx_Import(__pyx_n_s_Endgames, __pyx_t_2, -1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 5, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (__pyx_import_star(__pyx_t_1) < 0) __PYX_ERR(0, 5, __pyx_L1_error);
+  PyList_SET_ITEM(__pyx_t_1, 0, __pyx_n_s__7);
+  __pyx_t_2 = __Pyx_Import(__pyx_n_s_Endgames, __pyx_t_1, -1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 5, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  if (__pyx_import_star(__pyx_t_2) < 0) __PYX_ERR(0, 5, __pyx_L1_error);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "CythonGame.pyx":6
  * import random
  * from Endgames import *
  * from cprofilev import *             # <<<<<<<<<<<<<<
- * from CythonCharBoard import CharBoard
+ * from CythonCharBoard import *
  * import cython
  */
-  __pyx_t_1 = PyList_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 6, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_2 = PyList_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 6, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
   __Pyx_INCREF(__pyx_n_s__7);
   __Pyx_GIVEREF(__pyx_n_s__7);
-  PyList_SET_ITEM(__pyx_t_1, 0, __pyx_n_s__7);
-  __pyx_t_2 = __Pyx_Import(__pyx_n_s_cprofilev, __pyx_t_1, -1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 6, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (__pyx_import_star(__pyx_t_2) < 0) __PYX_ERR(0, 6, __pyx_L1_error);
+  PyList_SET_ITEM(__pyx_t_2, 0, __pyx_n_s__7);
+  __pyx_t_1 = __Pyx_Import(__pyx_n_s_cprofilev, __pyx_t_2, -1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 6, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  if (__pyx_import_star(__pyx_t_1) < 0) __PYX_ERR(0, 6, __pyx_L1_error);
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "CythonGame.pyx":7
  * from Endgames import *
  * from cprofilev import *
- * from CythonCharBoard import CharBoard             # <<<<<<<<<<<<<<
+ * from CythonCharBoard import *             # <<<<<<<<<<<<<<
  * import cython
  * 
  */
-  __pyx_t_2 = PyList_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 7, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_INCREF(__pyx_n_s_CharBoard);
-  __Pyx_GIVEREF(__pyx_n_s_CharBoard);
-  PyList_SET_ITEM(__pyx_t_2, 0, __pyx_n_s_CharBoard);
-  __pyx_t_1 = __Pyx_Import(__pyx_n_s_CythonCharBoard, __pyx_t_2, -1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 7, __pyx_L1_error)
+  __pyx_t_1 = PyList_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 7, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_ImportFrom(__pyx_t_1, __pyx_n_s_CharBoard); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 7, __pyx_L1_error)
+  __Pyx_INCREF(__pyx_n_s__7);
+  __Pyx_GIVEREF(__pyx_n_s__7);
+  PyList_SET_ITEM(__pyx_t_1, 0, __pyx_n_s__7);
+  __pyx_t_2 = __Pyx_Import(__pyx_n_s_CythonCharBoard, __pyx_t_1, -1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 7, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_CharBoard, __pyx_t_2) < 0) __PYX_ERR(0, 7, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  if (__pyx_import_star(__pyx_t_2) < 0) __PYX_ERR(0, 7, __pyx_L1_error);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "CythonGame.pyx":10
  * import cython
@@ -29399,8 +29402,8 @@ if (!__Pyx_RefNanny) {
  *     move_number : cython.int
  *     white_king_can_castle : cython.bint
  */
-  __pyx_t_1 = __Pyx_Py3MetaclassPrepare((PyObject *) NULL, __pyx_empty_tuple, __pyx_n_s_Game, __pyx_n_s_Game, (PyObject *) NULL, __pyx_n_s_CythonGame, (PyObject *) NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 10, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_2 = __Pyx_Py3MetaclassPrepare((PyObject *) NULL, __pyx_empty_tuple, __pyx_n_s_Game, __pyx_n_s_Game, (PyObject *) NULL, __pyx_n_s_CythonGame, (PyObject *) NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 10, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
 
   /* "CythonGame.pyx":25
  *     out_of_book : cython.bint
@@ -29409,10 +29412,10 @@ if (!__Pyx_RefNanny) {
  *         self.white_king_can_castle = True
  *         self.black_king_can_castle = True
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10CythonGame_4Game_1__init__, 0, __pyx_n_s_Game___init, NULL, __pyx_n_s_CythonGame, __pyx_d, ((PyObject *)__pyx_codeobj__9)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 25, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_init, __pyx_t_2) < 0) __PYX_ERR(0, 25, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_1 = __Pyx_CyFunction_New(&__pyx_mdef_10CythonGame_4Game_1__init__, 0, __pyx_n_s_Game___init, NULL, __pyx_n_s_CythonGame, __pyx_d, ((PyObject *)__pyx_codeobj__9)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 25, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_init, __pyx_t_1) < 0) __PYX_ERR(0, 25, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "CythonGame.pyx":43
  *         self.current_legal_moves = self.legal_moves()    # A list of all legal moves
@@ -29421,10 +29424,10 @@ if (!__Pyx_RefNanny) {
  *         self.gameover = True
  *         if self.white_turn:
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10CythonGame_4Game_3resign, 0, __pyx_n_s_Game_resign, NULL, __pyx_n_s_CythonGame, __pyx_d, ((PyObject *)__pyx_codeobj__11)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 43, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_resign, __pyx_t_2) < 0) __PYX_ERR(0, 43, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_1 = __Pyx_CyFunction_New(&__pyx_mdef_10CythonGame_4Game_3resign, 0, __pyx_n_s_Game_resign, NULL, __pyx_n_s_CythonGame, __pyx_d, ((PyObject *)__pyx_codeobj__11)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 43, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_resign, __pyx_t_1) < 0) __PYX_ERR(0, 43, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "CythonGame.pyx":50
  *             self.white_won = True
@@ -29433,10 +29436,10 @@ if (!__Pyx_RefNanny) {
  *         # If white turn check if white king is under threat
  *         if self.white_turn:
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10CythonGame_4Game_5is_check, 0, __pyx_n_s_Game_is_check, NULL, __pyx_n_s_CythonGame, __pyx_d, ((PyObject *)__pyx_codeobj__13)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 50, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_is_check, __pyx_t_2) < 0) __PYX_ERR(0, 50, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_1 = __Pyx_CyFunction_New(&__pyx_mdef_10CythonGame_4Game_5is_check, 0, __pyx_n_s_Game_is_check, NULL, __pyx_n_s_CythonGame, __pyx_d, ((PyObject *)__pyx_codeobj__13)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 50, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_is_check, __pyx_t_1) < 0) __PYX_ERR(0, 50, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "CythonGame.pyx":62
  *                 self.black_is_in_check = True
@@ -29445,10 +29448,10 @@ if (!__Pyx_RefNanny) {
  *         # If w/b turn and w/b king is in check and number of legal moves is 0 return true
  *         if (self.white_is_in_check or self.black_is_in_check) and len(self.current_legal_moves)==0:
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10CythonGame_4Game_7is_checkmate, 0, __pyx_n_s_Game_is_checkmate, NULL, __pyx_n_s_CythonGame, __pyx_d, ((PyObject *)__pyx_codeobj__15)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 62, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_is_checkmate, __pyx_t_2) < 0) __PYX_ERR(0, 62, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_1 = __Pyx_CyFunction_New(&__pyx_mdef_10CythonGame_4Game_7is_checkmate, 0, __pyx_n_s_Game_is_checkmate, NULL, __pyx_n_s_CythonGame, __pyx_d, ((PyObject *)__pyx_codeobj__15)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 62, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_is_checkmate, __pyx_t_1) < 0) __PYX_ERR(0, 62, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "CythonGame.pyx":68
  *         return False
@@ -29457,10 +29460,10 @@ if (!__Pyx_RefNanny) {
  *         # No legal moves and not in check
  *         if len(self.current_legal_moves)==0 and not (self.black_is_in_check or self.white_is_in_check):
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10CythonGame_4Game_9is_stalemate, 0, __pyx_n_s_Game_is_stalemate, NULL, __pyx_n_s_CythonGame, __pyx_d, ((PyObject *)__pyx_codeobj__17)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 68, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_is_stalemate, __pyx_t_2) < 0) __PYX_ERR(0, 68, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_1 = __Pyx_CyFunction_New(&__pyx_mdef_10CythonGame_4Game_9is_stalemate, 0, __pyx_n_s_Game_is_stalemate, NULL, __pyx_n_s_CythonGame, __pyx_d, ((PyObject *)__pyx_codeobj__17)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 68, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_is_stalemate, __pyx_t_1) < 0) __PYX_ERR(0, 68, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "CythonGame.pyx":74
  *         return False
@@ -29469,10 +29472,10 @@ if (!__Pyx_RefNanny) {
  *         for value in self.board_states.values():
  *             if value == 3:
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10CythonGame_4Game_11is_draw_by_threefold_repetition, 0, __pyx_n_s_Game_is_draw_by_threefold_repeti, NULL, __pyx_n_s_CythonGame, __pyx_d, ((PyObject *)__pyx_codeobj__19)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 74, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_is_draw_by_threefold_repetition, __pyx_t_2) < 0) __PYX_ERR(0, 74, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_1 = __Pyx_CyFunction_New(&__pyx_mdef_10CythonGame_4Game_11is_draw_by_threefold_repetition, 0, __pyx_n_s_Game_is_draw_by_threefold_repeti, NULL, __pyx_n_s_CythonGame, __pyx_d, ((PyObject *)__pyx_codeobj__19)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 74, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_is_draw_by_threefold_repetition, __pyx_t_1) < 0) __PYX_ERR(0, 74, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "CythonGame.pyx":80
  *         return False
@@ -29481,10 +29484,10 @@ if (!__Pyx_RefNanny) {
  *         # Updates check status
  *         prev_move = self.previous_move  # Previous move played- check if this piece revealed check or is checking opponents king
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10CythonGame_4Game_13update_check_status, 0, __pyx_n_s_Game_update_check_status, NULL, __pyx_n_s_CythonGame, __pyx_d, ((PyObject *)__pyx_codeobj__21)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 80, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_update_check_status, __pyx_t_2) < 0) __PYX_ERR(0, 80, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_1 = __Pyx_CyFunction_New(&__pyx_mdef_10CythonGame_4Game_13update_check_status, 0, __pyx_n_s_Game_update_check_status, NULL, __pyx_n_s_CythonGame, __pyx_d, ((PyObject *)__pyx_codeobj__21)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 80, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_update_check_status, __pyx_t_1) < 0) __PYX_ERR(0, 80, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "CythonGame.pyx":268
  *             return   # White king not in check
@@ -29493,10 +29496,10 @@ if (!__Pyx_RefNanny) {
  *         cdef int i, j, up, down, right, left, up_right, up_left , down_right, down_left
  *         moves = []  # Store legal moves here
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10CythonGame_4Game_15legal_moves, 0, __pyx_n_s_Game_legal_moves, NULL, __pyx_n_s_CythonGame, __pyx_d, ((PyObject *)__pyx_codeobj__23)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 268, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_legal_moves, __pyx_t_2) < 0) __PYX_ERR(0, 268, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_1 = __Pyx_CyFunction_New(&__pyx_mdef_10CythonGame_4Game_15legal_moves, 0, __pyx_n_s_Game_legal_moves, NULL, __pyx_n_s_CythonGame, __pyx_d, ((PyObject *)__pyx_codeobj__23)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 268, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_legal_moves, __pyx_t_1) < 0) __PYX_ERR(0, 268, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "CythonGame.pyx":701
  *         return valid_moves
@@ -29505,10 +29508,10 @@ if (!__Pyx_RefNanny) {
  *     # If a new move has been made update check and current_legal_moves and check for gameover etc...
  *         if not self.out_of_book:    # Update book if we are not already out of book
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10CythonGame_4Game_17handle_new_successfully_made_move, 0, __pyx_n_s_Game_handle_new_successfully_mad, NULL, __pyx_n_s_CythonGame, __pyx_d, ((PyObject *)__pyx_codeobj__25)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 701, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_handle_new_successfully_made_mov, __pyx_t_2) < 0) __PYX_ERR(0, 701, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_1 = __Pyx_CyFunction_New(&__pyx_mdef_10CythonGame_4Game_17handle_new_successfully_made_move, 0, __pyx_n_s_Game_handle_new_successfully_mad, NULL, __pyx_n_s_CythonGame, __pyx_d, ((PyObject *)__pyx_codeobj__25)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 701, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_handle_new_successfully_made_mov, __pyx_t_1) < 0) __PYX_ERR(0, 701, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "CythonGame.pyx":759
  * 
@@ -29517,10 +29520,10 @@ if (!__Pyx_RefNanny) {
  *         # If a king move was made change castlability to false
  *         prev_move = self.previous_move
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10CythonGame_4Game_19update_castlability, 0, __pyx_n_s_Game_update_castlability, NULL, __pyx_n_s_CythonGame, __pyx_d, ((PyObject *)__pyx_codeobj__27)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 759, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_update_castlability, __pyx_t_2) < 0) __PYX_ERR(0, 759, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_1 = __Pyx_CyFunction_New(&__pyx_mdef_10CythonGame_4Game_19update_castlability, 0, __pyx_n_s_Game_update_castlability, NULL, __pyx_n_s_CythonGame, __pyx_d, ((PyObject *)__pyx_codeobj__27)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 759, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_update_castlability, __pyx_t_1) < 0) __PYX_ERR(0, 759, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "CythonGame.pyx":767
  *             self.white_king_can_castle = False
@@ -29529,10 +29532,10 @@ if (!__Pyx_RefNanny) {
  *         """Returns score to evaluate current position"""
  * 
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10CythonGame_4Game_21evaluate_position_score, 0, __pyx_n_s_Game_evaluate_position_score, NULL, __pyx_n_s_CythonGame, __pyx_d, ((PyObject *)__pyx_codeobj__29)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 767, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_evaluate_position_score, __pyx_t_2) < 0) __PYX_ERR(0, 767, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_1 = __Pyx_CyFunction_New(&__pyx_mdef_10CythonGame_4Game_21evaluate_position_score, 0, __pyx_n_s_Game_evaluate_position_score, NULL, __pyx_n_s_CythonGame, __pyx_d, ((PyObject *)__pyx_codeobj__29)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 767, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_evaluate_position_score, __pyx_t_1) < 0) __PYX_ERR(0, 767, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "CythonGame.pyx":876
  *         return score
@@ -29541,10 +29544,10 @@ if (!__Pyx_RefNanny) {
  *         # Returns best move depth 1 (looking 1 move ahead)
  *         cdef double score
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10CythonGame_4Game_23maximise_move_score_depth_1, 0, __pyx_n_s_Game_maximise_move_score_depth_1, NULL, __pyx_n_s_CythonGame, __pyx_d, ((PyObject *)__pyx_codeobj__31)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 876, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_maximise_move_score_depth_1, __pyx_t_2) < 0) __PYX_ERR(0, 876, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_1 = __Pyx_CyFunction_New(&__pyx_mdef_10CythonGame_4Game_23maximise_move_score_depth_1, 0, __pyx_n_s_Game_maximise_move_score_depth_1, NULL, __pyx_n_s_CythonGame, __pyx_d, ((PyObject *)__pyx_codeobj__31)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 876, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_maximise_move_score_depth_1, __pyx_t_1) < 0) __PYX_ERR(0, 876, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "CythonGame.pyx":904
  *             return best_move
@@ -29553,10 +29556,10 @@ if (!__Pyx_RefNanny) {
  *         # Returns best move (depth 2) for white and black
  *         if self.white_turn: # If white calculate max min (USE ALPHA BETA PRUNING)
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10CythonGame_4Game_25maximise_move_score, 0, __pyx_n_s_Game_maximise_move_score, NULL, __pyx_n_s_CythonGame, __pyx_d, ((PyObject *)__pyx_codeobj__33)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 904, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_maximise_move_score, __pyx_t_2) < 0) __PYX_ERR(0, 904, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_1 = __Pyx_CyFunction_New(&__pyx_mdef_10CythonGame_4Game_25maximise_move_score, 0, __pyx_n_s_Game_maximise_move_score, NULL, __pyx_n_s_CythonGame, __pyx_d, ((PyObject *)__pyx_codeobj__33)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 904, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_maximise_move_score, __pyx_t_1) < 0) __PYX_ERR(0, 904, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "CythonGame.pyx":1006
  *             return best_move
@@ -29565,11 +29568,11 @@ if (!__Pyx_RefNanny) {
  *         if not self.out_of_book:    # If not out of book make book move and update book
  *             move_string = self.book.choose_book_move(self.move_number)
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10CythonGame_4Game_27engine_move_decision, 0, __pyx_n_s_Game_engine_move_decision, NULL, __pyx_n_s_CythonGame, __pyx_d, ((PyObject *)__pyx_codeobj__35)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1006, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_CyFunction_SetDefaultsTuple(__pyx_t_2, __pyx_tuple__36);
-  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_engine_move_decision, __pyx_t_2) < 0) __PYX_ERR(0, 1006, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_1 = __Pyx_CyFunction_New(&__pyx_mdef_10CythonGame_4Game_27engine_move_decision, 0, __pyx_n_s_Game_engine_move_decision, NULL, __pyx_n_s_CythonGame, __pyx_d, ((PyObject *)__pyx_codeobj__35)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1006, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __Pyx_CyFunction_SetDefaultsTuple(__pyx_t_1, __pyx_tuple__36);
+  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_engine_move_decision, __pyx_t_1) < 0) __PYX_ERR(0, 1006, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "CythonGame.pyx":1064
  *                 return move_decision
@@ -29578,10 +29581,10 @@ if (!__Pyx_RefNanny) {
  *         # Return move from move string "(i,j,x,y)"
  *         i = int(move_string[1])
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10CythonGame_4Game_29move_string_to_move, 0, __pyx_n_s_Game_move_string_to_move, NULL, __pyx_n_s_CythonGame, __pyx_d, ((PyObject *)__pyx_codeobj__38)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1064, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_move_string_to_move, __pyx_t_2) < 0) __PYX_ERR(0, 1064, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_1 = __Pyx_CyFunction_New(&__pyx_mdef_10CythonGame_4Game_29move_string_to_move, 0, __pyx_n_s_Game_move_string_to_move, NULL, __pyx_n_s_CythonGame, __pyx_d, ((PyObject *)__pyx_codeobj__38)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1064, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_move_string_to_move, __pyx_t_1) < 0) __PYX_ERR(0, 1064, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "CythonGame.pyx":1073
  *         return [i,j,x,y]
@@ -29590,10 +29593,10 @@ if (!__Pyx_RefNanny) {
  *         # Given move [i,j,x,y] return string "(i,j,x,y)"
  *         i = str(move[0])
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10CythonGame_4Game_31move_to_move_string, 0, __pyx_n_s_Game_move_to_move_string, NULL, __pyx_n_s_CythonGame, __pyx_d, ((PyObject *)__pyx_codeobj__40)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1073, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_move_to_move_string, __pyx_t_2) < 0) __PYX_ERR(0, 1073, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_1 = __Pyx_CyFunction_New(&__pyx_mdef_10CythonGame_4Game_31move_to_move_string, 0, __pyx_n_s_Game_move_to_move_string, NULL, __pyx_n_s_CythonGame, __pyx_d, ((PyObject *)__pyx_codeobj__40)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1073, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_move_to_move_string, __pyx_t_1) < 0) __PYX_ERR(0, 1073, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "CythonGame.pyx":1088
  *         return string
@@ -29602,10 +29605,10 @@ if (!__Pyx_RefNanny) {
  *         # Given a move update the book
  *         self.book.update_book(self.move_to_move_string(move),self.move_number)
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10CythonGame_4Game_33update_book, 0, __pyx_n_s_Game_update_book, NULL, __pyx_n_s_CythonGame, __pyx_d, ((PyObject *)__pyx_codeobj__42)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1088, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_update_book, __pyx_t_2) < 0) __PYX_ERR(0, 1088, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_1 = __Pyx_CyFunction_New(&__pyx_mdef_10CythonGame_4Game_33update_book, 0, __pyx_n_s_Game_update_book, NULL, __pyx_n_s_CythonGame, __pyx_d, ((PyObject *)__pyx_codeobj__42)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1088, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_update_book, __pyx_t_1) < 0) __PYX_ERR(0, 1088, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "CythonGame.pyx":10
  * import cython
@@ -29614,21 +29617,21 @@ if (!__Pyx_RefNanny) {
  *     move_number : cython.int
  *     white_king_can_castle : cython.bint
  */
-  __pyx_t_2 = __Pyx_Py3ClassCreate(((PyObject*)&__Pyx_DefaultClassType), __pyx_n_s_Game, __pyx_empty_tuple, __pyx_t_1, NULL, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 10, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_Game, __pyx_t_2) < 0) __PYX_ERR(0, 10, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_1 = __Pyx_Py3ClassCreate(((PyObject*)&__Pyx_DefaultClassType), __pyx_n_s_Game, __pyx_empty_tuple, __pyx_t_2, NULL, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 10, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_Game, __pyx_t_1) < 0) __PYX_ERR(0, 10, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "CythonGame.pyx":1
- * from Pieces import *             # <<<<<<<<<<<<<<
- * from CharBoard import *
+ * import pyximport; pyximport.install()             # <<<<<<<<<<<<<<
+ * from Pieces import *
  * from Book import *
  */
-  __pyx_t_1 = __Pyx_PyDict_NewPresized(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_test, __pyx_t_1) < 0) __PYX_ERR(0, 1, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_2 = __Pyx_PyDict_NewPresized(0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_test, __pyx_t_2) < 0) __PYX_ERR(0, 1, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /*--- Wrapped vars code ---*/
 
@@ -31358,20 +31361,6 @@ bad:
     Py_XDECREF(empty_list);
     Py_XDECREF(empty_dict);
     return module;
-}
-
-/* ImportFrom */
-    static PyObject* __Pyx_ImportFrom(PyObject* module, PyObject* name) {
-    PyObject* value = __Pyx_PyObject_GetAttrStr(module, name);
-    if (unlikely(!value) && PyErr_ExceptionMatches(PyExc_AttributeError)) {
-        PyErr_Format(PyExc_ImportError,
-        #if PY_MAJOR_VERSION < 3
-            "cannot import name %.230s", PyString_AS_STRING(name));
-        #else
-            "cannot import name %S", name);
-        #endif
-    }
-    return value;
 }
 
 /* FetchCommonType */

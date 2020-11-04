@@ -1452,6 +1452,7 @@ static const char __pyx_k_clean_diag1[] = "clean_diag1";
 static const char __pyx_k_clean_diag2[] = "clean_diag2";
 static const char __pyx_k_file_string[] = "file_string";
 static const char __pyx_k_rank_string[] = "rank_string";
+static const char __pyx_k_CythonScores[] = "CythonScores";
 static const char __pyx_k_board_string[] = "board_string";
 static const char __pyx_k_final_threat[] = "final_threat";
 static const char __pyx_k_char_to_value[] = "char_to_value";
@@ -1548,6 +1549,7 @@ static PyObject *__pyx_kp_s_Char_representation_of_the_board;
 static PyObject *__pyx_n_s_CythonBitBoard;
 static PyObject *__pyx_n_s_CythonCharBoard;
 static PyObject *__pyx_kp_s_CythonCharBoard_pyx;
+static PyObject *__pyx_n_s_CythonScores;
 static PyObject *__pyx_n_s_K;
 static PyObject *__pyx_n_s_KSX;
 static PyObject *__pyx_n_s_N;
@@ -24710,6 +24712,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_CythonBitBoard, __pyx_k_CythonBitBoard, sizeof(__pyx_k_CythonBitBoard), 0, 0, 1, 1},
   {&__pyx_n_s_CythonCharBoard, __pyx_k_CythonCharBoard, sizeof(__pyx_k_CythonCharBoard), 0, 0, 1, 1},
   {&__pyx_kp_s_CythonCharBoard_pyx, __pyx_k_CythonCharBoard_pyx, sizeof(__pyx_k_CythonCharBoard_pyx), 0, 0, 1, 0},
+  {&__pyx_n_s_CythonScores, __pyx_k_CythonScores, sizeof(__pyx_k_CythonScores), 0, 0, 1, 1},
   {&__pyx_n_s_K, __pyx_k_K, sizeof(__pyx_k_K), 0, 0, 1, 1},
   {&__pyx_n_s_KSX, __pyx_k_KSX, sizeof(__pyx_k_KSX), 0, 0, 1, 1},
   {&__pyx_n_s_N, __pyx_k_N, sizeof(__pyx_k_N), 0, 0, 1, 1},
@@ -25397,7 +25400,7 @@ if (!__Pyx_RefNanny) {
   #endif
 
   /* "CythonCharBoard.pyx":1
- * from Scores import *             # <<<<<<<<<<<<<<
+ * from CythonScores import *             # <<<<<<<<<<<<<<
  * import copy
  * from CythonBitBoard import BitBoard
  */
@@ -25406,14 +25409,14 @@ if (!__Pyx_RefNanny) {
   __Pyx_INCREF(__pyx_n_s__3);
   __Pyx_GIVEREF(__pyx_n_s__3);
   PyList_SET_ITEM(__pyx_t_1, 0, __pyx_n_s__3);
-  __pyx_t_2 = __Pyx_Import(__pyx_n_s_Scores, __pyx_t_1, -1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_Import(__pyx_n_s_CythonScores, __pyx_t_1, -1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   if (__pyx_import_star(__pyx_t_2) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "CythonCharBoard.pyx":2
- * from Scores import *
+ * from CythonScores import *
  * import copy             # <<<<<<<<<<<<<<
  * from CythonBitBoard import BitBoard
  * 
@@ -25424,7 +25427,7 @@ if (!__Pyx_RefNanny) {
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "CythonCharBoard.pyx":3
- * from Scores import *
+ * from CythonScores import *
  * import copy
  * from CythonBitBoard import BitBoard             # <<<<<<<<<<<<<<
  * 
@@ -25710,7 +25713,7 @@ if (!__Pyx_RefNanny) {
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "CythonCharBoard.pyx":1
- * from Scores import *             # <<<<<<<<<<<<<<
+ * from CythonScores import *             # <<<<<<<<<<<<<<
  * import copy
  * from CythonBitBoard import BitBoard
  */

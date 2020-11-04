@@ -1,8 +1,9 @@
+import pyximport; pyximport.install()
 from CythonScores import *
 import copy
-from CythonBitBoard import BitBoard
+from CythonBitBoard import *
 
-class CharBoard:
+class CCharBoard():
     """Char representation of the board"""
     reset_board_strings : cython.bint
     pieces : cython.char[8][8]

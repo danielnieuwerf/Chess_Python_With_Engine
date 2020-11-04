@@ -2,7 +2,7 @@ from bitarray import bitarray
 import bitarray.util
 import copy 
 
-class BitBoard:
+class BitBoard():
     """A bit board is a list of 8 bitarrays with bits 0 representing false, 1 representing true. Used for efficiently checking if a board is in check and other uses"""
     def __init__(self):
         cdef int i
