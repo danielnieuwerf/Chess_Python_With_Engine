@@ -84,3 +84,4 @@ class Scores:
 # Things to add
 # King eyed by pieces etc
 # Open semi open rook file (no friendly pawn on file)
+# Numpy array for pawn counts
