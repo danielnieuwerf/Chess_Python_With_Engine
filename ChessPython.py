@@ -2,14 +2,18 @@ from menu import *
 import threading
 import cProfile
 
+
 # Testing
 
-
+"""
 def abcd():
-    g = Game()
     x = 0
-    while x<1000:
-        g.legal_moves()
+    while x<50:
+        g = Game()
+        g.out_of_book = True
+        engine_move = g.engine_move_decision(1)
+        g.board.make_move(engine_move[0],engine_move[1],engine_move[2],engine_move[3])   # Make move
+        g.handle_new_successfully_made_move(engine_move)
         x +=1
 
 cProfile.run("abcd()")
@@ -18,6 +22,8 @@ time1 = time.time()
 abcd()
 time2 = time.time()
 print("abcd took", time2 - time1)
+
+"""
 
 """
 while True:
@@ -51,23 +57,10 @@ Menu()
 
 """
 BUGS:
-Final move needs to be handled with the clock
-If gameover pause clock and stop updating it's display
-
-
 in engine decision logic it is printing checkmate to console when checkmates are impossible within the search depth
-
-Engine did not stop mate in one
   
-Engine stalemated instead of winning
+Engine stalemated instead of winning and believed stalemate was victory
 
-
-DO depth 4 before doing depth 3 with alpha beta pruning
-
-current moves and off them branches of possible boards 
-
-Add idea of outposts to score function
-Add idea of pass pawns to score function
 
 """
 
