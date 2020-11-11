@@ -6,6 +6,7 @@ import cProfile
 # Testing
 
 """
+# C profile engine decision
 def abcd():
     x = 0
     while x<50:
@@ -22,10 +23,11 @@ time1 = time.time()
 abcd()
 time2 = time.time()
 print("abcd took", time2 - time1)
-
 """
 
+
 """
+# END GAME TESTING
 while True:
     g = Game()
     g.move_number = 69
@@ -47,8 +49,7 @@ while True:
 
 
     New_Game_Test(g, True,True)
-
-
+    print(g.white_won)
 """
 
 # Create menu
@@ -60,11 +61,7 @@ BUGS:
 in engine decision logic it is printing checkmate to console when checkmates are impossible within the search depth
   
 Engine stalemated instead of winning and believed stalemate was victory
-
-
 """
-
-
 
 
 """

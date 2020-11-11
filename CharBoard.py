@@ -1,6 +1,7 @@
 from Scores import *
 import copy
 from bitboard import BitBoard
+from Move import *
 
 class CharBoard:
     """Char representation of the board"""
@@ -151,7 +152,8 @@ class CharBoard:
                 return True
             return False
 
-    def make_move(self,i,j,x,y):
+    def make_move(self, move: Move):
+        i, j, x, y = move.convert_move_to_ints()
         # Try to make a move from board[i][j] to board[x][y]
         # Update scores when appropriate within this function
         # Update king positions where appropriate

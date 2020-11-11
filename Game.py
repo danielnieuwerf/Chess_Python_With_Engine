@@ -4,7 +4,7 @@ from Book import *
 import random
 from Endgames import *
 from cprofilev import *
-
+from Move import *
 
 class Game():
     def __init__(self):
@@ -46,8 +46,12 @@ class Game():
 
     def is_checkmate(self):
         # If w/b turn and w/b king is in check and number of legal moves is 0 return true 
-        if (self.white_is_in_check or self.black_is_in_check) and len(self.current_legal_moves)==0:
-            return True
+        if self.white_turn:
+            if (self.white_is_in_check) and len(self.current_legal_moves)==0:
+                return True
+        else:
+            if (self.black_is_in_check) and len(self.current_legal_moves)==0:
+                return True
         return False    
 
     def is_stalemate(self):
@@ -649,18 +653,18 @@ class Game():
                     if direct_threats.bits[move[2]][move[3]]==1:    # Invalid move
                         continue
                     if direct_threats.bits[move[0]][move[1]]==0 and direct_threats.bits[move[2]][move[3]]==0:    # Valid move when king not in check moves to safe square
-                        valid_moves.append(move)
+                        valid_moves.append(Move(move[0], move[1], move[2], move[3]))
                         continue
                 # If moving piece is not a shield to our king and king is not on a threatened square
                 if shields_to_our_king.bits[move[0]][move[1]]==0 and direct_threats.bits[self.board.white_king_position[0]][self.board.white_king_position[1]]==0:
-                    valid_moves.append(move)
+                    valid_moves.append(Move(move[0], move[1], move[2], move[3]))
                     continue
 
                 # For other moves make the move on a copy board and see if the king is in check
                 copy_game = copy.deepcopy(self)
                 copy_game.board.make_move(move[0],move[1],move[2],move[3])  # Make move on copy board
                 if not copy_game.board.white_king_is_in_check():
-                    valid_moves.append(move)
+                    valid_moves.append(Move(move[0], move[1], move[2], move[3]))
         else:   # Black's turn
             for move in moves:
                 # If move is king move must move to safe square
@@ -668,17 +672,17 @@ class Game():
                     if direct_threats.bits[move[2]][move[3]]==1:    # Invalid move
                         continue
                     if direct_threats.bits[move[0]][move[1]]==0 and direct_threats.bits[move[2]][move[3]]==0:    # Valid move (not check to not check)
-                        valid_moves.append(move)
+                        valid_moves.append(Move(move[0], move[1], move[2], move[3]))
                         continue
                 # If moving piece is not a shield to our king and king is not on a threatened square
                 if shields_to_our_king.bits[move[0]][move[1]]==0 and direct_threats.bits[self.board.black_king_position[0]][self.board.black_king_position[1]]==0:
-                    valid_moves.append(move)
+                    valid_moves.append(Move(move[0], move[1], move[2], move[3]))
                     continue
                 # For other moves make the move and see if the king is in check
                 copy_game = copy.deepcopy(self)
                 copy_game.board.make_move(move[0],move[1],move[2],move[3])  # Make move on copy board
                 if not copy_game.board.black_king_is_in_check():
-                    valid_moves.append(move)
+                    valid_moves.append(Move(move[0], move[1], move[2], move[3]))
 
         return valid_moves
 
@@ -687,7 +691,7 @@ class Game():
         if not self.out_of_book:    # Update book if we are not already out of book
             self.update_book(move)
         self.selected_SQUARE = None     # Unselect SQUARE
-        self.white_turn = not self.white_turn   # Flip turn
+        self.white_turn = not self.white_turn   # Update turn
         self.previous_move = copy.copy(move)  # Update previous move
         board_string = self.board.board_to_string()  # Add to board states for 3fold repetition rule
         self.move_number += 1       # Update move number
@@ -864,7 +868,7 @@ class Game():
             best_score = -10000
             for move in self.current_legal_moves:
                 copy_game = copy.deepcopy(self)     # on copy board
-                copy_game.board.make_move(move[0],move[1],move[2],move[3])  # Make move on copy board
+                copy_game.board.make_move(move)  # Make move on copy board
                 copy_game.handle_new_successfully_made_move(move)   # Update castlability etc
                 score = copy_game.evaluate_position_score()
                 if score > best_score:
@@ -876,7 +880,7 @@ class Game():
             best_score = 10000
             for move in self.current_legal_moves:
                 copy_game = copy.deepcopy(self)     # on copy board
-                copy_game.board.make_move(move[0],move[1],move[2],move[3])  # Make move on copy board
+                copy_game.board.make_move(move)  # Make move on copy board
                 copy_game.handle_new_successfully_made_move(move)   # Update castlability etc
                 score = copy_game.evaluate_position_score()
                 if score < best_score:
@@ -895,7 +899,7 @@ class Game():
             best_score = -1000000   # Compute best score of best move 
             for move in self.current_legal_moves:   # Try every legal white move
                 copy_game = copy.deepcopy(self)     # on copy board
-                copy_game.board.make_move(move[0],move[1],move[2],move[3])  # Make move on copy board
+                copy_game.board.make_move(move)  # Make move on copy board
                 copy_game.handle_new_successfully_made_move(move)   # Update castlability etc
                 # Now it is Blacks turn... make all legal black moves
                 min_score = 100000  # Make the best black move (min score move)
@@ -915,7 +919,7 @@ class Game():
                 # Try every response to move
                 for move2 in copy_game.current_legal_moves: 
                     copy_copy_game = copy.deepcopy(copy_game)    # on copycopy board
-                    copy_copy_game.board.make_move(move2[0],move2[1],move2[2],move2[3])  # Make move on copycopy board
+                    copy_copy_game.board.make_move(move2)  # Make move on copycopy board
                     copy_copy_game.handle_new_successfully_made_move(move2)   # Update castlability etc
                     score = copy_copy_game.evaluate_position_score()    # Evaluate score
                     # We wish to minimise this score
@@ -944,7 +948,7 @@ class Game():
             best_score = 1000000        # minimise score for black
             for move in self.current_legal_moves:   # Try every legal black move
                 copy_game = copy.deepcopy(self)     # on copy board
-                copy_game.board.make_move(move[0],move[1],move[2],move[3])  # Make move on copy board
+                copy_game.board.make_move(move)  # Make move on copy board
                 copy_game.handle_new_successfully_made_move(move)   # Update castlability etc
                 for likely_reply in likely_replies:
                     if likely_reply in copy_game.current_legal_moves:  # If likely reply is legal move Remove and insert likely_reply at front of list
@@ -964,7 +968,7 @@ class Game():
                 # Try every response to move
                 for move2 in copy_game.current_legal_moves: 
                     copy_copy_game = copy.deepcopy(copy_game)    # on copycopy board
-                    copy_copy_game.board.make_move(move2[0],move2[1],move2[2],move2[3])  # Make move on copycopy board
+                    copy_copy_game.board.make_move(move2)  # Make move on copycopy board
                     copy_copy_game.handle_new_successfully_made_move(move2)   # Update castlability etc
                     score = copy_copy_game.evaluate_position_score()    # Evaluate score
                     # We wish to minimise this score
@@ -1006,11 +1010,11 @@ class Game():
                 move_decision = None    #move we return
                 for move in self.current_legal_moves:   # Try every legal white move
                     copy_game = copy.deepcopy(self)     # on copy board
-                    copy_game.board.make_move(move[0],move[1],move[2],move[3])  # Make move on copy board
+                    copy_game.board.make_move(move)  # Make move on copy board
                     copy_game.handle_new_successfully_made_move(move)   # Update castlability etc
                     try:    # Try to make the best move depth-1 
                         best_move = copy_game.engine_move_decision(depth-1)
-                        copy_game.board.make_move(best_move[0],best_move[1],best_move[2],best_move[3])    # Make best move
+                        copy_game.board.make_move(best_move)    # Make best move
                         copy_game.handle_new_successfully_made_move(best_move)   # Update castlability etc
                     except: # Fails if game ends and there's no move depth-1
                         pass
@@ -1027,11 +1031,11 @@ class Game():
                 move_decision = None
                 for move in self.current_legal_moves:   # Try every legal white move
                     copy_game = copy.deepcopy(self)     # on copy board
-                    copy_game.board.make_move(move[0],move[1],move[2],move[3])  # Make move on copy board
+                    copy_game.board.make_move(move)  # Make move on copy board
                     copy_game.handle_new_successfully_made_move(move)   # Update castlability etc
                     try:    # Try to make the best move depth-1 
                         best_move = copy_game.engine_move_decision(depth-1)
-                        copy_game.board.make_move(best_move[0],best_move[1],best_move[2],best_move[3])    # Make best move
+                        copy_game.board.make_move(best_move)    # Make best move
                         copy_game.handle_new_successfully_made_move(best_move)   # Update castlability etc
                     except: # Fails if game ends and there's no move depth-1
                         pass
@@ -1075,5 +1079,11 @@ class Game():
             self.out_of_book = True
 
     
-    # Best move depth 1
-    
+g = Game()
+print("current legal moves: ", len(g.current_legal_moves))
+for mov in g.current_legal_moves:
+    print(mov.convert_move_to_ints())
+
+g.board.make_move(Move(1,3,3,3))
+
+print(g.board.pieces)

@@ -8,7 +8,7 @@ class BitBoard:
         array = bitarray.util.zeros(8)
         self.bits = []              # Initialise to a list of 8 bitarrays each '00000000'
         for i in range(8):
-            self.bits.append(copy.copy(array))
+            self.bits.append(copy.copy(array))  # IMPROVE do not use copy
 
     def set_true(self,x,y):
         # Set bit at x,y to 1.
